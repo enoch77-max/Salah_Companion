@@ -220,5 +220,33 @@ void main() {
 
       verify(() => repo.toggleFavorite('hadith_1')).called(1);
     });
+
+    testWidgets('restores item and shows SnackBar when repository.toggleFavorite throws an exception', (tester) async {
+      final repo = MockDailyContentRepository();
+      when(() => repo.toggleFavorite('hadith_1')).thenThrow(Exception('Database error'));
+
+      await tester.pumpWidget(
+        buildTestableWidget(
+          FavoritesScreen(
+            repository: repo,
+            initialItems: [testHadith, testAyah],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DailyReflectionCard), findsNWidgets(2));
+
+      // Tap star on first item (hadith_1)
+      await tester.tap(find.byKey(const ValueKey('star_icon')).first);
+      await tester.pumpAndSettle();
+
+      // Item should be restored and SnackBar error message displayed
+      expect(find.byType(DailyReflectionCard), findsNWidgets(2));
+      expect(find.text('Sahih al-Bukhari 1 • Sahih • Al-Bukhari'), findsOneWidget);
+      expect(find.text('Failed to update favorite status'), findsOneWidget);
+
+      verify(() => repo.toggleFavorite('hadith_1')).called(1);
+    });
   });
 }

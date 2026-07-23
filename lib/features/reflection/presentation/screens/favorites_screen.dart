@@ -82,8 +82,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         // Revert optimistic update on failure
         if (mounted) {
           setState(() {
-            _items!.insert(index, item);
+            final safeIndex = index.clamp(0, _items!.length);
+            _items!.insert(safeIndex, item);
           });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to update favorite status')),
+          );
         }
       }
     }

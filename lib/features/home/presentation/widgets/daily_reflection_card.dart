@@ -106,8 +106,8 @@ class DailyReflectionCard extends StatelessWidget {
                         tooltip: 'Share',
                         splashRadius: 20,
                         constraints: const BoxConstraints(
-                          minWidth: 36,
-                          minHeight: 36,
+                          minWidth: 44,
+                          minHeight: 44,
                         ),
                       ),
                     _AnimatedFavoriteButton(
@@ -202,27 +202,40 @@ class _AnimatedFavoriteButtonState extends State<_AnimatedFavoriteButton>
     final colors = context.appColors;
     final iconColor = widget.isFavorited ? colors.primary : colors.textSecondary;
 
-    return GestureDetector(
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
-      onTap: widget.onToggle,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: child,
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Icon(
-            widget.isFavorited ? Icons.star_rounded : Icons.star_outline_rounded,
-            key: const ValueKey('star_icon'),
-            color: iconColor,
-            size: 24,
+    return Semantics(
+      button: true,
+      label: widget.isFavorited ? 'Remove from favorites' : 'Add to favorites',
+      value: widget.isFavorited ? 'Favorited' : 'Not favorited',
+      child: GestureDetector(
+        onTapDown: _handleTapDown,
+        onTapUp: _handleTapUp,
+        onTapCancel: _handleTapCancel,
+        onTap: widget.onToggle,
+        behavior: HitTestBehavior.opaque,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: 44,
+            minHeight: 44,
+          ),
+          child: Center(
+            child: AnimatedBuilder(
+              animation: _scaleAnimation,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _scaleAnimation.value,
+                  child: child,
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(
+                  widget.isFavorited ? Icons.star_rounded : Icons.star_outline_rounded,
+                  key: const ValueKey('star_icon'),
+                  color: iconColor,
+                  size: 24,
+                ),
+              ),
+            ),
           ),
         ),
       ),
