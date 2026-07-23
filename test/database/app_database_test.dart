@@ -6,6 +6,10 @@ import 'package:salah_companion/core/database/app_database.dart';
 void main() {
   late AppDatabase db;
 
+  setUpAll(() {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  });
+
   setUp(() {
     db = AppDatabase(NativeDatabase.memory());
   });
