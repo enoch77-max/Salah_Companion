@@ -37,11 +37,15 @@ class QiblaScreen extends StatefulWidget {
 
 class _QiblaScreenState extends State<QiblaScreen>
     with SingleTickerProviderStateMixin {
+  static const _kaabaLat = 21.422487;
+  static const _kaabaLng = 39.826206;
+
   late final LocationService _locationService;
   late final PrayerTimesCalculator _calculator;
 
   LocationData? _locationData;
   double? _qiblaBearing;
+  double? _distanceToMakkahKm;
   bool _isLoadingLocation = true;
   String? _locationError;
 
@@ -49,10 +53,12 @@ class _QiblaScreenState extends State<QiblaScreen>
   StreamSubscription<CompassEvent>? _compassSubscription;
 
   late AnimationController _headingController;
-  Animation<double>? _headingAnimation;
-  double _currentHeadingAngle = 0.0;
-  double _targetHeadingAngle = 0.0;
+  late CurvedAnimation _curvedAnimation;
+  double _startHeading = 0.0;
+  double _targetHeading = 0.0;
   bool _wasAligned = false;
+
+  double? get _currentHeading => _lastCompassEvent?.heading;
 
   @override
   void initState() {
@@ -64,6 +70,10 @@ class _QiblaScreenState extends State<QiblaScreen>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+    _curvedAnimation = CurvedAnimation(
+      parent: _headingController,
+      curve: Curves.easeOutCubic,
+    );
 
     if (widget.initialLocation != null) {
       _locationData = widget.initialLocation;
@@ -74,6 +84,13 @@ class _QiblaScreenState extends State<QiblaScreen>
               _locationData!.longitude,
             ),
           );
+      _distanceToMakkahKm = Geolocator.distanceBetween(
+            _locationData!.latitude,
+            _locationData!.longitude,
+            _kaabaLat,
+            _kaabaLng,
+          ) /
+          1000.0;
       _isLoadingLocation = false;
     } else {
       _fetchLocation();
@@ -94,9 +111,17 @@ class _QiblaScreenState extends State<QiblaScreen>
       final bearing = _calculator.calculateQiblaBearing(
         Coordinates(loc.latitude, loc.longitude),
       );
+      final distance = Geolocator.distanceBetween(
+            loc.latitude,
+            loc.longitude,
+            _kaabaLat,
+            _kaabaLng,
+          ) /
+          1000.0;
       setState(() {
         _locationData = loc;
         _qiblaBearing = bearing;
+        _distanceToMakkahKm = distance;
         _isLoadingLocation = false;
       });
     } catch (e) {
@@ -125,33 +150,17 @@ class _QiblaScreenState extends State<QiblaScreen>
 
     if (heading == null) return;
 
+    // Calculate current position before updating targets
+    _startHeading = _startHeading + (_targetHeading - _startHeading) * _curvedAnimation.value;
+
     // Calculate shortest angular path to prevent 360° spin wrap-around
-    double diff = (heading - _targetHeadingAngle) % 360;
+    double diff = (heading - _targetHeading) % 360;
     if (diff > 180) diff -= 360;
     if (diff < -180) diff += 360;
 
-    final newTarget = _targetHeadingAngle + diff;
-    final startHeading = _currentHeadingAngle;
+    _targetHeading = _targetHeading + diff;
 
-    _headingController.stop();
-    _headingController.reset();
-
-    _headingAnimation = Tween<double>(
-      begin: startHeading,
-      end: newTarget,
-    ).animate(CurvedAnimation(
-      parent: _headingController,
-      curve: Curves.easeOutCubic,
-    ))..addListener(() {
-        if (mounted) {
-          setState(() {
-            _currentHeadingAngle = _headingAnimation!.value;
-          });
-        }
-      });
-
-    _targetHeadingAngle = newTarget;
-    _headingController.forward();
+    _headingController.forward(from: 0);
 
     // Trigger haptic feedback on entering alignment zone (±3 degrees)
     if (_qiblaBearing != null) {
@@ -168,6 +177,7 @@ class _QiblaScreenState extends State<QiblaScreen>
   @override
   void dispose() {
     _compassSubscription?.cancel();
+    _curvedAnimation.dispose();
     _headingController.dispose();
     super.dispose();
   }
@@ -190,16 +200,13 @@ class _QiblaScreenState extends State<QiblaScreen>
     final colors = context.appColors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final currentHeading = _lastCompassEvent?.heading;
+    final currentHeading = _currentHeading;
     final accuracy = _lastCompassEvent?.accuracy;
 
     final bool isSensorUnavailable = currentHeading == null;
     final bool isAccuracyLow = currentHeading != null && accuracy != null && (accuracy > 15.0 || accuracy < 0);
 
     final double? qiblaBearing = _qiblaBearing;
-    final double relativeAngle = (qiblaBearing != null && currentHeading != null)
-        ? (qiblaBearing - _currentHeadingAngle + 360) % 360
-        : (qiblaBearing ?? 0.0);
 
     final double diffAngle = (qiblaBearing != null && currentHeading != null)
         ? (((currentHeading - qiblaBearing) % 360 + 540) % 360 - 180)
@@ -258,58 +265,66 @@ class _QiblaScreenState extends State<QiblaScreen>
 
                         // Animated Compass Dial & Qibla Pointer Needle
                         Center(
-                          child: Container(
-                            width: 300,
-                            height: 300,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: colors.surface,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: isAligned
-                                      ? colors.successGlow
-                                      : colors.shadow,
-                                  blurRadius: isAligned ? 28 : 16,
-                                  spreadRadius: isAligned ? 4 : 0,
-                                ),
-                              ],
-                            ),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                // Rotating Compass Dial (N, E, S, W & Ticks)
-                                AnimatedBuilder(
-                                  animation: _headingController,
-                                  builder: (context, child) {
-                                    return Transform.rotate(
-                                      angle: -_currentHeadingAngle * math.pi / 180,
-                                      child: CustomPaint(
-                                        size: const Size(290, 290),
-                                        painter: _CompassDialPainter(
-                                          qiblaBearing: qiblaBearing ?? 0.0,
-                                          colors: colors,
-                                          isDark: isDark,
+                          child: Semantics(
+                            label: 'Qibla compass dial',
+                            value:
+                                '${_currentHeading?.round() ?? 0} degrees heading, Qibla at ${_qiblaBearing?.round() ?? 0} degrees',
+                            child: Container(
+                              width: 300,
+                              height: 300,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: colors.surface,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: isAligned
+                                        ? colors.successGlow
+                                        : colors.shadow,
+                                    blurRadius: isAligned ? 28 : 16,
+                                    spreadRadius: isAligned ? 4 : 0,
+                                  ),
+                                ],
+                              ),
+                              child: AnimatedBuilder(
+                                animation: _curvedAnimation,
+                                builder: (context, child) {
+                                  final currentHeadingAngle = _startHeading +
+                                      (_targetHeading - _startHeading) *
+                                          _curvedAnimation.value;
+                                  final relativeAngle =
+                                      (qiblaBearing != null && currentHeading != null)
+                                          ? (qiblaBearing - currentHeadingAngle + 360) % 360
+                                          : (qiblaBearing ?? 0.0);
+
+                                  return Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      // Rotating Compass Dial (N, E, S, W & Ticks)
+                                      Transform.rotate(
+                                        angle: -currentHeadingAngle * math.pi / 180,
+                                        child: CustomPaint(
+                                          size: const Size(290, 290),
+                                          painter: _CompassDialPainter(
+                                            qiblaBearing: qiblaBearing ?? 0.0,
+                                            colors: colors,
+                                            isDark: isDark,
+                                          ),
                                         ),
                                       ),
-                                    );
-                                  },
-                                ),
 
-                                // Qibla Needle Pointer (Points towards Qibla direction)
-                                AnimatedBuilder(
-                                  animation: _headingController,
-                                  builder: (context, child) {
-                                    return CustomPaint(
-                                      size: const Size(290, 290),
-                                      painter: _QiblaNeedlePainter(
-                                        relativeQiblaAngle: relativeAngle,
-                                        isAligned: isAligned,
-                                        colors: colors,
+                                      // Qibla Needle Pointer (Points towards Qibla direction)
+                                      CustomPaint(
+                                        size: const Size(290, 290),
+                                        painter: _QiblaNeedlePainter(
+                                          relativeQiblaAngle: relativeAngle,
+                                          isAligned: isAligned,
+                                          colors: colors,
+                                        ),
                                       ),
-                                    );
-                                  },
-                                ),
-                              ],
+                                    ],
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ),
@@ -333,16 +348,7 @@ class _QiblaScreenState extends State<QiblaScreen>
         ? '$city, $country'
         : (city ?? country ?? 'Current Location');
 
-    double? distanceKm;
-    if (_locationData != null) {
-      distanceKm = Geolocator.distanceBetween(
-            _locationData!.latitude,
-            _locationData!.longitude,
-            21.422487,
-            39.826206,
-          ) /
-          1000.0;
-    }
+    final distanceKm = _distanceToMakkahKm;
 
     return Container(
       width: double.infinity,
