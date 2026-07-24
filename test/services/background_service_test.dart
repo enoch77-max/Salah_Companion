@@ -96,6 +96,7 @@ void main() {
       when(() => mockNotif.scheduleDailyReflectionNotification(
             content: any(named: 'content'),
             scheduledTime: any(named: 'scheduledTime'),
+            enabled: any(named: 'enabled'),
           )).thenAnswer((_) async {});
 
       final handler = MidnightRefreshHandler(
@@ -122,6 +123,7 @@ void main() {
       verify(() => mockNotif.scheduleDailyReflectionNotification(
             content: mockPick,
             scheduledTime: any(named: 'scheduledTime'),
+            enabled: true,
           )).called(1);
     });
 
@@ -158,6 +160,7 @@ void main() {
       when(() => mockNotif.scheduleDailyReflectionNotification(
             content: any(named: 'content'),
             scheduledTime: any(named: 'scheduledTime'),
+            enabled: any(named: 'enabled'),
           )).thenAnswer((_) async {});
 
       final handler = MidnightRefreshHandler(
@@ -179,6 +182,70 @@ void main() {
       verify(() => mockRepo.resolveTodayContent(
             installationSeed: any(named: 'installationSeed'),
             today: tomorrow,
+          )).called(1);
+    });
+
+    test(
+        'execute passes enabled == false when notif_enabled_daily_reflection is false in SharedPreferences',
+        () async {
+      SharedPreferences.setMockInitialValues({
+        'notif_enabled_daily_reflection': false,
+        'daily_reflection_time_mins_post_fajr': 45,
+      });
+      final customPrefs = await SharedPreferences.getInstance();
+
+      when(() => mockLocation.getCachedLocation()).thenAnswer(
+        (_) async => const LocationData(
+          latitude: 21.4225,
+          longitude: 39.8262,
+        ),
+      );
+
+      const mockPick = DailyContentItem(
+        id: 'hadith_pick_disabled',
+        type: DailyContentType.hadith,
+        reference: 'Sahih al-Bukhari 1',
+        sourceWeight: 1.0,
+        arabicText: 'أن تعبد الله',
+        translationText: 'Worship Allah',
+        translationSource: 'Sahih al-Bukhari',
+      );
+
+      when(() => mockRepo.resolveTodayContent(
+            installationSeed: any(named: 'installationSeed'),
+            today: any(named: 'today'),
+          )).thenAnswer((_) async => mockPick);
+
+      when(() => mockNotif.schedulePrayerNotifications(
+            prayerTimes: any(named: 'prayerTimes'),
+            enabledPrayers: any(named: 'enabledPrayers'),
+          )).thenAnswer((_) async {});
+
+      when(() => mockNotif.scheduleDailyReflectionNotification(
+            content: any(named: 'content'),
+            scheduledTime: any(named: 'scheduledTime'),
+            enabled: any(named: 'enabled'),
+          )).thenAnswer((_) async {});
+
+      final handler = MidnightRefreshHandler(
+        db: db,
+        notificationService: mockNotif,
+        locationService: mockLocation,
+        dailyContentRepository: mockRepo,
+        prefs: customPrefs,
+      );
+
+      final tomorrow = DateTime(2026, 7, 25);
+      final result = await handler.execute(
+        tomorrowOverride: tomorrow,
+      );
+
+      expect(result, isTrue);
+
+      verify(() => mockNotif.scheduleDailyReflectionNotification(
+            content: mockPick,
+            scheduledTime: any(named: 'scheduledTime'),
+            enabled: false,
           )).called(1);
     });
   });

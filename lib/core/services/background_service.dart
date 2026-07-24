@@ -151,11 +151,18 @@ class MidnightRefreshHandler {
         enabledPrayers: enabledPrayers,
       );
 
-      // Default reflection notification is scheduled 30 min post-Fajr
-      final reflectionTime = prayerTimes.fajr.add(const Duration(minutes: 30));
+      // Reflection notification settings from SharedPreferences
+      final reflectionEnabled =
+          effectivePrefs.getBool('notif_enabled_daily_reflection') ?? true;
+      final reflectionDelayMins =
+          effectivePrefs.getInt('daily_reflection_time_mins_post_fajr') ?? 30;
+
+      final reflectionTime =
+          prayerTimes.fajr.add(Duration(minutes: reflectionDelayMins));
       await effectiveNotif.scheduleDailyReflectionNotification(
         content: resolvedPick,
         scheduledTime: reflectionTime,
+        enabled: reflectionEnabled,
       );
 
       return true;

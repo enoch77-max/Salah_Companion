@@ -297,7 +297,7 @@ void main() {
       );
 
       verify(() => mockPlugin.zonedSchedule(
-            id: 200,
+            id: 9999,
             title: 'Sahih al-Bukhari 5',
             body: 'Actions are judged by intentions.',
             scheduledDate: any(named: 'scheduledDate'),
@@ -305,6 +305,45 @@ void main() {
             payload: any(named: 'payload'),
             androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           )).called(1);
+    });
+
+    test(
+        'scheduleDailyReflectionNotification cancels notification and skips scheduling when enabled is false',
+        () async {
+      when(() => mockPlugin.cancel(id: any(named: 'id'))).thenAnswer((_) async {});
+
+      const item = DailyContentItem(
+        id: 'hadith_001',
+        type: DailyContentType.hadith,
+        reference: 'Sahih al-Bukhari 5',
+        sourceWeight: 1.0,
+        grade: 'Sahih',
+        gradedBy: 'Al-Bukhari',
+        arabicText: 'إنما الأعمال بالنيات',
+        translationText: 'Actions are judged by intentions.',
+        translationSource: 'Bukhari',
+      );
+
+      final now = DateTime(2026, 7, 24, 8, 0);
+      final scheduledTime = DateTime(2026, 7, 24, 8, 30);
+
+      await service.scheduleDailyReflectionNotification(
+        content: item,
+        scheduledTime: scheduledTime,
+        enabled: false,
+        nowOverride: now,
+      );
+
+      verify(() => mockPlugin.cancel(id: 9999)).called(1);
+      verifyNever(() => mockPlugin.zonedSchedule(
+            id: any(named: 'id'),
+            title: any(named: 'title'),
+            body: any(named: 'body'),
+            scheduledDate: any(named: 'scheduledDate'),
+            notificationDetails: any(named: 'notificationDetails'),
+            payload: any(named: 'payload'),
+            androidScheduleMode: any(named: 'androidScheduleMode'),
+          ));
     });
 
     test(

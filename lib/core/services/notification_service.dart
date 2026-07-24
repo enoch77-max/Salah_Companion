@@ -209,9 +209,15 @@ class NotificationService {
   Future<void> scheduleDailyReflectionNotification({
     required DailyContentItem content,
     required DateTime scheduledTime,
-    int notificationId = 200,
+    bool enabled = true,
+    int notificationId = 9999,
     DateTime? nowOverride,
   }) async {
+    if (!enabled) {
+      await notificationsPlugin.cancel(id: notificationId);
+      return;
+    }
+
     final now = nowOverride ?? DateTime.now();
     if (!scheduledTime.isAfter(now)) return;
 
