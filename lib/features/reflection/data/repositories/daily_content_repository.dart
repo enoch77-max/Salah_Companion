@@ -40,17 +40,19 @@ class DailyContentRepository {
     required DateTime today,
     String? activeOccasion,
     int noRepeatDays = 45,
+    bool forceRefresh = false,
   }) async {
+    final dateSlotStr = _formatDateSlot(today);
     final dateStr = _formatDate(today);
-
-    // 1. Check cache first
-    final cached = await (_db.select(_db.dailyContentCacheTable)
-          ..where((tbl) => tbl.date.equals(dateStr)))
-        .getSingleOrNull();
 
     final pool = await loadPool();
 
-    if (cached != null) {
+    // 1. Check slot cache first if not force refreshing
+    final cached = await (_db.select(_db.dailyContentCacheTable)
+          ..where((tbl) => tbl.date.equals(dateSlotStr)))
+        .getSingleOrNull();
+
+    if (!forceRefresh && cached != null) {
       final cachedItem =
           pool.where((item) => item.id == cached.contentId).firstOrNull;
       if (cachedItem != null) {
@@ -69,11 +71,19 @@ class DailyContentRepository {
 
     final excludedIds = recentLogs.map((log) => log.contentId).toSet();
 
+    // If force refreshing, also exclude the currently cached item so a new quote appears
+    if (forceRefresh && cached != null) {
+      excludedIds.add(cached.contentId);
+    }
+
     List<DailyContentItem> candidatePool =
         pool.where((item) => !excludedIds.contains(item.id)).toList();
 
     if (candidatePool.isEmpty) {
-      candidatePool = List.from(pool);
+      candidatePool = forceRefresh && cached != null
+          ? pool.where((item) => item.id != cached.contentId).toList()
+          : List.from(pool);
+      if (candidatePool.isEmpty) candidatePool = List.from(pool);
     }
 
     // 3. Filter for activeOccasion if specified
@@ -88,10 +98,15 @@ class DailyContentRepository {
       }
     }
 
-    // 4. Source-weight weighted random selection seeded with hash(installationSeed + ISO_date)
-    final seedInput = "$installationSeed$dateStr";
-    final seed = _hashSeed(seedInput);
-    final random = Random(seed);
+    // 4. Random selection: deterministic seed per slot, or pseudo-random on manual forceRefresh
+    final Random random;
+    if (forceRefresh) {
+      random = Random();
+    } else {
+      final seedInput = "$installationSeed$dateSlotStr";
+      final seed = _hashSeed(seedInput);
+      random = Random(seed);
+    }
 
     final double totalWeight = candidatePool.fold(
       0.0,
@@ -110,10 +125,10 @@ class DailyContentRepository {
       }
     }
 
-    // 5. Write resolved pick to DailyContentCacheTable and DailyContentShownLogTable
+    // 5. Write resolved pick to DailyContentCacheTable for current slot and DailyContentShownLogTable
     await _db.into(_db.dailyContentCacheTable).insertOnConflictUpdate(
           DailyContentCacheTableCompanion.insert(
-            date: dateStr,
+            date: dateSlotStr,
             contentId: selected.id,
             resolvedAt: DateTime.now(),
           ),
@@ -172,6 +187,12 @@ class DailyContentRepository {
         .map((f) => poolMap[f.contentId])
         .whereType<DailyContentItem>()
         .toList();
+  }
+
+  String _formatDateSlot(DateTime dt) {
+    final dateStr = _formatDate(dt);
+    final slot = (dt.hour ~/ 6) + 1;
+    return '$dateStr-S$slot';
   }
 
   String _formatDate(DateTime dt) {

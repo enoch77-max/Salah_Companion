@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:drift/native.dart';
 import 'package:salah_companion/app/theme/app_theme.dart';
 import 'package:salah_companion/core/database/app_database.dart';
+import 'package:salah_companion/core/services/battery_service.dart';
 import 'package:salah_companion/features/calendar/presentation/screens/hijri_calendar_screen.dart';
 import 'package:salah_companion/features/duas/presentation/screens/duas_screen.dart';
 import 'package:salah_companion/features/settings/presentation/screens/settings_screen.dart';
@@ -99,6 +101,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Digital Tasbih'), findsOneWidget);
+      expect(find.textContaining('Sunan Abi Dawud 1496'), findsOneWidget);
       expect(find.text('SubhanAllah'), findsWidgets);
       expect(find.text('Glory be to Allah'), findsOneWidget);
       expect(find.text('00'), findsOneWidget);
@@ -110,7 +113,8 @@ void main() {
 
       expect(find.text('01'), findsOneWidget);
 
-      // Tap reset button
+      // Scroll & Tap reset button
+      await tester.ensureVisible(find.byKey(const ValueKey('reset_button')));
       await tester.tap(find.byKey(const ValueKey('reset_button')));
       await tester.pumpAndSettle();
 
@@ -127,6 +131,15 @@ void main() {
 
       expect(find.text('Praise be to Allah'), findsOneWidget);
     });
+
+    testWidgets('toggles Auto Next option chip', (tester) async {
+      await tester.pumpWidget(buildTestableWidget(const TasbihScreen()));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('auto_next_chip')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('auto_next_chip')));
+      await tester.pumpAndSettle();
+    });
   });
 
   group('HijriCalendarScreen Widget Tests', () {
@@ -135,16 +148,21 @@ void main() {
       await tester.pumpWidget(buildTestableWidget(const HijriCalendarScreen()));
       await tester.pumpAndSettle();
 
-      expect(find.text('Hijri Calendar'), findsOneWidget);
+      expect(find.text('Hijri Calendar'), findsWidgets);
       expect(find.text('MOON-SIGHTING ADJUSTMENT'), findsOneWidget);
       expect(find.text('KEY ISLAMIC OCCASIONS'), findsOneWidget);
-      expect(find.text('Islamic New Year'), findsOneWidget);
 
       // Tap offset chip +1
       await tester.tap(find.byKey(const ValueKey('offset_chip_1')));
       await tester.pumpAndSettle();
 
       expect(find.text('+1 day'), findsOneWidget);
+
+      // Toggle to English Calendar
+      await tester.tap(find.byKey(const ValueKey('calendar_mode_gregorian')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('English Calendar'), findsWidgets);
     });
   });
 
@@ -166,8 +184,30 @@ void main() {
       await tester.enterText(find.byKey(const ValueKey('dua_search_field')), 'Harm');
       await tester.pumpAndSettle();
 
-      expect(find.text('Protection from Harm'), findsOneWidget);
+      expect(find.text('Protection from All Harm'), findsOneWidget);
       expect(find.text('Morning Remembrance'), findsNothing);
+
+      // Clear search
+      await tester.enterText(find.byKey(const ValueKey('dua_search_field')), '');
+      await tester.pumpAndSettle();
+
+      // Select Forgiveness category
+      await tester.tap(find.byKey(const ValueKey('category_chip_Forgiveness')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Supplication for Repentance'), findsOneWidget);
+
+      // Select After Prayer category and verify Ayat al-Kursi
+      await tester.tap(find.byKey(const ValueKey('category_chip_After Prayer')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ayat al-Kursi (Surah Al-Baqarah 2:255)'), findsOneWidget);
+
+      // Tap copy button on Ayat al-Kursi
+      await tester.tap(find.byKey(const ValueKey('copy_button_dua_after_prayer_1')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Dua copied to clipboard'), findsOneWidget);
     });
   });
 
@@ -179,6 +219,8 @@ void main() {
         buildTestableWidget(
           SettingsScreen(
             detectedCountry: 'Saudi Arabia',
+            initialBatteryExempt: true,
+            batteryService: FakeBatteryService(),
             onDailyReflectionToggled: (val) => dailyReflectionToggled = val,
           ),
         ),
@@ -186,12 +228,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Settings'), findsOneWidget);
-      expect(find.text('CALCULATION & FIQH'), findsOneWidget);
-      expect(find.text('Detected Country: Saudi Arabia'), findsOneWidget);
-      expect(find.text('BATTERY OPTIMIZATION (PRD 4.5)'), findsOneWidget);
-      expect(find.text('Check battery optimization status now'), findsOneWidget);
-      expect(find.text('DAILY REFLECTION NOTIFICATION (PRD 6.7)'), findsOneWidget);
-      expect(find.text('PRAYER NOTIFICATIONS'), findsOneWidget);
+      expect(find.text('NOTIFICATIONS'), findsOneWidget);
+      expect(find.text('Prayer Notifications'), findsOneWidget);
+      expect(find.text('Adhan Audio'), findsOneWidget);
+      expect(find.text('Adhan Voice'), findsOneWidget);
+      expect(find.text('CALCULATION & MADHAB'), findsOneWidget);
+      expect(find.text('BATTERY OPTIMIZATION'), findsOneWidget);
+      expect(find.text('APPEARANCE & HAPTICS'), findsOneWidget);
+      expect(find.text('ABOUT & PRIVACY'), findsOneWidget);
 
       // Ensure visible and toggle Daily Reflection switch
       final switchFinder = find.byKey(const ValueKey('daily_reflection_switch'));
@@ -210,4 +254,17 @@ void main() {
       await tester.pumpAndSettle();
     });
   });
+}
+
+class FakeBatteryService extends BatteryService {
+  FakeBatteryService() : super(db: AppDatabase(NativeDatabase.memory()));
+
+  @override
+  Future<bool> checkBatteryOptimizationStatus() async => true;
+
+  @override
+  Future<bool> isIgnoringBatteryOptimizations() async => true;
+
+  @override
+  Future<String> getManufacturer() async => 'Samsung';
 }

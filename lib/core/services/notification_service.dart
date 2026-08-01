@@ -42,13 +42,30 @@ class PrayerNotificationData {
 class NotificationService {
   final FlutterLocalNotificationsPlugin notificationsPlugin;
 
-  static const String adhanChannelId = 'adhan_channel';
-  static const String adhanChannelName = 'Prayer Times & Adhan';
-  static const String adhanChannelDesc = 'Notifications for daily prayer times';
-
   static const String reflectionChannelId = 'daily_reflection_channel';
   static const String reflectionChannelName = 'Daily Reflection';
   static const String reflectionChannelDesc = 'Daily Hadith and Ayah reflections';
+
+  /// Maps user-facing voice names to Android raw resource file names (without extension).
+  static const Map<String, String> adhanVoiceResources = {
+    'Makkah (Ali Mulla)': 'adhan_makkah',
+    'Madinah (Abdul Majeed)': 'adhan_madinah',
+    'Al-Aqsa (Yasser Al-Dossari)': 'adhan_alaqsa',
+    'Traditional Soft Tone': 'adhan_egyptian',
+  };
+
+  /// Returns the notification channel ID for a given adhan voice.
+  static String adhanChannelIdForVoice(String voiceName) {
+    final resource = adhanVoiceResources[voiceName] ?? 'adhan_makkah';
+    return 'adhan_channel_v2_$resource';
+  }
+
+  /// Returns the display name for a given adhan voice notification channel.
+  static String adhanChannelNameForVoice(String voiceName) {
+    return 'Prayer Adhan — $voiceName';
+  }
+
+  static const String adhanChannelDesc = 'Notifications for daily prayer times with adhan audio';
 
   static const Map<String, int> defaultPrayerIds = {
     'Fajr': 101,
@@ -82,15 +99,27 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
     if (androidImpl != null) {
-      await androidImpl.createNotificationChannel(
-        const AndroidNotificationChannel(
-          adhanChannelId,
-          adhanChannelName,
-          description: adhanChannelDesc,
-          importance: Importance.max,
-          sound: RawResourceAndroidNotificationSound('adhan'),
-        ),
-      );
+      // Create a separate notification channel for each adhan voice.
+      // Android locks sound & audio attributes to the channel at creation time,
+      // so we delete legacy v1 channels and register v2 channels with AudioAttributeUsage.alarm
+      // to prevent Android OS from cutting off full adhan audio at 30 seconds.
+      for (final entry in adhanVoiceResources.entries) {
+        final resource = entry.value;
+        await androidImpl.deleteNotificationChannel(channelId: 'adhan_channel_$resource');
+
+        final channelId = adhanChannelIdForVoice(entry.key);
+        final channelName = adhanChannelNameForVoice(entry.key);
+        await androidImpl.createNotificationChannel(
+          AndroidNotificationChannel(
+            channelId,
+            channelName,
+            description: adhanChannelDesc,
+            importance: Importance.max,
+            sound: RawResourceAndroidNotificationSound(resource),
+            audioAttributesUsage: AudioAttributesUsage.alarm,
+          ),
+        );
+      }
       await androidImpl.createNotificationChannel(
         const AndroidNotificationChannel(
           reflectionChannelId,
@@ -100,6 +129,28 @@ class NotificationService {
         ),
       );
     }
+  }
+
+  /// Requests exact alarm and notification permissions for Android & iOS.
+  Future<bool> requestPermissions() async {
+    final androidImpl = notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    if (androidImpl != null) {
+      await androidImpl.requestNotificationsPermission();
+      await androidImpl.requestExactAlarmsPermission();
+    }
+    final iosImpl = notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>();
+    if (iosImpl != null) {
+      await iosImpl.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
+    return true;
   }
 
   /// Truncates notification body text to [maxLength] characters at a clean word boundary.
@@ -156,12 +207,23 @@ class NotificationService {
     return list;
   }
 
-  /// Schedules exact alarms for all enabled daily prayers.
+  /// Cancels any scheduled follow-up reminders (15m post and 30m pre-end urgent) for a specific prayer.
+  Future<void> cancelPrayerReminders(String prayerName) async {
+    final baseId = defaultPrayerIds[prayerName] ?? prayerName.hashCode;
+    await notificationsPlugin.cancel(id: baseId + 1000);
+    await notificationsPlugin.cancel(id: baseId + 2000);
+  }
+
+  /// Schedules exact alarms and multi-stage reminders for all enabled daily prayers.
   Future<void> schedulePrayerNotifications({
     required Map<String, DateTime> prayerTimes,
     required Map<String, bool> enabledPrayers,
+    Map<String, DateTime>? endTimes,
     Map<String, int>? customNotificationIds,
+    Set<String>? completedPrayers,
     DateTime? nowOverride,
+    bool playAdhanSound = true,
+    String adhanVoice = 'Makkah (Ali Mulla)',
   }) async {
     final now = nowOverride ?? DateTime.now();
     final models = buildPrayerNotificationModels(
@@ -170,25 +232,43 @@ class NotificationService {
       customNotificationIds: customNotificationIds,
     );
 
+    // Resolve the correct channel and sound for the selected adhan voice.
+    final resourceName = adhanVoiceResources[adhanVoice] ?? 'adhan_makkah';
+    final channelId = adhanChannelIdForVoice(adhanVoice);
+    final channelName = adhanChannelNameForVoice(adhanVoice);
+
     for (final model in models) {
       if (!model.isEnabled) continue;
-      if (!model.scheduledTime.isAfter(now)) continue;
 
+      final isCompleted = completedPrayers?.contains(model.prayerName) ?? false;
+      if (isCompleted) {
+        await notificationsPlugin.cancel(id: model.notificationId + 1000);
+        await notificationsPlugin.cancel(id: model.notificationId + 2000);
+      }
+
+      var targetTime = model.scheduledTime;
+      if (!targetTime.isAfter(now)) {
+        targetTime = targetTime.add(const Duration(days: 1));
+      }
+
+      // 1. Start Notification (T = 0)
       final tzScheduledDate = tz.TZDateTime.from(
-        model.scheduledTime,
+        targetTime,
         tz.local,
       );
 
-      const androidDetails = AndroidNotificationDetails(
-        adhanChannelId,
-        adhanChannelName,
+      final androidDetails = AndroidNotificationDetails(
+        channelId,
+        channelName,
         channelDescription: adhanChannelDesc,
         importance: Importance.max,
         priority: Priority.high,
-        sound: RawResourceAndroidNotificationSound('adhan'),
+        sound: playAdhanSound ? RawResourceAndroidNotificationSound(resourceName) : null,
+        playSound: playAdhanSound,
+        audioAttributesUsage: AudioAttributesUsage.alarm,
       );
       const iosDetails = DarwinNotificationDetails();
-      const notificationDetails = NotificationDetails(
+      final notificationDetails = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );
@@ -196,11 +276,74 @@ class NotificationService {
       await notificationsPlugin.zonedSchedule(
         id: model.notificationId,
         title: '${model.prayerName} Prayer',
-        body: 'It is time for ${model.prayerName} prayer.',
+        body: SunnahReminders.getStartMessage(model.prayerName),
         scheduledDate: tzScheduledDate,
         notificationDetails: notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
+
+      if (!isCompleted) {
+        // 2. 15-Minute Post-Start Sunnah Reminder (T + 15m)
+        final post15Time = model.scheduledTime.add(const Duration(minutes: 15));
+        if (post15Time.isAfter(now)) {
+          final tzPost15 = tz.TZDateTime.from(post15Time, tz.local);
+          const androidDetails = AndroidNotificationDetails(
+            reflectionChannelId,
+            reflectionChannelName,
+            channelDescription: reflectionChannelDesc,
+            importance: Importance.high,
+            priority: Priority.high,
+          );
+          const notificationDetails = NotificationDetails(
+            android: androidDetails,
+            iOS: DarwinNotificationDetails(),
+          );
+
+          final msg = SunnahReminders.post15MinReminders[model.prayerName] ??
+              '15 minutes into ${model.prayerName} time. Have you prayed yet?';
+
+          await notificationsPlugin.zonedSchedule(
+            id: model.notificationId + 1000,
+            title: 'Early Prayer Reminder — ${model.prayerName}',
+            body: msg,
+            scheduledDate: tzPost15,
+            notificationDetails: notificationDetails,
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          );
+        }
+
+        // 3. 30-Minute Pre-End Expiration Warning (TEnd - 30m)
+        if (endTimes != null && endTimes.containsKey(model.prayerName)) {
+          final endTime = endTimes[model.prayerName]!;
+          final pre30Time = endTime.subtract(const Duration(minutes: 30));
+          if (pre30Time.isAfter(now)) {
+            final tzPre30 = tz.TZDateTime.from(pre30Time, tz.local);
+            const androidDetails = AndroidNotificationDetails(
+              reflectionChannelId,
+              reflectionChannelName,
+              channelDescription: reflectionChannelDesc,
+              importance: Importance.max,
+              priority: Priority.high,
+            );
+            const notificationDetails = NotificationDetails(
+              android: androidDetails,
+              iOS: DarwinNotificationDetails(),
+            );
+
+            final msg = SunnahReminders.pre30MinReminders[model.prayerName] ??
+                'Only 30 minutes left for ${model.prayerName} prayer. Have you prayed yet?';
+
+            await notificationsPlugin.zonedSchedule(
+              id: model.notificationId + 2000,
+              title: 'Urgent — 30 Mins Left for ${model.prayerName}',
+              body: msg,
+              scheduledDate: tzPre30,
+              notificationDetails: notificationDetails,
+              androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            );
+          }
+        }
+      }
     }
   }
 
@@ -218,10 +361,13 @@ class NotificationService {
       return;
     }
 
+    var targetTime = scheduledTime;
     final now = nowOverride ?? DateTime.now();
-    if (!scheduledTime.isAfter(now)) return;
+    if (!targetTime.isAfter(now)) {
+      targetTime = targetTime.add(const Duration(days: 1));
+    }
 
-    final tzScheduledDate = tz.TZDateTime.from(scheduledTime, tz.local);
+    final tzScheduledDate = tz.TZDateTime.from(targetTime, tz.local);
     final truncatedBody = truncateNotificationBody(content.translationText, 120);
     final payload = formatNotificationPayload(content);
 
@@ -247,5 +393,94 @@ class NotificationService {
       payload: payload,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
+  }
+
+  /// Displays an immediate local notification to test audio, vibration, and system permissions.
+  Future<void> showInstantTestNotification({
+    String title = 'Salah Companion Alert',
+    String body = 'Notifications and Adhan audio are configured properly.',
+    String adhanVoice = 'Makkah (Ali Mulla)',
+  }) async {
+    final resourceName = adhanVoiceResources[adhanVoice] ?? 'adhan_makkah';
+    final channelId = adhanChannelIdForVoice(adhanVoice);
+    final channelName = adhanChannelNameForVoice(adhanVoice);
+
+    final androidDetails = AndroidNotificationDetails(
+      channelId,
+      channelName,
+      channelDescription: adhanChannelDesc,
+      importance: Importance.max,
+      priority: Priority.high,
+      sound: RawResourceAndroidNotificationSound(resourceName),
+      playSound: true,
+      audioAttributesUsage: AudioAttributesUsage.alarm,
+    );
+    final notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: const DarwinNotificationDetails(),
+    );
+
+    await notificationsPlugin.show(
+      id: 8888,
+      title: title,
+      body: body,
+      notificationDetails: notificationDetails,
+    );
+  }
+}
+
+/// Sunnah-inspired notification reminders library with varied messages.
+abstract final class SunnahReminders {
+  static const startReminders = <String, List<String>>{
+    'Fajr': [
+      'Prayer is better than sleep. Rise and shine for Fajr prayer.',
+      'The two Sunnah rakahs of Fajr are better than the world and all in it. (Sahih Muslim)',
+      'Fajr time has started. Perform your prayer to start your day under Allah’s protection.',
+    ],
+    'Dhuhr': [
+      'Dhuhr time has started. The Prophet ﷺ loved to pray when the gates of heaven open at midday.',
+      'Take a peaceful break from your daily work for Dhuhr Salah.',
+      'The most beloved deed to Allah is prayer at its proper time. (Sahih al-Bukhari)',
+    ],
+    'Asr': [
+      'Asr time has started. Preserve the middle prayer (Salat al-Wusta).',
+      'Whoever prays the two cool prayers (Fajr & Asr) will enter Paradise. (Sahih al-Bukhari)',
+      'Hasten to Asr prayer for divine tranquility and immense reward.',
+    ],
+    'Maghrib': [
+      'Maghrib time has started. Hasten to Maghrib prayer following the Sunnah of the Prophet ﷺ.',
+      'The sun has set. Turn to Allah in Maghrib prayer with devotion.',
+      'Maghrib prayer time is here. May Allah accept your worship.',
+    ],
+    'Isha': [
+      'Isha time has started. Whoever prays Isha in congregation, it is as if he prayed half the night. (Sahih Muslim)',
+      'End your day in peaceful remembrance of Allah with Isha prayer.',
+      'Perform your Isha prayer and retire in peace under Allah’s care.',
+    ],
+  };
+
+  static const post15MinReminders = <String, String>{
+    'Fajr': '15 minutes into Fajr time. Have you prayed yet? The Prophet ﷺ emphasized praying at the earliest time.',
+    'Dhuhr': '15 minutes into Dhuhr time. Take a moment to pray Dhuhr and refresh your soul.',
+    'Asr': '15 minutes into Asr time. Do not delay Asr prayer; perform it with devotion.',
+    'Maghrib': '15 minutes into Maghrib time. Maghrib time passes quickly—hasten to pray.',
+    'Isha': '15 minutes into Isha time. Complete your Isha prayer to rest with tranquility.',
+  };
+
+  static const pre30MinReminders = <String, String>{
+    'Fajr': 'Only 30 minutes left for Fajr prayer before Sunrise. Make Wudu and pray now!',
+    'Dhuhr': 'Only 30 minutes left for Dhuhr prayer before Asr. Have you prayed yet?',
+    'Asr': 'Only 30 minutes left for Asr prayer before Maghrib. Perform your prayer now!',
+    'Maghrib': 'Only 30 minutes left for Maghrib prayer before Isha. Have you prayed yet?',
+    'Isha': 'Only 30 minutes left for Isha prayer before midnight. Complete your prayer now!',
+  };
+
+  static String getStartMessage(String prayerName) {
+    final list = startReminders[prayerName];
+    if (list == null || list.isEmpty) {
+      return 'It is time for $prayerName prayer.';
+    }
+    final index = DateTime.now().day % list.length;
+    return list[index];
   }
 }

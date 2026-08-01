@@ -95,8 +95,10 @@ void main() {
 
       expect(find.text('إنما الأعمال بالنيات'), findsOneWidget);
       expect(find.text('Actions are judged by intentions.'), findsOneWidget);
-      expect(find.text('Sahih al-Bukhari 1 • Sahih • Al-Bukhari'), findsOneWidget);
-      expect(find.byIcon(Icons.star_outline_rounded), findsOneWidget);
+      expect(find.text('Sahih al-Bukhari 1'), findsOneWidget);
+      expect(find.text('Sahih'), findsOneWidget);
+      expect(find.byIcon(Icons.format_quote_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.bookmark_border_rounded), findsOneWidget);
     });
 
     testWidgets('renders Ayah content correctly', (tester) async {
@@ -114,10 +116,10 @@ void main() {
       expect(find.text('اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ'), findsOneWidget);
       expect(find.text('Allah! There is no deity except Him, the Ever-Living, the Sustainer of all existence.'), findsOneWidget);
       expect(find.text('Surah Al-Baqarah 2:255'), findsOneWidget);
-      expect(find.byIcon(Icons.star_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.bookmark_rounded), findsOneWidget);
     });
 
-    testWidgets('triggers onToggleFavorite callback when star icon is tapped', (tester) async {
+    testWidgets('triggers onToggleFavorite callback when save icon is tapped', (tester) async {
       bool toggled = false;
 
       await tester.pumpWidget(
@@ -133,7 +135,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(const ValueKey('star_icon')));
+      await tester.tap(find.byKey(const ValueKey('save_icon')));
       await tester.pumpAndSettle();
 
       expect(toggled, isTrue);
@@ -174,8 +176,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('No favorites saved yet'), findsOneWidget);
-      expect(find.text('Tap the star icon on any daily reflection to save it here.'), findsOneWidget);
+      expect(find.text('No saved items yet'), findsOneWidget);
+      expect(find.text('Tap the bookmark icon on any content to save it here.'), findsOneWidget);
     });
 
     testWidgets('renders list of favorited items correctly', (tester) async {
@@ -189,7 +191,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(DailyReflectionCard), findsNWidgets(2));
-      expect(find.text('Sahih al-Bukhari 1 • Sahih • Al-Bukhari'), findsOneWidget);
+      expect(find.text('Sahih al-Bukhari 1'), findsOneWidget);
       expect(find.text('Surah Al-Baqarah 2:255'), findsOneWidget);
     });
 
@@ -209,13 +211,13 @@ void main() {
 
       expect(find.byType(DailyReflectionCard), findsNWidgets(2));
 
-      // Tap star on first item (hadith_1)
-      await tester.tap(find.byKey(const ValueKey('star_icon')).first);
+      // Tap save icon on first item (hadith_1)
+      await tester.tap(find.byKey(const ValueKey('save_icon')).first);
       await tester.pumpAndSettle();
 
       // Optimistically removed
       expect(find.byType(DailyReflectionCard), findsOneWidget);
-      expect(find.text('Sahih al-Bukhari 1 • Sahih • Al-Bukhari'), findsNothing);
+      expect(find.text('Sahih al-Bukhari 1'), findsNothing);
       expect(find.text('Surah Al-Baqarah 2:255'), findsOneWidget);
 
       verify(() => repo.toggleFavorite('hadith_1')).called(1);
@@ -237,13 +239,13 @@ void main() {
 
       expect(find.byType(DailyReflectionCard), findsNWidgets(2));
 
-      // Tap star on first item (hadith_1)
-      await tester.tap(find.byKey(const ValueKey('star_icon')).first);
+      // Tap save icon on first item (hadith_1)
+      await tester.tap(find.byKey(const ValueKey('save_icon')).first);
       await tester.pumpAndSettle();
 
       // Item should be restored and SnackBar error message displayed
       expect(find.byType(DailyReflectionCard), findsNWidgets(2));
-      expect(find.text('Sahih al-Bukhari 1 • Sahih • Al-Bukhari'), findsOneWidget);
+      expect(find.text('Sahih al-Bukhari 1'), findsOneWidget);
       expect(find.text('Failed to update favorite status'), findsOneWidget);
 
       verify(() => repo.toggleFavorite('hadith_1')).called(1);

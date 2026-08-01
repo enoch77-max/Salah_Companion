@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/database/app_database.dart';
 import '../../../../core/services/battery_service.dart';
 import '../sheets/battery_optimization_sheet.dart';
 
@@ -7,7 +8,7 @@ import '../sheets/battery_optimization_sheet.dart';
 /// checking battery optimization status, and displaying [BatteryOptimizationSheet] when needed.
 class BatteryProtectionListener extends StatefulWidget {
   final Widget child;
-  final BatteryService batteryService;
+  final BatteryService? batteryService;
   final String? manufacturer;
   final TargetPlatform? platform;
   final VoidCallback? onRequestExemption;
@@ -16,7 +17,7 @@ class BatteryProtectionListener extends StatefulWidget {
   const BatteryProtectionListener({
     super.key,
     required this.child,
-    required this.batteryService,
+    this.batteryService,
     this.manufacturer,
     this.platform,
     this.onRequestExemption,
@@ -68,30 +69,28 @@ class _BatteryProtectionListenerState extends State<BatteryProtectionListener>
 
     _isChecking = true;
     try {
-      await widget.batteryService.checkBatteryOptimizationStatus();
-      final shouldShow = await widget.batteryService.shouldShowPrompt();
+      final service = widget.batteryService ?? BatteryService(db: AppDatabase.instance());
+      await service.checkBatteryOptimizationStatus();
+      final shouldShow = await service.shouldShowPrompt();
 
       if (shouldShow && mounted && !_isShowingPrompt) {
         _isShowingPrompt = true;
         await BatteryOptimizationSheet.show(
           context,
           manufacturer: widget.manufacturer,
-          batteryService: widget.batteryService,
+          batteryService: service,
           onFixPressed: () async {
             if (widget.onRequestExemption != null) {
               widget.onRequestExemption!();
             } else {
-              try {
-                await widget.batteryService.channel
-                    .invokeMethod('requestIgnoreBatteryOptimizations');
-              } catch (_) {}
+              await service.openBatteryOptimizationSettings();
             }
           },
           onRemindLaterPressed: () async {
-            await widget.batteryService.recordPromptShown();
+            await service.recordPromptShown();
           },
           onDontAskAgainPressed: () async {
-            await widget.batteryService.setNagDisabled(true);
+            await service.setNagDisabled(true);
           },
         );
         _isShowingPrompt = false;

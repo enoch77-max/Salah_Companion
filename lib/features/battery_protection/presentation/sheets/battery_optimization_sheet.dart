@@ -185,7 +185,7 @@ class BatteryOptimizationSheet extends StatelessWidget {
                         onFixPressed();
                       },
                       child: const Text(
-                        'Fix it',
+                        'Disable Battery Optimization',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

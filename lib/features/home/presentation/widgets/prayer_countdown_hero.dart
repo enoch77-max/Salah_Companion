@@ -11,19 +11,35 @@ import '../../../../app/theme/app_typography.dart';
 class PrayerCountdownHero extends StatefulWidget {
   final String nextPrayerName;
   final DateTime? nextPrayerTime;
+  final DateTime? periodStartTime;
+  final DateTime? periodEndTime;
   final Duration? remainingDuration;
-  final double progress; // 0.0 to 1.0
+  final double progress; // 0.0 to 1.0 fallback
+  final bool isDrain; // true = emptying ring (Current Salah), false = filling ring (Upcoming)
   final bool animate;
+  final String headerLabel;
+  final String? periodText;
+  final String? sunriseTime;
+  final String? sunsetTime;
   final VoidCallback? onTap;
+  final VoidCallback? onTimerExpired;
 
   const PrayerCountdownHero({
     super.key,
     required this.nextPrayerName,
     this.nextPrayerTime,
+    this.periodStartTime,
+    this.periodEndTime,
     this.remainingDuration,
     this.progress = 0.75,
+    this.isDrain = false,
     this.animate = true,
+    this.headerLabel = 'UPCOMING PRAYER',
+    this.periodText,
+    this.sunriseTime,
+    this.sunsetTime,
     this.onTap,
+    this.onTimerExpired,
   });
 
   @override
@@ -34,6 +50,8 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
     with SingleTickerProviderStateMixin {
   Timer? _ticker;
   late Duration _currentRemaining;
+  double _dynamicProgress = 0.75;
+  bool _hasFiredExpired = false;
 
   @override
   void initState() {
@@ -45,8 +63,15 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
   @override
   void didUpdateWidget(covariant PrayerCountdownHero oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.nextPrayerTime != widget.nextPrayerTime ||
+        oldWidget.periodEndTime != widget.periodEndTime) {
+      _hasFiredExpired = false;
+    }
     if (oldWidget.remainingDuration != widget.remainingDuration ||
         oldWidget.nextPrayerTime != widget.nextPrayerTime ||
+        oldWidget.periodStartTime != widget.periodStartTime ||
+        oldWidget.periodEndTime != widget.periodEndTime ||
+        oldWidget.isDrain != widget.isDrain ||
         oldWidget.animate != widget.animate) {
       _updateRemaining();
       _startTickerIfNeeded();
@@ -56,7 +81,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
   void _startTickerIfNeeded() {
     _ticker?.cancel();
     _ticker = null;
-    if (widget.animate && widget.nextPrayerTime != null && widget.remainingDuration == null) {
+    if (widget.animate) {
       _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
         if (mounted) {
           setState(() {
@@ -74,14 +99,51 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
   }
 
   void _updateRemaining() {
-    if (widget.remainingDuration != null) {
-      _currentRemaining = widget.remainingDuration!;
-    } else if (widget.nextPrayerTime != null) {
-      final now = DateTime.now();
-      final diff = widget.nextPrayerTime!.difference(now);
-      _currentRemaining = diff.isNegative ? Duration.zero : diff;
+    final now = DateTime.now();
+
+    final targetEnd = widget.periodEndTime ?? widget.nextPrayerTime;
+    if (targetEnd != null) {
+      final diff = targetEnd.difference(now);
+      if (diff.isNegative || diff == Duration.zero) {
+        _currentRemaining = Duration.zero;
+        if (!_hasFiredExpired) {
+          _hasFiredExpired = true;
+          widget.onTimerExpired?.call();
+        }
+      } else {
+        _currentRemaining = diff;
+      }
+
+      if (widget.periodStartTime != null && widget.periodEndTime != null) {
+        final totalSecs = widget.periodEndTime!.difference(widget.periodStartTime!).inSeconds;
+        final remSecs = widget.periodEndTime!.difference(now).inSeconds;
+
+        if (totalSecs > 0) {
+          if (widget.isDrain) {
+            // Inverted for Current Salah per user request (1.0 - remSecs / totalSecs)
+            _dynamicProgress = (1.0 - (remSecs / totalSecs)).clamp(0.0, 1.0);
+          } else {
+            // Upcoming Prayer: (remSecs / totalSecs)
+            _dynamicProgress = (remSecs / totalSecs).clamp(0.0, 1.0);
+          }
+        } else {
+          _dynamicProgress = widget.progress;
+        }
+      } else {
+        _dynamicProgress = widget.progress;
+      }
+    } else if (widget.remainingDuration != null) {
+      if (_ticker != null && _ticker!.isActive) {
+        if (_currentRemaining > Duration.zero) {
+          _currentRemaining = _currentRemaining - const Duration(seconds: 1);
+        }
+      } else {
+        _currentRemaining = widget.remainingDuration!;
+      }
+      _dynamicProgress = widget.progress;
     } else {
       _currentRemaining = const Duration(hours: 1, minutes: 24, seconds: 5);
+      _dynamicProgress = widget.progress;
     }
   }
 
@@ -154,15 +216,18 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
     final brightness = Theme.of(context).brightness;
     final formattedTime = _formatDuration(_currentRemaining);
 
+    final isCurrentSalah = widget.headerLabel == 'CURRENT SALAH';
+    final ledColor = isCurrentSalah ? colors.currentSalahGreen : colors.primary;
+
     Widget ledDot = Container(
       width: 8,
       height: 8,
       decoration: BoxDecoration(
-        color: colors.primary,
+        color: ledColor,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: colors.primary.withValues(alpha: 0.6),
+            color: ledColor.withValues(alpha: 0.6),
             blurRadius: 6,
             spreadRadius: 2,
           ),
@@ -189,7 +254,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
         decoration: ShapeDecoration(
           gradient: _getBackgroundGradient(brightness),
           shape: ContinuousRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(24),
             side: BorderSide(
               color: colors.dividerStrong,
               width: 1.0,
@@ -197,61 +262,133 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 28.0, horizontal: 20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Next Prayer Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'UPCOMING PRAYER',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: colors.textSecondary,
-                          letterSpacing: 1.2,
-                          fontWeight: FontWeight.w600,
+              // Left Section: Prayer Info + Sunrise Pill
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header Tag + Blinking LED
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          widget.headerLabel,
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: colors.textSecondary,
+                                letterSpacing: 1.1,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 11,
+                              ),
                         ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Blinking LED indicator dot
-                  ledDot,
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                widget.nextPrayerName,
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w700,
+                        const SizedBox(width: 6),
+                        ledDot,
+                      ],
                     ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.nextPrayerName,
+                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                            color: colors.textPrimary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 28,
+                            letterSpacing: -0.3,
+                          ),
+                    ),
+                    if (widget.periodText case final String pText) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        pText,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: colors.primaryText,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.2,
+                              fontSize: 12,
+                            ),
+                      ),
+                    ],
+                    if (widget.sunriseTime != null || widget.sunsetTime != null) ...[
+                      const SizedBox(height: 6),
+                      IntrinsicWidth(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                          decoration: BoxDecoration(
+                            color: colors.surface.withValues(alpha: 0.35),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: colors.dividerStrong.withValues(alpha: 0.5),
+                              width: 0.8,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Sunrise row
+                              if (widget.sunriseTime case final String sTime)
+                                _SunTimePillRow(
+                                  icon: Icons.wb_sunny_rounded,
+                                  iconColor: const Color(0xFFF59E0B),
+                                  label: 'Sunrise',
+                                  time: sTime,
+                                  textSecondary: colors.textSecondary,
+                                  textPrimary: colors.textPrimary,
+                                ),
+                              // Divider between sunrise and sunset
+                              if (widget.sunriseTime != null && widget.sunsetTime != null)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 1.5),
+                                  child: Container(
+                                    height: 0.5,
+                                    color: colors.dividerStrong.withValues(alpha: 0.4),
+                                  ),
+                                ),
+                              // Sunset row
+                              if (widget.sunsetTime case final String setTime)
+                                _SunTimePillRow(
+                                  icon: Icons.wb_twilight_rounded,
+                                  iconColor: const Color(0xFFEF6C00),
+                                  label: 'Sunset',
+                                  time: setTime,
+                                  textSecondary: colors.textSecondary,
+                                  textPrimary: colors.textPrimary,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 24),
 
-              // Countdown Progress Ring with Center Timer
+              const SizedBox(width: 16),
+
+              // Right Section: Circular Progress Ring with Timer
               SizedBox(
-                width: 190,
-                height: 190,
+                width: 112,
+                height: 112,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    // Circular Progress Ring Painter
                     CustomPaint(
-                      size: const Size(190, 190),
+                      size: const Size(112, 112),
                       painter: _CountdownRingPainter(
-                        progress: widget.progress.clamp(0.0, 1.0),
+                        progress: _dynamicProgress.clamp(0.0, 1.0),
                         trackColor: colors.primarySoft.withValues(alpha: 0.3),
                         progressColor: colors.primary,
                       ),
                     ),
-                    // Blinking LED dot at progress tip
                     _BlinkingProgressTipDot(
-                      progress: widget.progress.clamp(0.0, 1.0),
-                      size: 190,
+                      progress: _dynamicProgress.clamp(0.0, 1.0),
+                      size: 112,
                       dotColor: colors.primary,
                       animate: widget.animate,
                     ),
-                    // Center Tabular Timer Text
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -260,15 +397,17 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                           key: const ValueKey('hero_timer_text'),
                           style: AppTypography.timerStyle(
                             color: colors.textPrimary,
-                            fontSize: 32,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 1),
                         Text(
                           'remaining',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: colors.textTertiary,
-                                letterSpacing: 0.5,
+                                letterSpacing: 0.4,
+                                fontSize: 10,
                               ),
                         ),
                       ],
@@ -297,7 +436,7 @@ class _CountdownRingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const strokeWidth = 10.0;
+    const strokeWidth = 7.0;
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - strokeWidth) / 2;
 
@@ -351,24 +490,24 @@ class _BlinkingProgressTipDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const strokeWidth = 10.0;
+    const strokeWidth = 7.0;
     final radius = (size - strokeWidth) / 2;
     final angle = -math.pi / 2 + (2 * math.pi * progress);
     final cx = size / 2 + radius * math.cos(angle);
     final cy = size / 2 + radius * math.sin(angle);
 
     Widget dot = Container(
-      width: 14,
-      height: 14,
+      width: 10,
+      height: 10,
       decoration: BoxDecoration(
         color: dotColor,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
+        border: Border.all(color: Colors.white, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: dotColor.withValues(alpha: 0.8),
-            blurRadius: 8,
-            spreadRadius: 2,
+            blurRadius: 6,
+            spreadRadius: 1.5,
           ),
         ],
       ),
@@ -387,9 +526,74 @@ class _BlinkingProgressTipDot extends StatelessWidget {
     }
 
     return Positioned(
-      left: cx - 7,
-      top: cy - 7,
+      left: cx - 5,
+      top: cy - 5,
       child: dot,
+    );
+  }
+}
+
+/// Reusable row for the sunrise/sunset pill capsule inside the hero widget.
+class _SunTimePillRow extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final String time;
+  final Color textSecondary;
+  final Color textPrimary;
+
+  const _SunTimePillRow({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.time,
+    required this.textSecondary,
+    required this.textPrimary,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: iconColor,
+                size: 8,
+              ),
+            ),
+            const SizedBox(width: 3),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: textSecondary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 9.5,
+                  ),
+            ),
+          ],
+        ),
+        const SizedBox(width: 5),
+        Text(
+          time,
+          style: AppTypography.timerStyle(
+            color: textPrimary,
+            fontSize: 9.5,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }

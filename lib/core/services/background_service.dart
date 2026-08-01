@@ -76,8 +76,12 @@ class MidnightRefreshHandler {
 
       const calculator = PrayerTimesCalculator();
       final coordinates = Coordinates(location.latitude, location.longitude);
+      final savedMethod = effectivePrefs.getString('calc_method');
+      final savedMadhab = effectivePrefs.getString('calc_madhab');
+
       final params =
-          CalculationMethodMapper.getMethodForCountry(location.countryCode);
+          CalculationMethodMapper.getMethodByName(savedMethod, location.countryCode);
+      params.madhab = CalculationMethodMapper.getMadhabByName(savedMadhab);
 
       final prayerTimes = calculator.calculatePrayerTimes(
         coordinates: coordinates,
@@ -94,14 +98,18 @@ class MidnightRefreshHandler {
         'Isha': prayerTimes.isha,
       };
 
-      // Enabled prayers settings from SharedPreferences
+      final notifPrayerMaster = effectivePrefs.getBool('notif_enabled_prayer') ?? true;
+      final notifAdhanMaster = effectivePrefs.getBool('notif_enabled_adhan') ?? true;
+      final adhanVoice = effectivePrefs.getString('adhan_voice') ?? 'Makkah (Ali Mulla)';
+
+      // Enabled prayers settings from SharedPreferences (master prayer toggle)
       final enabledPrayers = <String, bool>{
-        'Fajr': effectivePrefs.getBool('notif_enabled_fajr') ?? true,
-        'Sunrise': effectivePrefs.getBool('notif_enabled_sunrise') ?? true,
-        'Dhuhr': effectivePrefs.getBool('notif_enabled_dhuhr') ?? true,
-        'Asr': effectivePrefs.getBool('notif_enabled_asr') ?? true,
-        'Maghrib': effectivePrefs.getBool('notif_enabled_maghrib') ?? true,
-        'Isha': effectivePrefs.getBool('notif_enabled_isha') ?? true,
+        'Fajr': notifPrayerMaster && (effectivePrefs.getBool('notif_enabled_fajr') ?? true),
+        'Sunrise': false,
+        'Dhuhr': notifPrayerMaster && (effectivePrefs.getBool('notif_enabled_dhuhr') ?? true),
+        'Asr': notifPrayerMaster && (effectivePrefs.getBool('notif_enabled_asr') ?? true),
+        'Maghrib': notifPrayerMaster && (effectivePrefs.getBool('notif_enabled_maghrib') ?? true),
+        'Isha': notifPrayerMaster && (effectivePrefs.getBool('notif_enabled_isha') ?? true),
       };
 
       // 2. Check optional featured content override (Remote Config / static JSON URL).
@@ -149,6 +157,8 @@ class MidnightRefreshHandler {
       await effectiveNotif.schedulePrayerNotifications(
         prayerTimes: prayerMap,
         enabledPrayers: enabledPrayers,
+        playAdhanSound: notifAdhanMaster,
+        adhanVoice: adhanVoice,
       );
 
       // Reflection notification settings from SharedPreferences

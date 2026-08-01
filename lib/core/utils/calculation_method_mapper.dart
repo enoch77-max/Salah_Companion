@@ -54,4 +54,33 @@ class CalculationMethodMapper {
         return CalculationMethodParameters.muslimWorldLeague();
     }
   }
+
+  /// Maps a saved calculation method name string to [CalculationParameters], falling back
+  /// to country-based default if null or unknown.
+  static CalculationParameters getMethodByName(String? methodName, String? countryCode) {
+    if (methodName != null && methodName.trim().isNotEmpty) {
+      final name = methodName.trim();
+      if (name.contains('Umm Al-Qura')) return CalculationMethodParameters.ummAlQura();
+      if (name.contains('ISNA') || name.contains('North America')) return CalculationMethodParameters.northAmerica();
+      if (name.contains('Egyptian')) return CalculationMethodParameters.egyptian();
+      if (name.contains('Karachi')) return CalculationMethodParameters.karachi();
+      if (name.contains('Muslim World League')) return CalculationMethodParameters.muslimWorldLeague();
+      if (name.contains('Dubai')) return CalculationMethodParameters.dubai();
+      if (name.contains('Turkiye') || name.contains('Turkey')) return CalculationMethodParameters.turkiye();
+      if (name.contains('Qatar')) return CalculationMethodParameters.qatar();
+      if (name.contains('Kuwait')) return CalculationMethodParameters.kuwait();
+      if (name.contains('Singapore')) return CalculationMethodParameters.singapore();
+      if (name.contains('France')) return CalculationMethodParameters.france();
+      if (name.contains('Tehran')) return CalculationMethodParameters.tehran();
+    }
+    return getMethodForCountry(countryCode);
+  }
+
+  /// Maps a saved madhab string to [Madhab].
+  static Madhab getMadhabByName(String? madhabName) {
+    if (madhabName != null && madhabName.contains('Hanafi')) {
+      return Madhab.hanafi;
+    }
+    return Madhab.shafi;
+  }
 }

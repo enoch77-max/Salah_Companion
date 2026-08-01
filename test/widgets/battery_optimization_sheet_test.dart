@@ -99,7 +99,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.text('Fix it'), findsOneWidget);
+      expect(find.text('Disable Battery Optimization'), findsOneWidget);
       expect(find.text('Remind me later'), findsOneWidget);
       expect(find.text("Don't ask again"), findsOneWidget);
       expect(find.byIcon(Icons.battery_alert_rounded), findsOneWidget);
@@ -142,7 +142,7 @@ void main() {
       expect(find.byIcon(Icons.info_outline_rounded), findsNothing);
     });
 
-    testWidgets('triggers onFixPressed callback when Fix it button is tapped',
+    testWidgets('triggers onFixPressed callback when Disable Battery Optimization button is tapped',
         (tester) async {
       bool fixPressed = false;
 
@@ -172,7 +172,7 @@ void main() {
 
       expect(find.text('Prayer alerts may be delayed'), findsOneWidget);
 
-      await tester.tap(find.text('Fix it'));
+      await tester.tap(find.text('Disable Battery Optimization'));
       await tester.pumpAndSettle();
 
       expect(fixPressed, isTrue);

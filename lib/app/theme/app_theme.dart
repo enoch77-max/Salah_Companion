@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
@@ -26,8 +27,13 @@ abstract final class AppTheme {
     ];
   }
 
-  /// Dark Mode [ThemeData].
-  static ThemeData get dark {
+  /// Dark Mode [ThemeData] (cached instance for instant sub-millisecond theme switching).
+  static final ThemeData dark = _buildDarkTheme();
+
+  /// Light Mode [ThemeData] (cached instance for instant sub-millisecond theme switching).
+  static final ThemeData light = _buildLightTheme();
+
+  static ThemeData _buildDarkTheme() {
     const customColors = AppCustomColors.dark;
     final textTheme = AppTypography.createTextTheme(
       textPrimary: customColors.textPrimary,
@@ -115,14 +121,31 @@ abstract final class AppTheme {
         thickness: 1,
         space: 1,
       ),
+      cupertinoOverrideTheme: CupertinoThemeData(
+        primaryColor: customColors.primary,
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return customColors.primary;
+          }
+          return customColors.textSecondary;
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return customColors.primary.withValues(alpha: 0.5);
+          }
+          return customColors.textTertiary.withValues(alpha: 0.3);
+        }),
+        trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+      ),
       extensions: const [
         customColors,
       ],
     );
   }
 
-  /// Light Mode [ThemeData].
-  static ThemeData get light {
+  static ThemeData _buildLightTheme() {
     const customColors = AppCustomColors.light;
     final textTheme = AppTypography.createTextTheme(
       textPrimary: customColors.textPrimary,
@@ -209,6 +232,23 @@ abstract final class AppTheme {
         color: customColors.divider,
         thickness: 1,
         space: 1,
+      ),
+      cupertinoOverrideTheme: CupertinoThemeData(
+        primaryColor: customColors.primary,
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return customColors.primary;
+          }
+          return null;
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return customColors.primary.withValues(alpha: 0.5);
+          }
+          return null;
+        }),
       ),
       extensions: const [
         customColors,

@@ -51,7 +51,7 @@ void main() {
     return MaterialApp(
       theme: theme ?? AppTheme.dark,
       home: Scaffold(
-        body: Center(child: child),
+        body: child,
       ),
     );
   }
@@ -78,10 +78,29 @@ void main() {
       expect(timerTextWidget.data, '01:24:05');
       expect(timerTextWidget.style?.fontFeatures, contains(const FontFeature.tabularFigures()));
     });
+
+    testWidgets('renders sunrise and sunset capsule when times are provided', (tester) async {
+      await tester.pumpWidget(
+        buildTestableWidget(
+          const PrayerCountdownHero(
+            nextPrayerName: 'Dhuhr',
+            sunriseTime: '05:32 AM',
+            sunsetTime: '07:14 PM',
+            animate: false,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Sunrise'), findsOneWidget);
+      expect(find.text('05:32 AM'), findsOneWidget);
+      expect(find.text('Sunset'), findsOneWidget);
+      expect(find.text('07:14 PM'), findsOneWidget);
+    });
   });
 
   group('PrayerListCard Widget Tests', () {
-    testWidgets('renders 5 daily prayers and Sunrise', (tester) async {
+    testWidgets('renders 5 daily prayers in PrayerListCard', (tester) async {
       await tester.pumpWidget(
         buildTestableWidget(
           const PrayerListCard(),
@@ -90,11 +109,30 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Fajr'), findsOneWidget);
-      expect(find.text('Sunrise'), findsOneWidget);
       expect(find.text('Dhuhr'), findsOneWidget);
       expect(find.text('Asr'), findsOneWidget);
       expect(find.text('Maghrib'), findsOneWidget);
       expect(find.text('Isha'), findsOneWidget);
+      expect(find.text('Sunrise'), findsNothing);
+    });
+
+    testWidgets('renders forbidden nafl note when prayer DateTimes are provided', (tester) async {
+      final now = DateTime.now();
+      await tester.pumpWidget(
+        buildTestableWidget(
+          SingleChildScrollView(
+            child: PrayerListCard(
+              sunriseDateTime: now.subtract(const Duration(hours: 2)),
+              dhuhrDateTime: now.add(const Duration(hours: 3)),
+              maghribDateTime: now.add(const Duration(hours: 7)),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('FORBIDDEN TIMES FOR NAFL PRAYERS'), findsOneWidget);
+      expect(find.textContaining('Sahih Muslim 831'), findsOneWidget);
     });
 
     testWidgets('toggles status on prayer item tap', (tester) async {
@@ -181,20 +219,31 @@ void main() {
       expect(find.byType(PrayerListCard), findsOneWidget);
       expect(find.byType(DailyReflectionCard), findsOneWidget);
 
-      // Check bottom nav items
+      // Check bottom nav items (5 tabs)
       expect(find.text('Home'), findsOneWidget);
+      expect(find.text('Duas'), findsOneWidget);
+      expect(find.text('Tasbih'), findsOneWidget);
       expect(find.text('Qibla'), findsOneWidget);
-      expect(find.text('Tracker'), findsOneWidget);
-      expect(find.text('Reflection'), findsOneWidget);
-      expect(find.text('Settings'), findsOneWidget);
+      expect(find.text('Calendar'), findsOneWidget);
 
       // Next prayer name "Asr" appears in both Hero and PrayerListCard
       expect(find.text('Asr'), findsNWidgets(2));
       expect(find.text('02:15:00'), findsOneWidget);
 
-      // Tap on nav item (e.g. Qibla nav item at index 1)
-      await tester.tap(find.byKey(const ValueKey('nav_item_1')));
-      await tester.pump();
+      // Verify top-right settings button on app bar
+      expect(find.byKey(const ValueKey('top_right_settings_button')), findsOneWidget);
+
+      // Open 3-line menu drawer
+      final menuButton = find.byKey(const ValueKey('three_line_menu_button'));
+      expect(menuButton, findsOneWidget);
+      await tester.tap(menuButton);
+      await tester.pumpAndSettle();
+
+      // Verify drawer items
+      expect(find.text('Saved'), findsOneWidget);
+      expect(find.text('Prayer Tracker'), findsOneWidget);
+      expect(find.text('THEME MODE'), findsOneWidget);
+      expect(find.byKey(const ValueKey('drawer_theme_segmented_control')), findsOneWidget);
     });
   });
 }

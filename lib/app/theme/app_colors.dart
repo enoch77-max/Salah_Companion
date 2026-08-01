@@ -11,10 +11,10 @@ abstract final class AppColors {
   static const Color darkPrimarySoft = Color(0x1FD4A574);
   static const Color darkPrimaryGlow = Color(0x2ED4A574);
   static const Color darkPrimaryText = Color(0xFFE8C9A0);
-  static const Color darkSuccess = Color(0xFF7DB89A);
-  static const Color darkSuccessSoft = Color(0x1A7DB89A);
-  static const Color darkSuccessGlow = Color(0x267DB89A);
-  static const Color darkSuccessText = Color(0xFFA3D4BC);
+  static const Color darkSuccess = Color(0xFF10B981);
+  static const Color darkSuccessSoft = Color(0x2410B981);
+  static const Color darkSuccessGlow = Color(0x3810B981);
+  static const Color darkSuccessText = Color(0xFF34D399);
   static const Color darkMissed = Color(0xFFC97B6B);
   static const Color darkMissedSoft = Color(0x1AC97B6B);
   static const Color darkMissedText = Color(0xFFE0A090);
@@ -25,28 +25,33 @@ abstract final class AppColors {
   static const Color darkDividerStrong = Color(0x17FFFFFF);
   static const Color darkShadow = Color(0x80000000);
 
-  // Light mode color tokens
-  static const Color lightBackground = Color(0xFFF5F2EE);
-  static const Color lightElevatedBackground = Color(0xFFEDE9E4);
+  // Light mode color tokens (iOS System Grouped Palette)
+  static const Color lightBackground = Color(0xFFF2F2F7);
+  static const Color lightElevatedBackground = Color(0xFFFFFFFF);
   static const Color lightSurface = Color(0xFFFFFFFF);
-  static const Color lightSurfaceHover = Color(0xFFFAF8F5);
-  static const Color lightPrimary = Color(0xFFA67C52);
-  static const Color lightPrimarySoft = Color(0x1AA67C52);
-  static const Color lightPrimaryGlow = Color(0x1FA67C52);
-  static const Color lightPrimaryText = Color(0xFF8A633F);
-  static const Color lightSuccess = Color(0xFF4A8F6E);
-  static const Color lightSuccessSoft = Color(0x144A8F6E);
-  static const Color lightSuccessGlow = Color(0x1A4A8F6E);
-  static const Color lightSuccessText = Color(0xFF3A7A5C);
-  static const Color lightMissed = Color(0xFFA85E4F);
-  static const Color lightMissedSoft = Color(0x14A85E4F);
-  static const Color lightMissedText = Color(0xFF8C4A3D);
-  static const Color lightTextPrimary = Color(0xFF1A1D23);
-  static const Color lightTextSecondary = Color(0xFF6B6F76);
-  static const Color lightTextTertiary = Color(0xFFA0A5AD);
-  static const Color lightDivider = Color(0x0F000000);
-  static const Color lightDividerStrong = Color(0x1A000000);
+  static const Color lightSurfaceHover = Color(0xFFF8F9FA);
+  static const Color lightPrimary = Color(0xFF0284C7);
+  static const Color lightPrimarySoft = Color(0x1A0284C7);
+  static const Color lightPrimaryGlow = Color(0x290284C7);
+  static const Color lightPrimaryText = Color(0xFF0369A1);
+  static const Color lightSuccess = Color(0xFF059669);
+  static const Color lightSuccessSoft = Color(0x17059669);
+  static const Color lightSuccessGlow = Color(0x2B059669);
+  static const Color lightSuccessText = Color(0xFF047857);
+  static const Color lightMissed = Color(0xFFDC2626);
+  static const Color lightMissedSoft = Color(0x1ADC2626);
+  static const Color lightMissedText = Color(0xFFB91C1C);
+  static const Color lightTextPrimary = Color(0xFF1C1C1E);
+  static const Color lightTextSecondary = Color(0xFF6C6C70);
+  static const Color lightTextTertiary = Color(0xFF8E8E93);
+  static const Color lightDivider = Color(0x14000000);
+  static const Color lightDividerStrong = Color(0x26000000);
   static const Color lightShadow = Color(0x0F000000);
+
+  // Written Paper & Green Accent tokens
+  static const Color darkPaperBackground = Color(0xFF26231F);
+  static const Color lightPaperBackground = Color(0xFFFBF9F5);
+  static const Color currentSalahGreen = Color(0xFF22C55E);
 }
 
 /// [ThemeExtension] to provide custom semantic color tokens across the app.
@@ -73,6 +78,8 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
   final Color divider;
   final Color dividerStrong;
   final Color shadow;
+  final Color paperBackground;
+  final Color currentSalahGreen;
 
   const AppCustomColors({
     required this.background,
@@ -96,6 +103,8 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
     required this.divider,
     required this.dividerStrong,
     required this.shadow,
+    required this.paperBackground,
+    required this.currentSalahGreen,
   });
 
   static const dark = AppCustomColors(
@@ -120,6 +129,8 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
     divider: AppColors.darkDivider,
     dividerStrong: AppColors.darkDividerStrong,
     shadow: AppColors.darkShadow,
+    paperBackground: AppColors.darkPaperBackground,
+    currentSalahGreen: AppColors.currentSalahGreen,
   );
 
   static const light = AppCustomColors(
@@ -144,6 +155,8 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
     divider: AppColors.lightDivider,
     dividerStrong: AppColors.lightDividerStrong,
     shadow: AppColors.lightShadow,
+    paperBackground: AppColors.lightPaperBackground,
+    currentSalahGreen: AppColors.currentSalahGreen,
   );
 
   @override
@@ -169,6 +182,8 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
     Color? divider,
     Color? dividerStrong,
     Color? shadow,
+    Color? paperBackground,
+    Color? currentSalahGreen,
   }) {
     return AppCustomColors(
       background: background ?? this.background,
@@ -192,6 +207,8 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
       divider: divider ?? this.divider,
       dividerStrong: dividerStrong ?? this.dividerStrong,
       shadow: shadow ?? this.shadow,
+      paperBackground: paperBackground ?? this.paperBackground,
+      currentSalahGreen: currentSalahGreen ?? this.currentSalahGreen,
     );
   }
 
@@ -220,6 +237,8 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
       divider: Color.lerp(divider, other.divider, t)!,
       dividerStrong: Color.lerp(dividerStrong, other.dividerStrong, t)!,
       shadow: Color.lerp(shadow, other.shadow, t)!,
+      paperBackground: Color.lerp(paperBackground, other.paperBackground, t)!,
+      currentSalahGreen: Color.lerp(currentSalahGreen, other.currentSalahGreen, t)!,
     );
   }
 }

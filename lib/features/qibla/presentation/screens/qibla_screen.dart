@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:adhan_dart/adhan_dart.dart';
 import 'package:geolocator/geolocator.dart';
@@ -9,12 +8,15 @@ import 'package:geolocator/geolocator.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../core/services/app_haptics.dart';
 import '../../../../core/services/location_service.dart';
+import '../../../../core/utils/compass_filter.dart';
+import '../../../../core/utils/geomagnetic_calculator.dart';
 import '../../../home/domain/prayer_times_calculator.dart';
 
-/// Qibla Compass Screen providing real-time magnetic compass direction
-/// towards the Kaaba in Makkah with smooth spring animation, sensor accuracy warnings,
-/// and visual alignment indicators.
+/// Qibla Compass Screen providing real-time high-precision compass direction
+/// towards the Kaaba in Makkah with automatic True North declination correction,
+/// Exponential Moving Average (EMA) smoothing, sensor accuracy warnings, and visual alignment indicators.
 class QiblaScreen extends StatefulWidget {
   final LocationService? locationService;
   final PrayerTimesCalculator? calculator;
@@ -42,10 +44,13 @@ class _QiblaScreenState extends State<QiblaScreen>
 
   late final LocationService _locationService;
   late final PrayerTimesCalculator _calculator;
+  late final CompassFilter _compassFilter;
 
   LocationData? _locationData;
   double? _qiblaBearing;
   double? _distanceToMakkahKm;
+  double? _magneticDeclination;
+  double? _trueHeading;
   bool _isLoadingLocation = true;
   String? _locationError;
 
@@ -57,18 +62,24 @@ class _QiblaScreenState extends State<QiblaScreen>
   double _startHeading = 0.0;
   double _targetHeading = 0.0;
   bool _wasAligned = false;
+  int _lastHapticTickMs = 0;
 
-  double? get _currentHeading => _lastCompassEvent?.heading;
+  double? get _currentHeading => _trueHeading ?? _lastCompassEvent?.heading;
 
   @override
   void initState() {
     super.initState();
     _locationService = widget.locationService ?? LocationService();
     _calculator = widget.calculator ?? const PrayerTimesCalculator();
+    _compassFilter = CompassFilter(
+      alpha: 0.35,
+      minDeltaThreshold: 0.10,
+      maxStepLimit: 180.0,
+    );
 
     _headingController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 100),
     );
     _curvedAnimation = CurvedAnimation(
       parent: _headingController,
@@ -76,22 +87,7 @@ class _QiblaScreenState extends State<QiblaScreen>
     );
 
     if (widget.initialLocation != null) {
-      _locationData = widget.initialLocation;
-      _qiblaBearing = widget.initialQiblaBearing ??
-          _calculator.calculateQiblaBearing(
-            Coordinates(
-              _locationData!.latitude,
-              _locationData!.longitude,
-            ),
-          );
-      _distanceToMakkahKm = Geolocator.distanceBetween(
-            _locationData!.latitude,
-            _locationData!.longitude,
-            _kaabaLat,
-            _kaabaLng,
-          ) /
-          1000.0;
-      _isLoadingLocation = false;
+      _applyLocationData(widget.initialLocation!, initialQiblaBearing: widget.initialQiblaBearing);
     } else {
       _fetchLocation();
     }
@@ -99,33 +95,54 @@ class _QiblaScreenState extends State<QiblaScreen>
     _initCompassStream();
   }
 
-  Future<void> _fetchLocation() async {
+  void _applyLocationData(LocationData loc, {double? initialQiblaBearing}) {
+    final bearing = initialQiblaBearing ??
+        _calculator.calculateQiblaBearing(
+          Coordinates(loc.latitude, loc.longitude),
+        );
+    final distance = Geolocator.distanceBetween(
+          loc.latitude,
+          loc.longitude,
+          _kaabaLat,
+          _kaabaLng,
+        ) /
+        1000.0;
+    final declination = GeomagneticCalculator.calculateDeclination(
+      latitude: loc.latitude,
+      longitude: loc.longitude,
+    );
+
     setState(() {
-      _isLoadingLocation = true;
+      _locationData = loc;
+      _qiblaBearing = bearing;
+      _distanceToMakkahKm = distance;
+      _magneticDeclination = declination;
+      _isLoadingLocation = false;
       _locationError = null;
     });
+  }
 
+  Future<void> _fetchLocation() async {
+    // 1. Instant Cached Location Check (0ms startup, zero delay, works offline)
+    final cached = LocationService.savedLocation ?? await _locationService.getCachedLocation();
+
+    if (cached != null && mounted) {
+      _applyLocationData(cached);
+    }
+
+    // 2. Fetch fresh position in background without blocking UI
     try {
       final loc = await _locationService.getCurrentLocation();
       if (!mounted) return;
-      final bearing = _calculator.calculateQiblaBearing(
-        Coordinates(loc.latitude, loc.longitude),
-      );
-      final distance = Geolocator.distanceBetween(
-            loc.latitude,
-            loc.longitude,
-            _kaabaLat,
-            _kaabaLng,
-          ) /
-          1000.0;
-      setState(() {
-        _locationData = loc;
-        _qiblaBearing = bearing;
-        _distanceToMakkahKm = distance;
-        _isLoadingLocation = false;
-      });
+      _applyLocationData(loc);
     } catch (e) {
       if (!mounted) return;
+      if (_locationData != null) {
+        setState(() {
+          _isLoadingLocation = false;
+        });
+        return;
+      }
       setState(() {
         _locationError = e.toString().replaceAll('LocationException: ', '');
         _isLoadingLocation = false;
@@ -143,32 +160,57 @@ class _QiblaScreenState extends State<QiblaScreen>
   void _onCompassEvent(CompassEvent event) {
     if (!mounted) return;
 
-    final heading = event.heading;
+    final rawHeading = event.heading;
+
+    if (rawHeading == null) {
+      if (_lastCompassEvent != null || _trueHeading != null) {
+        setState(() {
+          _lastCompassEvent = event;
+          _trueHeading = null;
+        });
+      }
+      return;
+    }
+
+    // 1. Fast, responsive EMA Low-Pass Filter without artificial step clamping
+    final smoothedMagnetic = _compassFilter.update(rawHeading);
+
+    // 2. Automatic True North magnetic declination correction
+    final declination = _magneticDeclination ?? 0.0;
+    final trueHeading = CompassFilter.normalizeAngle(smoothedMagnetic + declination);
+
+    // 3. Smooth, continuous retargeting from live on-screen position (Apple fluid motion)
+    final currentDisplayed = _startHeading + (_targetHeading - _startHeading) * _curvedAnimation.value;
+    _startHeading = currentDisplayed;
+
+    final diff = CompassFilter.shortestAngularDelta(trueHeading, currentDisplayed);
+    _targetHeading = currentDisplayed + diff;
+
+    if (_headingController.isAnimating) {
+      _headingController.stop();
+    }
+    _headingController.forward(from: 0.0);
+
+    // 4. Single consolidated setState per sensor event
     setState(() {
       _lastCompassEvent = event;
+      _trueHeading = trueHeading;
     });
 
-    if (heading == null) return;
+    // 5. Rotational haptics with cooldown (prevents UI thread haptic flooding during rapid turns)
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    if (diff.abs() >= 6.0 && (nowMs - _lastHapticTickMs) > 150) {
+      _lastHapticTickMs = nowMs;
+      AppHaptics.compassTick();
+    }
 
-    // Calculate current position before updating targets
-    _startHeading = _startHeading + (_targetHeading - _startHeading) * _curvedAnimation.value;
-
-    // Calculate shortest angular path to prevent 360° spin wrap-around
-    double diff = (heading - _targetHeading) % 360;
-    if (diff > 180) diff -= 360;
-    if (diff < -180) diff += 360;
-
-    _targetHeading = _targetHeading + diff;
-
-    _headingController.forward(from: 0);
-
-    // Trigger haptic feedback on entering alignment zone (±3 degrees)
+    // 6. Trigger vibration on entering alignment zone (±3 degrees)
     if (_qiblaBearing != null) {
-      final diffAngle = ((heading - _qiblaBearing!) % 360 + 540) % 360 - 180;
+      final diffAngle = CompassFilter.shortestAngularDelta(trueHeading, _qiblaBearing!);
       final isAligned = diffAngle.abs() <= 3.0;
 
       if (isAligned && !_wasAligned) {
-        HapticFeedback.mediumImpact();
+        AppHaptics.compassAligned();
       }
       _wasAligned = isAligned;
     }
@@ -180,6 +222,240 @@ class _QiblaScreenState extends State<QiblaScreen>
     _curvedAnimation.dispose();
     _headingController.dispose();
     super.dispose();
+  }
+
+  void _showCalibrationSheet(BuildContext context) {
+    final colors = context.appColors;
+    final accuracy = _lastCompassEvent?.accuracy;
+
+    String accuracyLabel;
+    Color accuracyColor;
+    if (accuracy == null || accuracy < 0) {
+      accuracyLabel = 'Uncalibrated / Unknown';
+      accuracyColor = colors.missed;
+    } else if (accuracy <= 15.0) {
+      accuracyLabel = 'High Accuracy (Ready)';
+      accuracyColor = colors.success;
+    } else {
+      accuracyLabel = 'Medium Accuracy';
+      accuracyColor = const Color(0xFFF59E0B);
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 16,
+            bottom: MediaQuery.of(context).padding.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag handle
+              Container(
+                width: 38,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colors.dividerStrong,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 18),
+
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.vibration_rounded,
+                    color: colors.primary,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Compass Calibration Guide',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: colors.textPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // Sensor Accuracy Status Chip
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(
+                  color: accuracyColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: accuracyColor.withValues(alpha: 0.4)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: BoxDecoration(
+                        color: accuracyColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      accuracyLabel,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: accuracyColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+
+              // Figure 8 Illustration Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: colors.divider),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.all_inclusive_rounded,
+                      size: 52,
+                      color: colors.primary,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Wave your phone in a Figure-8 (♾️) motion in the air 3 times',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: colors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+
+              // Step-by-Step Instructions
+              _buildCalibrationStepRow(
+                context,
+                stepNumber: '1',
+                title: 'Clear Magnetic Interference',
+                subtitle: 'Step away from metal desks, computers, or magnetic phone covers.',
+              ),
+              const SizedBox(height: 10),
+              _buildCalibrationStepRow(
+                context,
+                stepNumber: '2',
+                title: 'Hold Device Flat Horizontal',
+                subtitle: 'Keep your phone flat horizontal parallel to the ground for peak precision.',
+              ),
+              const SizedBox(height: 10),
+              _buildCalibrationStepRow(
+                context,
+                stepNumber: '3',
+                title: 'Perform Figure-8 Sweep',
+                subtitle: 'Sweep your phone smoothly along an 8-shaped loop in the air.',
+              ),
+              const SizedBox(height: 22),
+
+              // Dismiss Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                  ),
+                  child: const Text(
+                    'Got It & Calibrated',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCalibrationStepRow(
+    BuildContext context, {
+    required String stepNumber,
+    required String title,
+    required String subtitle,
+  }) {
+    final colors = context.appColors;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: colors.primarySoft,
+            shape: BoxShape.circle,
+            border: Border.all(color: colors.primary.withValues(alpha: 0.3)),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            stepNumber,
+            style: TextStyle(
+              color: colors.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colors.textSecondary,
+                      fontSize: 11.5,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   String _getCardinalDirection(double degrees) {
@@ -209,26 +485,13 @@ class _QiblaScreenState extends State<QiblaScreen>
     final double? qiblaBearing = _qiblaBearing;
 
     final double diffAngle = (qiblaBearing != null && currentHeading != null)
-        ? (((currentHeading - qiblaBearing) % 360 + 540) % 360 - 180)
+        ? CompassFilter.shortestAngularDelta(qiblaBearing, currentHeading)
         : 180.0;
 
     final bool isAligned = currentHeading != null && diffAngle.abs() <= 3.0;
 
     return Scaffold(
       backgroundColor: colors.background,
-      appBar: AppBar(
-        backgroundColor: colors.background,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        title: Text(
-          'Qibla Compass',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-      ),
       body: SafeArea(
         child: _isLoadingLocation
             ? Center(
@@ -240,19 +503,72 @@ class _QiblaScreenState extends State<QiblaScreen>
                 ? _buildErrorView(context, _locationError!)
                 : SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Location Header Card
+                        // Display Title with Calibrate action
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Qibla Compass',
+                              style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                                    color: colors.textPrimary,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 32,
+                                    letterSpacing: -0.2,
+                                  ),
+                            ),
+                            InkWell(
+                              onTap: () => _showCalibrationSheet(context),
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: colors.primarySoft,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: colors.primary.withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.vibration_rounded,
+                                      size: 16,
+                                      color: colors.primary,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Calibrate',
+                                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                            color: colors.primary,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Location Header Card with Automatic True North status
                         _buildLocationHeaderCard(context),
                         const SizedBox(height: 16),
 
                         // Sensor Warning Pill if accuracy low or sensor unavailable
                         if (isSensorUnavailable || isAccuracyLow)
-                          _buildSensorWarningPill(
-                            context,
-                            isUnavailable: isSensorUnavailable,
+                          GestureDetector(
+                            onTap: () => _showCalibrationSheet(context),
+                            child: _buildSensorWarningPill(
+                              context,
+                              isUnavailable: isSensorUnavailable,
+                            ),
                           ),
 
                         // Numeric Metrics Tile with Tabular Figures
@@ -332,6 +648,26 @@ class _QiblaScreenState extends State<QiblaScreen>
 
                         // Alignment Status Badge
                         _buildAlignmentBadge(context, isAligned, diffAngle),
+                        const SizedBox(height: 16),
+
+                        // Calibration Guide Button
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () => _showCalibrationSheet(context),
+                            icon: Icon(
+                              Icons.vibration_rounded,
+                              size: 16,
+                              color: colors.textSecondary,
+                            ),
+                            label: Text(
+                              'How to Calibrate Compass ♾️',
+                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    color: colors.textSecondary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 24),
                       ],
                     ),
@@ -349,14 +685,17 @@ class _QiblaScreenState extends State<QiblaScreen>
         : (city ?? country ?? 'Current Location');
 
     final distanceKm = _distanceToMakkahKm;
+    final declination = _magneticDeclination;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: ShapeDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colors.divider),
+        shape: ContinuousRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+          side: BorderSide(color: colors.divider, width: 1.0),
+        ),
       ),
       child: Row(
         children: [
@@ -377,14 +716,37 @@ class _QiblaScreenState extends State<QiblaScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  locationText,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: colors.textPrimary,
-                        fontWeight: FontWeight.w600,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        locationText,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: colors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                    ),
+                    if (declination != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: colors.successSoft,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: colors.success.withValues(alpha: 0.3)),
+                        ),
+                        child: Text(
+                          'TRUE NORTH (${declination >= 0 ? '+' : ''}${declination.toStringAsFixed(1)}°)',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: colors.successText,
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                  ],
                 ),
                 if (distanceKm != null)
                   Text(
@@ -463,7 +825,7 @@ class _QiblaScreenState extends State<QiblaScreen>
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _MetricDisplayTile(
-            label: 'HEADING',
+            label: 'HEADING (TRUE)',
             value: headingStr,
             colors: colors,
           ),

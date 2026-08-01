@@ -37,6 +37,29 @@ class BatteryService {
     }
   }
 
+  /// Directs the device OS to open battery optimization exemption settings.
+  Future<void> openBatteryOptimizationSettings() async {
+    if (_platform != TargetPlatform.android) return;
+    try {
+      await channel.invokeMethod('openBatteryOptimizationSettings');
+    } catch (_) {
+      try {
+        await channel.invokeMethod('requestIgnoreBatteryOptimizations');
+      } catch (_) {}
+    }
+  }
+
+  /// Gets the device hardware manufacturer name from platform channel.
+  Future<String> getManufacturer() async {
+    if (_platform != TargetPlatform.android) return 'Apple';
+    try {
+      final res = await channel.invokeMethod<String>('getManufacturer');
+      return res ?? 'Generic Android';
+    } catch (_) {
+      return 'Generic Android';
+    }
+  }
+
   /// Fetches current battery optimization status from platform channel (on Android),
   /// updates [lastKnownExempt] in the database, and returns the result.
   Future<bool> checkBatteryOptimizationStatus() async {

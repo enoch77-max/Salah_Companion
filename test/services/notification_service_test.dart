@@ -234,27 +234,87 @@ void main() {
         nowOverride: nowOverride,
       );
 
-      // Only Dhuhr should be scheduled (Fajr is past, Asr is disabled)
+      // Fajr start notification (id: 101) and Dhuhr start notification (id: 103) should be scheduled
       verify(() => mockPlugin.zonedSchedule(
-            id: 103,
-            title: 'Dhuhr Prayer',
-            body: 'It is time for Dhuhr prayer.',
+            id: 101,
+            title: 'Fajr Prayer',
+            body: any(named: 'body'),
             scheduledDate: any(named: 'scheduledDate'),
             notificationDetails: any(named: 'notificationDetails'),
             androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           )).called(1);
 
+      verify(() => mockPlugin.zonedSchedule(
+            id: 103,
+            title: 'Dhuhr Prayer',
+            body: any(named: 'body'),
+            scheduledDate: any(named: 'scheduledDate'),
+            notificationDetails: any(named: 'notificationDetails'),
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          )).called(1);
+
+      // Asr is disabled (enabled: false), so id 104 should never be scheduled
       verifyNever(() => mockPlugin.zonedSchedule(
-            id: 101,
+            id: 104,
             title: any(named: 'title'),
             body: any(named: 'body'),
             scheduledDate: any(named: 'scheduledDate'),
             notificationDetails: any(named: 'notificationDetails'),
             androidScheduleMode: any(named: 'androidScheduleMode'),
           ));
+    });
 
+    test('cancelPrayerReminders cancels 15m post and 30m urgent reminder IDs', () async {
+      when(() => mockPlugin.cancel(id: any(named: 'id'))).thenAnswer((_) async {});
+
+      await service.cancelPrayerReminders('Maghrib');
+
+      verify(() => mockPlugin.cancel(id: 1105)).called(1); // 105 + 1000
+      verify(() => mockPlugin.cancel(id: 2105)).called(1); // 105 + 2000
+    });
+
+    test('schedulePrayerNotifications cancels and skips reminders for completedPrayers', () async {
+      when(() => mockPlugin.zonedSchedule(
+            id: any(named: 'id'),
+            title: any(named: 'title'),
+            body: any(named: 'body'),
+            scheduledDate: any(named: 'scheduledDate'),
+            notificationDetails: any(named: 'notificationDetails'),
+            androidScheduleMode: any(named: 'androidScheduleMode'),
+          )).thenAnswer((_) async {});
+      when(() => mockPlugin.cancel(id: any(named: 'id'))).thenAnswer((_) async {});
+
+      final baseTime = DateTime(2026, 7, 24, 18, 0);
+      final nowOverride = DateTime(2026, 7, 24, 17, 0);
+
+      final prayerTimes = <String, DateTime>{
+        'Maghrib': baseTime,
+      };
+      final endTimes = <String, DateTime>{
+        'Maghrib': baseTime.add(const Duration(hours: 1, minutes: 30)),
+      };
+
+      await service.schedulePrayerNotifications(
+        prayerTimes: prayerTimes,
+        enabledPrayers: {'Maghrib': true},
+        endTimes: endTimes,
+        completedPrayers: {'Maghrib'},
+        nowOverride: nowOverride,
+      );
+
+      // 15m post (1105) and 30m urgent (2105) should be cancelled and not scheduled
+      verify(() => mockPlugin.cancel(id: 1105)).called(1);
+      verify(() => mockPlugin.cancel(id: 2105)).called(1);
       verifyNever(() => mockPlugin.zonedSchedule(
-            id: 104,
+            id: 1105,
+            title: any(named: 'title'),
+            body: any(named: 'body'),
+            scheduledDate: any(named: 'scheduledDate'),
+            notificationDetails: any(named: 'notificationDetails'),
+            androidScheduleMode: any(named: 'androidScheduleMode'),
+          ));
+      verifyNever(() => mockPlugin.zonedSchedule(
+            id: 2105,
             title: any(named: 'title'),
             body: any(named: 'body'),
             scheduledDate: any(named: 'scheduledDate'),
@@ -347,7 +407,7 @@ void main() {
     });
 
     test(
-        'scheduleDailyReflectionNotification ignores past scheduled time',
+        'scheduleDailyReflectionNotification auto-advances past scheduled time to tomorrow',
         () async {
       when(() => mockPlugin.zonedSchedule(
             id: any(named: 'id'),
@@ -380,15 +440,15 @@ void main() {
         nowOverride: now,
       );
 
-      verifyNever(() => mockPlugin.zonedSchedule(
-            id: any(named: 'id'),
-            title: any(named: 'title'),
-            body: any(named: 'body'),
+      verify(() => mockPlugin.zonedSchedule(
+            id: 9999,
+            title: 'Sahih al-Bukhari 5',
+            body: 'Actions are judged by intentions.',
             scheduledDate: any(named: 'scheduledDate'),
             notificationDetails: any(named: 'notificationDetails'),
             payload: any(named: 'payload'),
-            androidScheduleMode: any(named: 'androidScheduleMode'),
-          ));
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          )).called(1);
     });
   });
 }

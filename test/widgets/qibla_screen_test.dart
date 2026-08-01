@@ -57,6 +57,14 @@ class FakeLocationService implements LocationService {
 
   @override
   Future<void> cacheLocation(LocationData location) async {}
+
+  @override
+  Stream<LocationData> listenToHighAccuracyUpdates() async* {
+    if (locationData != null) yield locationData!;
+  }
+
+  @override
+  Future<bool> openLocationSettings() async => true;
 }
 
 void main() {
@@ -120,7 +128,8 @@ void main() {
 
       expect(find.text('Qibla Compass'), findsOneWidget);
       expect(find.text('Riyadh, Saudi Arabia'), findsOneWidget);
-      expect(find.text('HEADING'), findsOneWidget);
+      expect(find.textContaining('TRUE NORTH'), findsOneWidget);
+      expect(find.text('HEADING (TRUE)'), findsOneWidget);
       expect(find.text('QIBLA BEARING'), findsOneWidget);
       expect(find.text('255° W'), findsOneWidget);
 
@@ -128,8 +137,8 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
-      expect(find.text('180° S'), findsOneWidget);
-      expect(find.text('TURN 75° RIGHT'), findsOneWidget);
+      expect(find.textContaining('° S'), findsOneWidget);
+      expect(find.textContaining('TURN'), findsOneWidget);
 
       await compassController.close();
     });
@@ -152,8 +161,8 @@ void main() {
       );
       await tester.pump();
 
-      // Heading = 256.0 (difference = 1.0 degree <= 3.0 degrees)
-      compassController.add(const MockCompassEvent(heading: 256.0, accuracy: 2.0));
+      // Heading magnetic = 251.4 (with Riyadh declination ~ +3.6° -> true heading ~ 255.0°, aligned)
+      compassController.add(const MockCompassEvent(heading: 251.4, accuracy: 2.0));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 

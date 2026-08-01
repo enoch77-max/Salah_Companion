@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Salah Companion</string>
+    <string name="widget_full_schedule_desc">Full 5 daily prayers schedule with active highlights and Hijri date.</string>
+    <string name="widget_small_salah_desc">Next prayer countdown, time, and city.</string>
+    <string name="widget_daily_dua_desc">Authentic daily Dua &amp; Quranic verse of the day.</string>
+</resources>

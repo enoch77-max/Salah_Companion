@@ -5,7 +5,17 @@ import '../../../home/presentation/widgets/daily_reflection_card.dart';
 import '../../data/repositories/daily_content_repository.dart';
 import '../../domain/models/daily_content.dart';
 
-/// Screen displaying reverse-chronological list of favorited [DailyContentItem]s.
+enum SavedCategory {
+  all('All'),
+  hadiths('Hadiths'),
+  verses('Verses'),
+  duas('Duas');
+
+  final String label;
+  const SavedCategory(this.label);
+}
+
+/// Screen displaying reverse-chronological list of saved [DailyContentItem]s.
 class FavoritesScreen extends StatefulWidget {
   final DailyContentRepository? repository;
   final List<DailyContentItem>? initialItems;
@@ -27,6 +37,7 @@ class FavoritesScreen extends StatefulWidget {
 class _FavoritesScreenState extends State<FavoritesScreen> {
   List<DailyContentItem>? _items;
   bool _isLoading = false;
+  SavedCategory _selectedCategory = SavedCategory.all;
 
   @override
   void initState() {
@@ -93,6 +104,20 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     }
   }
 
+  List<DailyContentItem> get _filteredItems {
+    final items = _items ?? [];
+    switch (_selectedCategory) {
+      case SavedCategory.all:
+        return items;
+      case SavedCategory.hadiths:
+        return items.where((item) => item.type == DailyContentType.hadith).toList();
+      case SavedCategory.verses:
+        return items.where((item) => item.type == DailyContentType.ayah).toList();
+      case SavedCategory.duas:
+        return items.where((item) => item.type != DailyContentType.hadith && item.type != DailyContentType.ayah).toList();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
@@ -100,19 +125,75 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     return Scaffold(
       backgroundColor: colors.background,
       appBar: AppBar(
-        title: Text(
-          'Favorites',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Saved',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            Text(
+              'Hadiths, Verses & Duas',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colors.textSecondary,
+                    fontSize: 11,
+                  ),
+            ),
+          ],
         ),
         backgroundColor: colors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
         iconTheme: IconThemeData(color: colors.textPrimary),
       ),
-      body: _buildBody(context),
+      body: Column(
+        children: [
+          // Segmented Category Filter Bar
+          Container(
+            height: 48,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: SavedCategory.values.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final category = SavedCategory.values[index];
+                final isSelected = category == _selectedCategory;
+                return ChoiceChip(
+                  label: Text(category.label),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    if (selected) {
+                      setState(() {
+                        _selectedCategory = category;
+                      });
+                    }
+                  },
+                  selectedColor: colors.primary,
+                  backgroundColor: colors.surface,
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.white : colors.textSecondary,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                  shape: ContinuousRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: isSelected ? colors.primary : colors.dividerStrong,
+                      width: 1,
+                    ),
+                  ),
+                  showCheckmark: false,
+                );
+              },
+            ),
+          ),
+          Expanded(child: _buildBody(context)),
+        ],
+      ),
     );
   }
 
@@ -127,8 +208,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       );
     }
 
-    final items = _items;
-    if (items == null || items.isEmpty) {
+    final items = _filteredItems;
+    if (items.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -136,30 +217,32 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
+                width: 72,
+                height: 72,
+                decoration: ShapeDecoration(
                   color: colors.primarySoft,
-                  shape: BoxShape.circle,
+                  shape: ContinuousRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
                 ),
                 child: Icon(
-                  Icons.star_rounded,
-                  size: 32,
+                  Icons.bookmark_rounded,
+                  size: 36,
                   color: colors.primary,
                 ),
               ),
               const SizedBox(height: 20),
               Text(
-                'No favorites saved yet',
+                'No saved items yet',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: colors.textPrimary,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.bold,
                     ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
-                'Tap the star icon on any daily reflection to save it here.',
+                'Tap the bookmark icon on any content to save it here.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: colors.textSecondary,
                     ),
@@ -182,7 +265,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           content: item,
           isFavorited: true,
           onToggleFavorite: () => _onToggleFavorite(item),
-          onShare: widget.onShare != null ? () => widget.onShare!(item) : null,
+          onShare: () {
+            if (widget.onShare != null) {
+              widget.onShare!(item);
+            } else {
+              DailyReflectionCard.shareContent(item);
+            }
+          },
         );
       },
     );

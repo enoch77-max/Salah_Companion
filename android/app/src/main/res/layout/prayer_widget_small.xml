@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_background"
+    android:padding="12dp"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/widget_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NEXT SALAH"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:textColor="#64748B"
+        android:letterSpacing="0.05"
+        android:layout_marginBottom="2dp" />
+
+    <TextView
+        android:id="@+id/widget_next_prayer_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fajr"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#F8FAFC"
+        android:layout_marginBottom="2dp" />
+
+    <TextView
+        android:id="@+id/widget_next_prayer_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="04:45 AM"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#2DD4BF"
+        android:layout_marginBottom="6dp" />
+
+    <TextView
+        android:id="@+id/widget_city"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Riyadh"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="#94A3B8" />
+
+</LinearLayout>
