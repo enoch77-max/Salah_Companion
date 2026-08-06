@@ -34,6 +34,7 @@ import '../widgets/prayer_countdown_hero.dart';
 import '../widgets/prayer_list_card.dart';
 import '../widgets/prayer_streak_sheet.dart';
 import '../widgets/widget_preview_sheet.dart';
+import '../widgets/open_source_sheet.dart';
 
 /// Home Dashboard Screen integrating top app bar with 3-line drawer menu,
 /// 6-item frosted-glass navigation bar matching design spec (Home, Tracker, Qibla, Tasbih, Duas, Calendar),
@@ -1303,6 +1304,66 @@ class _AppNavigationDrawer extends StatelessWidget {
                                   onTap: () {
                                     Navigator.pop(context); // Close drawer
                                     WidgetPreviewSheet.show(context);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // 3. OPEN SOURCE & PRIVACY Inset Card
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4.0, bottom: 6.0, top: 4.0),
+                            child: Text(
+                              'OPEN SOURCE & PRIVACY',
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: colors.textSecondary,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.8,
+                                  ),
+                            ),
+                          ),
+                          Material(
+                            color: colors.surface,
+                            shape: ContinuousRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              side: BorderSide(color: colors.divider, width: 1.0),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // 1. GitHub Open Source Option
+                                _DrawerGroupedTile(
+                                  tileKey: const ValueKey('drawer_github_item'),
+                                  icon: Icons.code_rounded,
+                                  iconColor: const Color(0xFF8B5CF6), // Purple / GitHub Accent
+                                  title: '100% Open Source',
+                                  subtitle: 'Inspect code on GitHub • MIT Licensed',
+                                  onTap: () {
+                                    Navigator.pop(context); // Close drawer
+                                    OpenSourceSheet.show(context);
+                                  },
+                                ),
+                                Divider(height: 1, thickness: 1, color: colors.divider, indent: 64),
+                                // 2. Zero Data Tracking Option
+                                _DrawerGroupedTile(
+                                  tileKey: const ValueKey('drawer_privacy_item'),
+                                  icon: Icons.shield_outlined,
+                                  iconColor: const Color(0xFF10B981), // Emerald Green
+                                  title: 'Privacy Guarantee',
+                                  subtitle: '100% offline, zero data stored or shared',
+                                  onTap: () {
+                                    Navigator.pop(context); // Close drawer
+                                    OpenSourceSheet.show(context);
                                   },
                                 ),
                               ],
