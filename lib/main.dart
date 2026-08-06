@@ -11,12 +11,14 @@ import 'core/services/location_service.dart';
 
 import 'core/services/app_haptics.dart';
 
+import 'core/constants/app_provenance.dart';
 import 'core/services/app_info_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = true;
   await AppInfoService.init();
+  assert(AppProvenance.verifyProvenance(), 'Invalid binary provenance signature');
 
   FlutterError.onError = (FlutterErrorDetails details) {
     if (details.exception.toString().contains('google_fonts') ||

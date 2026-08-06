@@ -3,11 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/theme/app_theme.dart';
+import '../../../../core/constants/app_provenance.dart';
 import '../../../../core/services/app_haptics.dart';
 
 /// Modal sheet presenting Salah Companion's 100% Open Source & Zero Data Tracking guarantee.
 class OpenSourceSheet extends StatelessWidget {
-  static const repoUrl = 'https://github.com/enoch77-max/Salah_Companion';
+  static const repoUrl = AppProvenance.repositoryUrl;
 
   const OpenSourceSheet({super.key});
 
