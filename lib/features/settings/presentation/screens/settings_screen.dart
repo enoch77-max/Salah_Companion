@@ -15,6 +15,7 @@ import '../../../home/presentation/widgets/widget_preview_sheet.dart';
 import '../../../legal/presentation/screens/calculation_docs_screen.dart';
 import '../../../legal/presentation/screens/privacy_policy_screen.dart';
 import '../../../legal/presentation/screens/terms_screen.dart';
+import '../../../home/presentation/widgets/open_source_sheet.dart';
 import '../../../reflection/data/repositories/daily_content_repository.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -794,6 +795,16 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                           builder: (context) => const PrivacyPolicyScreen(),
                         ),
                       );
+                    },
+                  ),
+                  _IOSGroupedTile(
+                    key: const ValueKey('open_source_tile'),
+                    icon: Icons.code_rounded,
+                    iconColor: const Color(0xFF8B5CF6), // Purple
+                    title: '100% Open Source (GitHub)',
+                    onTap: () {
+                      if (_hapticFeedback) HapticFeedback.selectionClick();
+                      OpenSourceSheet.show(context);
                     },
                   ),
                   const _IOSDivider(),

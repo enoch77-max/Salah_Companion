@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../app/theme/app_theme.dart';
+import '../../../../core/services/app_haptics.dart';
 
 /// Screen displaying the Privacy Policy for Salah Companion.
 /// Highlights open source commitment, zero ads, zero tracking, and local-only GPS usage.
@@ -86,6 +88,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 title: 'Completely Free & Open Source',
                 description:
                     'Salah Companion is 100% free with no paywalls, hidden fees, or premium tiers. The codebase is fully open source for complete public auditability.',
+                githubUrl: 'https://github.com/enoch77-max/Salah_Companion',
               ),
               const SizedBox(height: 16),
 
@@ -141,6 +144,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     required Color iconColor,
     required String title,
     required String description,
+    String? githubUrl,
   }) {
     final colors = context.appColors;
 
@@ -153,41 +157,91 @@ class PrivacyPolicyScreen extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: iconColor, size: 20),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: iconColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    description,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: colors.textSecondary,
-                          height: 1.4,
-                        ),
+                  child: Icon(icon, color: iconColor, size: 20),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: colors.textPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        description,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: colors.textSecondary,
+                              height: 1.4,
+                            ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+            if (githubUrl != null) ...[
+              const SizedBox(height: 12),
+              InkWell(
+                onTap: () async {
+                  AppHaptics.selection();
+                  final uri = Uri.parse(githubUrl);
+                  try {
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    }
+                  } catch (_) {}
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: colors.primarySoft,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: colors.primary.withValues(alpha: 0.3),
+                      width: 1.0,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.code_rounded, size: 18, color: colors.primary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          githubUrl,
+                          style: TextStyle(
+                            color: colors.primaryText,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'monospace',
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Icon(Icons.open_in_new_rounded, size: 16, color: colors.primary),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

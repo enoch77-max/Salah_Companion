@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../app/theme/app_theme.dart';
+import '../../../../core/services/app_haptics.dart';
 
 /// Screen displaying the Terms & Conditions for Salah Companion.
 class TermsScreen extends StatelessWidget {
@@ -55,7 +57,8 @@ class TermsScreen extends StatelessWidget {
                 context,
                 title: '1. Open Source & License',
                 content:
-                    'Salah Companion is 100% free and open source software created for the sake of Allah (Fi Sabilillah) to serve the global Muslim community. Using this application or its source code for commercial purposes, selling it, charging for access, or creating paid or proprietary derivatives is strictly prohibited. The source code is open for community contributions, suggestions, and bug fixes to ensure this tool remains completely free forever.',
+                    'Salah Companion is 100% free and open source software created for the sake of Allah (Fi Sabilillah) to serve the global Muslim community. Using this application or its source code for commercial purposes, selling it, charging for access, or creating paid or proprietary derivatives is strictly prohibited. The full source code is public and open for community contributions, suggestions, and security audits.',
+                githubUrl: 'https://github.com/enoch77-max/Salah_Companion',
               ),
               const SizedBox(height: 16),
 
@@ -103,6 +106,7 @@ class TermsScreen extends StatelessWidget {
     BuildContext context, {
     required String title,
     required String content,
+    String? githubUrl,
   }) {
     final colors = context.appColors;
 
@@ -133,6 +137,51 @@ class TermsScreen extends StatelessWidget {
                     height: 1.5,
                   ),
             ),
+            if (githubUrl != null) ...[
+              const SizedBox(height: 12),
+              InkWell(
+                onTap: () async {
+                  AppHaptics.selection();
+                  final uri = Uri.parse(githubUrl);
+                  try {
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    }
+                  } catch (_) {}
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: colors.primarySoft,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: colors.primary.withValues(alpha: 0.3),
+                      width: 1.0,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.code_rounded, size: 18, color: colors.primary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          githubUrl,
+                          style: TextStyle(
+                            color: colors.primaryText,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'monospace',
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Icon(Icons.open_in_new_rounded, size: 16, color: colors.primary),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
