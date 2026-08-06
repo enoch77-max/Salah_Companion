@@ -1191,7 +1191,7 @@ class _AppNavigationDrawer extends StatelessWidget {
                             child: Text(
                               'GUIDANCE',
                               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: colors.primary,
+                                    color: const Color(0xFF6366F1), // Indigo Violet
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 0.8,
                                   ),
@@ -1202,7 +1202,7 @@ class _AppNavigationDrawer extends StatelessWidget {
                             shape: ContinuousRectangleBorder(
                               borderRadius: BorderRadius.circular(24),
                               side: BorderSide(
-                                color: colors.primary.withValues(alpha: 0.35),
+                                color: const Color(0xFF6366F1).withValues(alpha: 0.35),
                                 width: 1.2,
                               ),
                             ),
@@ -1210,7 +1210,7 @@ class _AppNavigationDrawer extends StatelessWidget {
                             child: _DrawerGroupedTile(
                               tileKey: const ValueKey('drawer_learn_salah_item'),
                               icon: Icons.auto_stories_rounded,
-                              iconColor: const Color(0xFF10B981), // Emerald Teal
+                              iconColor: const Color(0xFF6366F1), // Indigo Violet
                               title: 'Learn Salah',
                               subtitle: 'Learn Salah with authentic Sunnah and Hadith',
                               onTap: () {
