@@ -1338,35 +1338,16 @@ class _AppNavigationDrawer extends StatelessWidget {
                               side: BorderSide(color: colors.divider, width: 1.0),
                             ),
                             clipBehavior: Clip.antiAlias,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // 1. GitHub Open Source Option
-                                _DrawerGroupedTile(
-                                  tileKey: const ValueKey('drawer_github_item'),
-                                  icon: Icons.code_rounded,
-                                  iconColor: const Color(0xFF8B5CF6), // Purple / GitHub Accent
-                                  title: '100% Open Source',
-                                  subtitle: 'Inspect code on GitHub • MIT Licensed',
-                                  onTap: () {
-                                    Navigator.pop(context); // Close drawer
-                                    OpenSourceSheet.show(context);
-                                  },
-                                ),
-                                Divider(height: 1, thickness: 1, color: colors.divider, indent: 64),
-                                // 2. Zero Data Tracking Option
-                                _DrawerGroupedTile(
-                                  tileKey: const ValueKey('drawer_privacy_item'),
-                                  icon: Icons.shield_outlined,
-                                  iconColor: const Color(0xFF10B981), // Emerald Green
-                                  title: 'Privacy Guarantee',
-                                  subtitle: '100% offline, zero data stored or shared',
-                                  onTap: () {
-                                    Navigator.pop(context); // Close drawer
-                                    OpenSourceSheet.show(context);
-                                  },
-                                ),
-                              ],
+                            child: _DrawerGroupedTile(
+                              tileKey: const ValueKey('drawer_open_source_privacy_item'),
+                              icon: Icons.verified_user_rounded,
+                              iconColor: const Color(0xFF10B981), // Emerald Green
+                              title: 'Open Source & Privacy',
+                              subtitle: '100% offline, zero tracking & MIT licensed',
+                              onTap: () {
+                                Navigator.pop(context); // Close drawer
+                                OpenSourceSheet.show(context);
+                              },
                             ),
                           ),
                         ],
