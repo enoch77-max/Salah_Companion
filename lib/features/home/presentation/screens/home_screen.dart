@@ -891,91 +891,123 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody(BuildContext context) {
-    switch (_selectedNavIndex) {
-      case 1:
-        return const DuasScreen();
-      case 2:
-        return const TasbihScreen();
-      case 3:
-        return const QiblaScreen();
-      case 4:
-        return HijriCalendarScreen(
-          initialOffset: _hijriOffset,
-          onOffsetChanged: (newOffset) {
-            if (mounted) {
-              setState(() {
-                _hijriOffset = newOffset;
-              });
-            }
-          },
-        );
-      case 0:
-      default:
-        final reflection = _reflectionItem ?? widget.reflectionItem ?? HomeScreen.defaultReflection;
-        return SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.only(
-            left: 16.0,
-            right: 16.0,
-            top: 16.0,
-            bottom: 110.0, // Space for frosted glass nav bar
+    final reflection = _reflectionItem ?? widget.reflectionItem ?? HomeScreen.defaultReflection;
+
+    return IndexedStack(
+      index: _selectedNavIndex,
+      children: [
+        // Tab 0: Home Dashboard
+        TickerMode(
+          enabled: _selectedNavIndex == 0,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 16.0,
+              bottom: 110.0, // Space for frosted glass nav bar
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 1. Hijri & Location Strip
+                RepaintBoundary(
+                  child: HijriStrip(
+                    locationName: _currentLocationName,
+                    hijriOffset: _hijriOffset,
+                    isTimezoneMismatched: widget.isTimezoneMismatched,
+                    isLocationFallback: _isLocationFallback,
+                    locationStatusMessage: _locationStatusMessage,
+                    onLocationBannerTap: () async {
+                      await LocationService().openLocationSettings();
+                      await _initLocationAndPrayers();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 2. Daily Reflection Card
+                RepaintBoundary(
+                  child: DailyReflectionCard(
+                    content: reflection,
+                    isFavorited: _isReflectionFavorited,
+                    onToggleFavorite: _handleToggleFavorite,
+                    onRefresh: _handleRefreshReflection,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 3. Countdown Hero Card
+                RepaintBoundary(
+                  child: PrayerCountdownHero(
+                    headerLabel: _heroHeaderLabel,
+                    nextPrayerName: _nextPrayerName,
+                    periodText: _heroPeriodText,
+                    sunriseTime: _sunriseTimeStr,
+                    sunsetTime: _sunsetTimeStr,
+                    nextPrayerTime: _nextPrayerTime,
+                    periodStartTime: _heroPeriodStartTime,
+                    periodEndTime: _heroPeriodEndTime,
+                    remainingDuration: _nextPrayerTime == null ? _remainingDuration : null,
+                    progress: _countdownProgress,
+                    isDrain: _isDrain,
+                    animate: widget.animateHero,
+                    onTimerExpired: _reEvaluateCurrentPrayerState,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 4. Prayer List Card
+                RepaintBoundary(
+                  child: PrayerListCard(
+                    prayers: _prayers.isNotEmpty ? _prayers : widget.prayers,
+                    onStatusChanged: _handleStatusChanged,
+                    sunriseDateTime: _calculatedTimesMap['Sunrise'],
+                    dhuhrDateTime: _calculatedTimesMap['Dhuhr'],
+                    maghribDateTime: _calculatedTimesMap['Maghrib'],
+                  ),
+                ),
+              ],
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 1. Hijri & Location Strip
-              HijriStrip(
-                locationName: _currentLocationName,
-                hijriOffset: _hijriOffset,
-                isTimezoneMismatched: widget.isTimezoneMismatched,
-                isLocationFallback: _isLocationFallback,
-                locationStatusMessage: _locationStatusMessage,
-                onLocationBannerTap: () async {
-                  await LocationService().openLocationSettings();
-                  await _initLocationAndPrayers();
-                },
-              ),
-              const SizedBox(height: 16),
+        ),
 
-              // 2. Daily Reflection Card (Top Positioned)
-              DailyReflectionCard(
-                content: reflection,
-                isFavorited: _isReflectionFavorited,
-                onToggleFavorite: _handleToggleFavorite,
-                onRefresh: _handleRefreshReflection,
-              ),
-              const SizedBox(height: 16),
+        // Tab 1: Duas & Azkar
+        TickerMode(
+          enabled: _selectedNavIndex == 1,
+          child: const DuasScreen(),
+        ),
 
-              // 3. Countdown Hero Card
-              PrayerCountdownHero(
-                headerLabel: _heroHeaderLabel,
-                nextPrayerName: _nextPrayerName,
-                periodText: _heroPeriodText,
-                sunriseTime: _sunriseTimeStr,
-                sunsetTime: _sunsetTimeStr,
-                nextPrayerTime: _nextPrayerTime,
-                periodStartTime: _heroPeriodStartTime,
-                periodEndTime: _heroPeriodEndTime,
-                remainingDuration: _nextPrayerTime == null ? _remainingDuration : null,
-                progress: _countdownProgress,
-                isDrain: _isDrain,
-                animate: widget.animateHero,
-                onTimerExpired: _reEvaluateCurrentPrayerState,
-              ),
-              const SizedBox(height: 16),
+        // Tab 2: Tasbih Counter
+        TickerMode(
+          enabled: _selectedNavIndex == 2,
+          child: const TasbihScreen(),
+        ),
 
-              // 4. Prayer List Card (5 Daily + Sunrise + Forbidden Nafl Note)
-              PrayerListCard(
-                prayers: _prayers.isNotEmpty ? _prayers : widget.prayers,
-                onStatusChanged: _handleStatusChanged,
-                sunriseDateTime: _calculatedTimesMap['Sunrise'],
-                dhuhrDateTime: _calculatedTimesMap['Dhuhr'],
-                maghribDateTime: _calculatedTimesMap['Maghrib'],
-              ),
-            ],
+        // Tab 3: Qibla Finder
+        TickerMode(
+          enabled: _selectedNavIndex == 3,
+          child: QiblaScreen(
+            isActive: _selectedNavIndex == 3,
           ),
-        );
-    }
+        ),
+
+        // Tab 4: Hijri Calendar
+        TickerMode(
+          enabled: _selectedNavIndex == 4,
+          child: HijriCalendarScreen(
+            initialOffset: _hijriOffset,
+            onOffsetChanged: (newOffset) {
+              if (mounted) {
+                setState(() {
+                  _hijriOffset = newOffset;
+                });
+              }
+            },
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -1267,7 +1299,7 @@ class _AppNavigationDrawer extends StatelessWidget {
                                   icon: Icons.widgets_rounded,
                                   iconColor: const Color(0xFF10B981), // Emerald Green
                                   title: 'Home Screen Widgets',
-                                  subtitle: 'Add live 2x2 or 4x2 widgets to home screen',
+                                  subtitle: 'Add widgets to home screen',
                                   onTap: () {
                                     Navigator.pop(context); // Close drawer
                                     WidgetPreviewSheet.show(context);
@@ -1588,160 +1620,156 @@ class _FrostedGlassBottomNavBarState extends State<_FrostedGlassBottomNavBar> {
       _NavItemData(selectedIcon: Icons.calendar_month_rounded, unselectedIcon: Icons.calendar_today_outlined, label: 'Calendar'),
     ];
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 0, 16, bottomPadding > 0 ? bottomPadding + 4 : 12),
-      child: Container(
-        decoration: ShapeDecoration(
-          shape: ContinuousRectangleBorder(
-            borderRadius: BorderRadius.circular(36),
-            side: BorderSide(
+    return RepaintBoundary(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16, 0, 16, bottomPadding > 0 ? bottomPadding + 4 : 12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: colors.surface.withValues(alpha: 0.88),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
               color: colors.dividerStrong,
               width: 1.0,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.14),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
+                spreadRadius: -2,
+              ),
+            ],
           ),
-          shadows: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.12),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-              spreadRadius: -2,
-            ),
-          ],
-        ),
-        child: ClipPath(
-          clipper: ShapeBorderClipper(
-            shape: ContinuousRectangleBorder(
-              borderRadius: BorderRadius.circular(36),
-            ),
-          ),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-            child: Container(
-              color: colors.surface.withValues(alpha: 0.85),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final availableWidth = constraints.maxWidth - 12;
-                  final itemWidth = availableWidth / navItems.length;
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(28),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+              child: Container(
+                height: 58,
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final availableWidth = constraints.maxWidth;
+                    final itemWidth = availableWidth / navItems.length;
 
-                  return Stack(
-                    children: [
-                      // ─── FLUID SLIDING SELECTION HIGHLIGHT PILL (Apple-Style) ───
-                      AnimatedPositioned(
-                        duration: const Duration(milliseconds: 280),
-                        curve: Curves.easeOutCubic,
-                        left: 6 + (widget.selectedIndex * itemWidth),
-                        top: 0,
-                        bottom: 0,
-                        width: itemWidth,
-                        child: Container(
-                          decoration: ShapeDecoration(
-                            color: colors.primarySoft,
-                            shape: ContinuousRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              side: BorderSide(
-                                color: colors.primary.withValues(alpha: 0.4),
+                    return Stack(
+                      children: [
+                        // ─── FLUID SLIDING SELECTION HIGHLIGHT PILL (Fully Rounded Edges) ───
+                        AnimatedPositioned(
+                          duration: const Duration(milliseconds: 260),
+                          curve: Curves.easeOutCubic,
+                          left: (widget.selectedIndex * itemWidth) + 3,
+                          top: 2,
+                          bottom: 2,
+                          width: itemWidth - 6,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: colors.primarySoft,
+                              borderRadius: BorderRadius.circular(23), // Fully rounded stadium pill!
+                              border: Border.all(
+                                color: colors.primary.withValues(alpha: 0.35),
                                 width: 1.0,
                               ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: colors.primary.withValues(alpha: 0.12),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                            shadows: [
-                              BoxShadow(
-                                color: colors.primary.withValues(alpha: 0.12),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
                           ),
                         ),
-                      ),
 
-                      // ─── NAV ITEMS ROW ──────────────────────────────────────────
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: List.generate(navItems.length, (index) {
-                          final item = navItems[index];
-                          final isSelected = widget.selectedIndex == index;
-                          final isPressed = _pressedIndex == index;
+                        // ─── NAV ITEMS ROW ──────────────────────────────────────────
+                        Row(
+                          children: List.generate(navItems.length, (index) {
+                            final item = navItems[index];
+                            final isSelected = widget.selectedIndex == index;
+                            final isPressed = _pressedIndex == index;
 
-                          return Expanded(
-                            child: GestureDetector(
-                              key: ValueKey('nav_item_$index'),
-                              behavior: HitTestBehavior.opaque,
-                              onTapDown: (_) {
-                                setState(() {
-                                  _pressedIndex = index;
-                                });
-                                HapticFeedback.selectionClick();
-                              },
-                              onTapUp: (_) {
-                                setState(() {
-                                  _pressedIndex = null;
-                                });
-                                widget.onItemSelected(index);
-                              },
-                              onTapCancel: () {
-                                setState(() {
-                                  _pressedIndex = null;
-                                });
-                              },
-                              child: AnimatedScale(
-                                scale: isPressed ? 0.92 : 1.0,
-                                duration: const Duration(milliseconds: 120),
-                                curve: Curves.easeOutCubic,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 6.0),
-                                  color: Colors.transparent,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      AnimatedScale(
-                                        scale: isSelected ? 1.12 : 1.0,
-                                        duration: const Duration(milliseconds: 220),
-                                        curve: Curves.easeOutBack,
-                                        child: index == 1
-                                            ? DuaHandsIcon(
-                                                color: isSelected ? colors.primary : colors.textTertiary,
-                                                size: 22,
-                                                isSelected: isSelected,
-                                              )
-                                            : index == 2
-                                                ? TasbihIcon(
-                                                    color: isSelected ? colors.primary : colors.textTertiary,
-                                                    size: 22,
-                                                    isSelected: isSelected,
-                                                  )
-                                                : Icon(
-                                                    isSelected ? item.selectedIcon : item.unselectedIcon,
-                                                    color: isSelected ? colors.primary : colors.textTertiary,
-                                                    size: 22,
-                                                  ),
-                                      ),
-                                      const SizedBox(height: 3),
-                                      AnimatedDefaultTextStyle(
-                                        duration: const Duration(milliseconds: 200),
-                                        style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                                              color: isSelected ? colors.primary : colors.textTertiary,
-                                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                                              fontSize: 10.5,
-                                              letterSpacing: isSelected ? -0.1 : 0.0,
-                                            ),
-                                        child: Text(
-                                          item.label,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
+                            return Expanded(
+                              child: GestureDetector(
+                                key: ValueKey('nav_item_$index'),
+                                behavior: HitTestBehavior.opaque,
+                                onTapDown: (_) {
+                                  setState(() {
+                                    _pressedIndex = index;
+                                  });
+                                  HapticFeedback.selectionClick();
+                                },
+                                onTapUp: (_) {
+                                  setState(() {
+                                    _pressedIndex = null;
+                                  });
+                                  widget.onItemSelected(index);
+                                },
+                                onTapCancel: () {
+                                  setState(() {
+                                    _pressedIndex = null;
+                                  });
+                                },
+                                child: AnimatedScale(
+                                  scale: isPressed ? 0.92 : 1.0,
+                                  duration: const Duration(milliseconds: 120),
+                                  curve: Curves.easeOutCubic,
+                                  child: Container(
+                                    color: Colors.transparent,
+                                    alignment: Alignment.center,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        AnimatedScale(
+                                          scale: isSelected ? 1.10 : 1.0,
+                                          duration: const Duration(milliseconds: 220),
+                                          curve: Curves.easeOutBack,
+                                          child: index == 1
+                                              ? DuaHandsIcon(
+                                                  color: isSelected ? colors.primary : colors.textTertiary,
+                                                  size: 20,
+                                                  isSelected: isSelected,
+                                                )
+                                              : index == 2
+                                                  ? TasbihIcon(
+                                                      color: isSelected ? colors.primary : colors.textTertiary,
+                                                      size: 20,
+                                                      isSelected: isSelected,
+                                                    )
+                                                  : Icon(
+                                                      isSelected ? item.selectedIcon : item.unselectedIcon,
+                                                      color: isSelected ? colors.primary : colors.textTertiary,
+                                                      size: 20,
+                                                    ),
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(height: 2),
+                                        AnimatedDefaultTextStyle(
+                                          duration: const Duration(milliseconds: 200),
+                                          style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                                                color: isSelected ? colors.primary : colors.textTertiary,
+                                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                                fontSize: 10.5,
+                                                letterSpacing: isSelected ? -0.1 : 0.0,
+                                              ),
+                                          child: Text(
+                                            item.label,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          );
-                        }),
-                      ),
-                    ],
-                  );
-                },
+                            );
+                          }),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),

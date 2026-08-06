@@ -219,33 +219,10 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
     final isCurrentSalah = widget.headerLabel == 'CURRENT SALAH';
     final ledColor = isCurrentSalah ? colors.currentSalahGreen : colors.primary;
 
-    Widget ledDot = Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: ledColor,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: ledColor.withValues(alpha: 0.6),
-            blurRadius: 6,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
+    final Widget ledDot = _PulsingDot(
+      color: ledColor,
+      animate: widget.animate,
     );
-
-    if (widget.animate) {
-      ledDot = ledDot
-          .animate(
-            onPlay: (controller) => controller.repeat(reverse: true),
-          )
-          .fade(
-            begin: 0.3,
-            end: 1.0,
-            duration: const Duration(milliseconds: 900),
-          );
-    }
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -595,5 +572,48 @@ class _SunTimePillRow extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class _PulsingDot extends StatelessWidget {
+  final Color color;
+  final bool animate;
+
+  const _PulsingDot({
+    required this.color,
+    required this.animate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Widget dot = Container(
+      width: 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.6),
+            blurRadius: 6,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+    );
+
+    if (animate) {
+      dot = dot
+          .animate(
+            onPlay: (controller) => controller.repeat(reverse: true),
+          )
+          .fade(
+            begin: 0.3,
+            end: 1.0,
+            duration: const Duration(milliseconds: 900),
+          );
+    }
+
+    return dot;
   }
 }

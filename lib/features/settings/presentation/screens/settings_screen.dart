@@ -501,6 +501,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                       key: const ValueKey('prayer_notifications_master_switch'),
                       value: _prayerNotificationsEnabled,
                       activeTrackColor: colors.primary,
+                      activeThumbColor: Colors.white,
                       inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
                       inactiveThumbColor: colors.textSecondary,
                       onChanged: _updatePrayerNotificationsMaster,
@@ -516,6 +517,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                       key: const ValueKey('adhan_audio_master_switch'),
                       value: _adhanAudioEnabled,
                       activeTrackColor: colors.primary,
+                      activeThumbColor: Colors.white,
                       inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
                       inactiveThumbColor: colors.textSecondary,
                       onChanged: _updateAdhanAudioMaster,
@@ -540,6 +542,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                       key: const ValueKey('daily_reflection_switch'),
                       value: _dailyReflectionEnabled,
                       activeTrackColor: colors.primary,
+                      activeThumbColor: Colors.white,
                       inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
                       inactiveThumbColor: colors.textSecondary,
                       onChanged: (val) async {
@@ -618,6 +621,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                     trailing: Switch.adaptive(
                       value: _preAdhanReminder,
                       activeTrackColor: colors.primary,
+                      activeThumbColor: Colors.white,
                       inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
                       inactiveThumbColor: colors.textSecondary,
                       onChanged: (val) {
@@ -724,8 +728,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                                 ),
                           ),
                           activeTrackColor: colors.primary,
-                      inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
-                      inactiveThumbColor: colors.textSecondary,
+                          activeThumbColor: Colors.white,
+                          inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
+                          inactiveThumbColor: colors.textSecondary,
                           value: _warnBatteryOpt,
                           onChanged: (val) {
                             if (_hapticFeedback) HapticFeedback.selectionClick();
@@ -754,6 +759,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                     trailing: Switch.adaptive(
                       value: _hapticFeedback,
                       activeTrackColor: colors.primary,
+                      activeThumbColor: Colors.white,
                       inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
                       inactiveThumbColor: colors.textSecondary,
                       onChanged: (val) async {

@@ -23,6 +23,7 @@ class QiblaScreen extends StatefulWidget {
   final Stream<CompassEvent>? compassEvents;
   final LocationData? initialLocation;
   final double? initialQiblaBearing;
+  final bool isActive;
 
   const QiblaScreen({
     super.key,
@@ -31,6 +32,7 @@ class QiblaScreen extends StatefulWidget {
     this.compassEvents,
     this.initialLocation,
     this.initialQiblaBearing,
+    this.isActive = true,
   });
 
   @override
@@ -38,7 +40,7 @@ class QiblaScreen extends StatefulWidget {
 }
 
 class _QiblaScreenState extends State<QiblaScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   static const _kaabaLat = 21.422487;
   static const _kaabaLng = 39.826206;
 
@@ -69,6 +71,8 @@ class _QiblaScreenState extends State<QiblaScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     _locationService = widget.locationService ?? LocationService();
     _calculator = widget.calculator ?? const PrayerTimesCalculator();
     _compassFilter = CompassFilter(
@@ -92,7 +96,35 @@ class _QiblaScreenState extends State<QiblaScreen>
       _fetchLocation();
     }
 
-    _initCompassStream();
+    if (widget.isActive) {
+      _startCompassStream();
+    }
+  }
+
+  @override
+  void didUpdateWidget(QiblaScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive != oldWidget.isActive) {
+      if (widget.isActive) {
+        _startCompassStream();
+      } else {
+        _stopCompassStream();
+      }
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (widget.isActive) {
+        _startCompassStream();
+      }
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.detached) {
+      _stopCompassStream();
+    }
   }
 
   void _applyLocationData(LocationData loc, {double? initialQiblaBearing}) {
@@ -150,15 +182,21 @@ class _QiblaScreenState extends State<QiblaScreen>
     }
   }
 
-  void _initCompassStream() {
+  void _startCompassStream() {
+    if (_compassSubscription != null) return;
     final stream = widget.compassEvents ?? FlutterCompass.events;
     if (stream != null) {
       _compassSubscription = stream.listen(_onCompassEvent);
     }
   }
 
+  void _stopCompassStream() {
+    _compassSubscription?.cancel();
+    _compassSubscription = null;
+  }
+
   void _onCompassEvent(CompassEvent event) {
-    if (!mounted) return;
+    if (!mounted || !widget.isActive) return;
 
     final rawHeading = event.heading;
 
@@ -218,7 +256,8 @@ class _QiblaScreenState extends State<QiblaScreen>
 
   @override
   void dispose() {
-    _compassSubscription?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    _stopCompassStream();
     _curvedAnimation.dispose();
     _headingController.dispose();
     super.dispose();
@@ -585,61 +624,63 @@ class _QiblaScreenState extends State<QiblaScreen>
                             label: 'Qibla compass dial',
                             value:
                                 '${_currentHeading?.round() ?? 0} degrees heading, Qibla at ${_qiblaBearing?.round() ?? 0} degrees',
-                            child: Container(
-                              width: 300,
-                              height: 300,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: colors.surface,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: isAligned
-                                        ? colors.successGlow
-                                        : colors.shadow,
-                                    blurRadius: isAligned ? 28 : 16,
-                                    spreadRadius: isAligned ? 4 : 0,
-                                  ),
-                                ],
-                              ),
-                              child: AnimatedBuilder(
-                                animation: _curvedAnimation,
-                                builder: (context, child) {
-                                  final currentHeadingAngle = _startHeading +
-                                      (_targetHeading - _startHeading) *
-                                          _curvedAnimation.value;
-                                  final relativeAngle =
-                                      (qiblaBearing != null && currentHeading != null)
-                                          ? (qiblaBearing - currentHeadingAngle + 360) % 360
-                                          : (qiblaBearing ?? 0.0);
+                            child: RepaintBoundary(
+                              child: Container(
+                                width: 300,
+                                height: 300,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: colors.surface,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: isAligned
+                                          ? colors.successGlow
+                                          : colors.shadow,
+                                      blurRadius: isAligned ? 28 : 16,
+                                      spreadRadius: isAligned ? 4 : 0,
+                                    ),
+                                  ],
+                                ),
+                                child: AnimatedBuilder(
+                                  animation: _curvedAnimation,
+                                  builder: (context, child) {
+                                    final currentHeadingAngle = _startHeading +
+                                        (_targetHeading - _startHeading) *
+                                            _curvedAnimation.value;
+                                    final relativeAngle =
+                                        (qiblaBearing != null && currentHeading != null)
+                                            ? (qiblaBearing - currentHeadingAngle + 360) % 360
+                                            : (qiblaBearing ?? 0.0);
 
-                                  return Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      // Rotating Compass Dial (N, E, S, W & Ticks)
-                                      Transform.rotate(
-                                        angle: -currentHeadingAngle * math.pi / 180,
-                                        child: CustomPaint(
-                                          size: const Size(290, 290),
-                                          painter: _CompassDialPainter(
-                                            qiblaBearing: qiblaBearing ?? 0.0,
-                                            colors: colors,
-                                            isDark: isDark,
+                                    return Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        // Rotating Compass Dial (N, E, S, W & Ticks)
+                                        Transform.rotate(
+                                          angle: -currentHeadingAngle * math.pi / 180,
+                                          child: CustomPaint(
+                                            size: const Size(290, 290),
+                                            painter: _CompassDialPainter(
+                                              qiblaBearing: qiblaBearing ?? 0.0,
+                                              colors: colors,
+                                              isDark: isDark,
+                                            ),
                                           ),
                                         ),
-                                      ),
 
-                                      // Qibla Needle Pointer (Points towards Qibla direction)
-                                      CustomPaint(
-                                        size: const Size(290, 290),
-                                        painter: _QiblaNeedlePainter(
-                                          relativeQiblaAngle: relativeAngle,
-                                          isAligned: isAligned,
-                                          colors: colors,
+                                        // Qibla Needle Pointer (Points towards Qibla direction)
+                                        CustomPaint(
+                                          size: const Size(290, 290),
+                                          painter: _QiblaNeedlePainter(
+                                            relativeQiblaAngle: relativeAngle,
+                                            isAligned: isAligned,
+                                            colors: colors,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  );
-                                },
+                                      ],
+                                    );
+                                  },
+                                ),
                               ),
                             ),
                           ),

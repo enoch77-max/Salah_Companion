@@ -304,7 +304,8 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-          child: Column(
+          child: RepaintBoundary(
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Display Title
@@ -803,7 +804,8 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }
 

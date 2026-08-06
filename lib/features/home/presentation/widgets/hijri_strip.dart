@@ -63,21 +63,10 @@ class HijriStrip extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 26,
-                    height: 26,
-                    decoration: ShapeDecoration(
-                      color: colors.primarySoft,
-                      shape: ContinuousRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      Icons.dark_mode_outlined,
-                      size: 14,
-                      color: colors.primary,
-                    ),
+                  Icon(
+                    Icons.dark_mode_rounded,
+                    size: 16,
+                    color: colors.primary,
                   ),
                   const SizedBox(width: 8),
                   Text(

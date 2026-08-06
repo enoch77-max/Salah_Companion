@@ -412,108 +412,110 @@ class _DuasScreenState extends State<DuasScreen> {
                       separatorBuilder: (context, index) => const SizedBox(height: 16),
                       itemBuilder: (context, index) {
                         final dua = filteredDuas[index];
-                        return Container(
-                          decoration: ShapeDecoration(
-                            color: colors.surface,
-                            shape: ContinuousRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
-                              side: BorderSide(color: colors.divider, width: 1.0),
+                        return RepaintBoundary(
+                          child: Container(
+                            decoration: ShapeDecoration(
+                              color: colors.surface,
+                              shape: ContinuousRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                                side: BorderSide(color: colors.divider, width: 1.0),
+                              ),
                             ),
-                          ),
-                          padding: const EdgeInsets.all(20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      dua.title,
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                            color: colors.textPrimary,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  IconButton(
-                                    key: ValueKey('copy_button_${dua.id}'),
-                                    icon: Icon(Icons.copy_rounded, size: 18, color: colors.textSecondary),
-                                    tooltip: 'Copy Dua',
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
-                                    onPressed: () => _copyDuaToClipboard(dua),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    decoration: ShapeDecoration(
-                                      color: colors.primarySoft,
-                                      shape: ContinuousRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        dua.title,
+                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                              color: colors.textPrimary,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                            ),
                                       ),
                                     ),
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    child: Text(
-                                      '${dua.repeatCount}x',
-                                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                            color: colors.primaryText,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      key: ValueKey('copy_button_${dua.id}'),
+                                      icon: Icon(Icons.copy_rounded, size: 18, color: colors.textSecondary),
+                                      tooltip: 'Copy Dua',
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      onPressed: () => _copyDuaToClipboard(dua),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              // Arabic Script
-                              Directionality(
-                                textDirection: TextDirection.rtl,
-                                child: Text(
-                                  dua.arabic,
-                                  style: AppTypography.quranicStyle(
-                                    color: colors.textPrimary,
-                                    fontSize: 22,
-                                  ).copyWith(height: 1.8),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      decoration: ShapeDecoration(
+                                        color: colors.primarySoft,
+                                        shape: ContinuousRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      child: Text(
+                                        '${dua.repeatCount}x',
+                                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                              color: colors.primaryText,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(height: 12),
-                              // Transliteration
-                              Text(
-                                dua.transliteration,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: colors.textSecondary,
-                                      fontStyle: FontStyle.italic,
-                                      height: 1.4,
-                                    ),
-                              ),
-                              const SizedBox(height: 8),
-                              // English Translation
-                              Text(
-                                dua.translation,
-                                style: AppTypography.quoteTranslationStyle(
-                                  color: colors.textPrimary,
-                                  fontSize: 15,
-                                ).copyWith(height: 1.4),
-                              ),
-                              const SizedBox(height: 14),
-                              // Source Caption
-                              Row(
-                                children: [
-                                  Icon(Icons.bookmark_outline_rounded, size: 14, color: colors.textTertiary),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      dua.source,
-                                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                            color: colors.textTertiary,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                    ),
+                                const SizedBox(height: 16),
+                                // Arabic Script
+                                Directionality(
+                                  textDirection: TextDirection.rtl,
+                                  child: Text(
+                                    dua.arabic,
+                                    style: AppTypography.quranicStyle(
+                                      color: colors.textPrimary,
+                                      fontSize: 22,
+                                    ).copyWith(height: 1.8),
                                   ),
-                                ],
-                              ),
-                            ],
+                                ),
+                                const SizedBox(height: 12),
+                                // Transliteration
+                                Text(
+                                  dua.transliteration,
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        color: colors.textSecondary,
+                                        fontStyle: FontStyle.italic,
+                                        height: 1.4,
+                                      ),
+                                ),
+                                const SizedBox(height: 8),
+                                // English Translation
+                                Text(
+                                  dua.translation,
+                                  style: AppTypography.quoteTranslationStyle(
+                                    color: colors.textPrimary,
+                                    fontSize: 15,
+                                  ).copyWith(height: 1.4),
+                                ),
+                                const SizedBox(height: 14),
+                                // Source Caption
+                                Row(
+                                  children: [
+                                    Icon(Icons.bookmark_outline_rounded, size: 14, color: colors.textTertiary),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        dua.source,
+                                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                              color: colors.textTertiary,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },

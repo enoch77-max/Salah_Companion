@@ -472,12 +472,16 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
                       // ─── ACTION ROW (Reset on Left, Next Dhikr on Right) ─────────────
                       Row(
                         children: [
-                          _AppleResetButton(
-                            key: const ValueKey('reset_button'),
-                            onPressed: _reset,
+                          Expanded(
+                            flex: 2,
+                            child: _AppleResetButton(
+                              key: const ValueKey('reset_button'),
+                              onPressed: _reset,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
+                            flex: 3,
                             child: SizedBox(
                               height: 36,
                               child: OutlinedButton.icon(
@@ -490,6 +494,7 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                   ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 style: OutlinedButton.styleFrom(
                                   backgroundColor: colors.primarySoft.withValues(alpha: 0.5),
@@ -630,31 +635,34 @@ class _AppleResetButtonState extends State<_AppleResetButton> {
         curve: Curves.easeOutCubic,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
+          height: 36,
           decoration: ShapeDecoration(
             color: _isPressed ? colors.primarySoft : colors.surface,
-            shape: ContinuousRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
               side: BorderSide(
                 color: _isPressed ? colors.primary.withValues(alpha: 0.4) : colors.divider,
                 width: 1.0,
               ),
             ),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Icon(
                 Icons.refresh_rounded,
                 size: 14,
                 color: _isPressed ? colors.primary : colors.textSecondary,
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
               Text(
                 'Reset',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: _isPressed ? colors.primaryText : colors.textSecondary,
                       fontWeight: FontWeight.w600,
+                      fontSize: 12,
                     ),
               ),
             ],

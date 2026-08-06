@@ -127,13 +127,13 @@ abstract final class AppTheme {
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return customColors.primary;
+            return Colors.white;
           }
           return customColors.textSecondary;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return customColors.primary.withValues(alpha: 0.5);
+            return customColors.primary;
           }
           return customColors.textTertiary.withValues(alpha: 0.3);
         }),
@@ -239,16 +239,17 @@ abstract final class AppTheme {
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return customColors.primary;
+            return Colors.white;
           }
-          return null;
+          return customColors.textSecondary;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return customColors.primary.withValues(alpha: 0.5);
+            return customColors.primary;
           }
-          return null;
+          return customColors.textTertiary.withValues(alpha: 0.3);
         }),
+        trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
       extensions: const [
         customColors,
