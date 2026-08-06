@@ -160,7 +160,7 @@ class OpenSourceSheet extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'MIT License',
+                      'Non-Commercial',
                       style: TextStyle(
                         color: colors.primaryText,
                         fontSize: 10,

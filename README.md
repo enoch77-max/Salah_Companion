@@ -1,17 +1,37 @@
-# salah_companion
+# Salah Companion 🕌
 
-A new Flutter project.
+An authentic, modern, and 100% offline Prayer Times, Qibla, Tasbih, and Islamic Guidance application built for the global Muslim community (*Fi Sabilillah*).
 
-## Getting Started
+- **GitHub Repository**: [https://github.com/enoch77-max/Salah_Companion](https://github.com/enoch77-max/Salah_Companion)
+- **License**: PolyForm Noncommercial License 1.0.0 (Non-Commercial Open Source)
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## ✨ Features
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+- 🕋 **Astronomical Prayer Times**: High-precision calculation algorithms with automatic Madhab & Calculation Method support.
+- 🧭 **True North Qibla Compass**: Magnetometer & geomagnetic declination filter pointing towards the Kaaba.
+- 📿 **Interactive Tasbih Counter**: Haptic feedback, customizable targets, and dhikr selection.
+- 📖 **Authentic Duas & Daily Reflections**: Hadith and Quranic verse reflections.
+- 📱 **Home Screen Widgets**: Live 2x2 and 4x2 Android widgets.
+- 🔒 **100% Offline & Private**: Zero user tracking, zero data stored on remote servers, no account required.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 📜 License & Copyright
+
+Copyright (c) 2026 **enoch77-max**. All Rights Reserved for Commercial Exploitation.
+
+This project is licensed under the **PolyForm Noncommercial License 1.0.0**.
+
+### Permitted Uses:
+- ✅ Reading, inspecting, and auditing the code for transparency.
+- ✅ Contributing bug fixes, features, and enhancements via GitHub Pull Requests.
+- ✅ Personal, educational, and community non-commercial use.
+
+### Strictly Prohibited Uses:
+- ❌ Selling the app or any modified version of the codebase.
+- ❌ Running advertisements, paid subscriptions, or monetizing derivative applications.
+- ❌ Closed-source or proprietary redistribution.
+
+Commercial use or monetization requires explicit, written permission from the copyright holder ([enoch77-max](https://github.com/enoch77-max)).

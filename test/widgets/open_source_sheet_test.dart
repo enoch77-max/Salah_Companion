@@ -20,7 +20,7 @@ void main() {
 
       expect(find.text('100% Open Source'), findsOneWidget);
       expect(find.text('Transparent & Privacy-First'), findsOneWidget);
-      expect(find.text('MIT License'), findsOneWidget);
+      expect(find.text('Non-Commercial'), findsOneWidget);
       expect(find.text('Zero Data Stored or Shared'), findsOneWidget);
       expect(find.text('100% Offline Capability'), findsOneWidget);
       expect(find.text('Fully Auditable Code'), findsOneWidget);

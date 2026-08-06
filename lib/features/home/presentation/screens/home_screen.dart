@@ -1343,7 +1343,7 @@ class _AppNavigationDrawer extends StatelessWidget {
                               icon: Icons.verified_user_rounded,
                               iconColor: const Color(0xFF10B981), // Emerald Green
                               title: 'Open Source & Privacy',
-                              subtitle: '100% offline, zero tracking & MIT licensed',
+                              subtitle: '100% offline, zero tracking & Non-Commercial',
                               onTap: () {
                                 Navigator.pop(context); // Close drawer
                                 OpenSourceSheet.show(context);
