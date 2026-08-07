@@ -213,6 +213,20 @@ class _HomeScreenState extends State<HomeScreen> {
     final todayStr = _getTodayDateStr(_currentCalcDate);
     final savedLogs = await _loadTodayPrayerLogs(todayStr);
 
+    PrayerStatus resolveStatus(String name) {
+      final dbStatus = savedLogs[name];
+      if (dbStatus != null && dbStatus != PrayerStatus.pending) return dbStatus;
+      for (final p in _prayers) {
+        if (p.name == name && p.status != PrayerStatus.pending) return p.status;
+      }
+      return dbStatus ?? PrayerStatus.pending;
+    }
+
+    final mergedLogs = <String, PrayerStatus>{};
+    for (final key in ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']) {
+      mergedLogs[key] = resolveStatus(key);
+    }
+
     final fajrStr = _formatTime12h(fajr);
     final sunriseStr = _formatTime12h(sunrise);
     final dhuhrStr = _formatTime12h(dhuhr);
@@ -222,12 +236,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final tomorrowFajrStr = _formatTime12h(fajr.add(const Duration(days: 1)));
 
     final rawList = [
-      PrayerItem(name: 'Fajr', time: fajrStr, endTime: sunriseStr, status: savedLogs['Fajr'] ?? PrayerStatus.pending),
+      PrayerItem(name: 'Fajr', time: fajrStr, endTime: sunriseStr, status: mergedLogs['Fajr']!),
       PrayerItem(name: 'Sunrise', time: sunriseStr, isSunrise: true),
-      PrayerItem(name: 'Dhuhr', time: dhuhrStr, endTime: asrStr, status: savedLogs['Dhuhr'] ?? PrayerStatus.pending),
-      PrayerItem(name: 'Asr', time: asrStr, endTime: maghribStr, status: savedLogs['Asr'] ?? PrayerStatus.pending),
-      PrayerItem(name: 'Maghrib', time: maghribStr, endTime: ishaStr, status: savedLogs['Maghrib'] ?? PrayerStatus.pending),
-      PrayerItem(name: 'Isha', time: ishaStr, endTime: tomorrowFajrStr, status: savedLogs['Isha'] ?? PrayerStatus.pending),
+      PrayerItem(name: 'Dhuhr', time: dhuhrStr, endTime: asrStr, status: mergedLogs['Dhuhr']!),
+      PrayerItem(name: 'Asr', time: asrStr, endTime: maghribStr, status: mergedLogs['Asr']!),
+      PrayerItem(name: 'Maghrib', time: maghribStr, endTime: ishaStr, status: mergedLogs['Maghrib']!),
+      PrayerItem(name: 'Isha', time: ishaStr, endTime: tomorrowFajrStr, status: mergedLogs['Isha']!),
     ];
 
     if (!mounted) return;
@@ -633,8 +647,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final cityName = LocationFormatter.format(loc);
 
-    final todayStr = _getTodayDateStr(calcDate);
+    _currentCalcDate = DateTime(calcDate.year, calcDate.month, calcDate.day);
+    final todayStr = _getTodayDateStr(_currentCalcDate);
     final savedLogs = await _loadTodayPrayerLogs(todayStr);
+
+    PrayerStatus resolveStatus(String name) {
+      final dbStatus = savedLogs[name];
+      if (dbStatus != null && dbStatus != PrayerStatus.pending) return dbStatus;
+      for (final p in _prayers) {
+        if (p.name == name && p.status != PrayerStatus.pending) return p.status;
+      }
+      return dbStatus ?? PrayerStatus.pending;
+    }
+
+    final mergedLogs = <String, PrayerStatus>{};
+    for (final key in ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']) {
+      mergedLogs[key] = resolveStatus(key);
+    }
 
     _calculatedTimesMap = {
       'Fajr': prayerTimes.fajr,
@@ -654,12 +683,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final tomorrowFajrStr = _formatTime12h(prayerTimes.fajr.add(const Duration(days: 1)));
 
     final rawList = [
-      PrayerItem(name: 'Fajr', time: fajrStr, endTime: sunriseStr, status: savedLogs['Fajr'] ?? PrayerStatus.pending),
+      PrayerItem(name: 'Fajr', time: fajrStr, endTime: sunriseStr, status: mergedLogs['Fajr']!),
       PrayerItem(name: 'Sunrise', time: sunriseStr, isSunrise: true),
-      PrayerItem(name: 'Dhuhr', time: dhuhrStr, endTime: asrStr, status: savedLogs['Dhuhr'] ?? PrayerStatus.pending),
-      PrayerItem(name: 'Asr', time: asrStr, endTime: maghribStr, status: savedLogs['Asr'] ?? PrayerStatus.pending),
-      PrayerItem(name: 'Maghrib', time: maghribStr, endTime: ishaStr, status: savedLogs['Maghrib'] ?? PrayerStatus.pending),
-      PrayerItem(name: 'Isha', time: ishaStr, endTime: tomorrowFajrStr, status: savedLogs['Isha'] ?? PrayerStatus.pending),
+      PrayerItem(name: 'Dhuhr', time: dhuhrStr, endTime: asrStr, status: mergedLogs['Dhuhr']!),
+      PrayerItem(name: 'Asr', time: asrStr, endTime: maghribStr, status: mergedLogs['Asr']!),
+      PrayerItem(name: 'Maghrib', time: maghribStr, endTime: ishaStr, status: mergedLogs['Maghrib']!),
+      PrayerItem(name: 'Isha', time: ishaStr, endTime: tomorrowFajrStr, status: mergedLogs['Isha']!),
     ];
 
     if (!mounted) return;
@@ -676,7 +705,7 @@ class _HomeScreenState extends State<HomeScreen> {
         asr: prayerTimes.asr,
         maghrib: prayerTimes.maghrib,
         isha: prayerTimes.isha,
-        logs: savedLogs,
+        logs: mergedLogs,
       );
     });
 
@@ -840,7 +869,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
 
-    final todayStr = _getTodayDateStr();
+    final todayStr = _getTodayDateStr(_currentCalcDate);
     await _savePrayerLog(todayStr, item.name, newStatus);
 
     final notifService = widget.notificationService ?? NotificationService();

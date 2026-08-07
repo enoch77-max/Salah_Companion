@@ -483,7 +483,6 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                     ),
                     const SizedBox(height: 12),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [-2, -1, 0, 1, 2].map((offsetValue) {
                         final isSelected = _offset == offsetValue;
                         final label = offsetValue == 0
@@ -491,25 +490,48 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                             : offsetValue > 0
                                 ? '+$offsetValue'
                                 : '$offsetValue';
-                        return ChoiceChip(
-                          key: ValueKey('offset_chip_$offsetValue'),
-                          label: Text(label),
-                          selected: isSelected,
-                          selectedColor: colors.primarySoft,
-                          backgroundColor: colors.surface,
-                          labelStyle: TextStyle(
-                            color: isSelected ? colors.primaryText : colors.textSecondary,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                            child: Semantics(
+                              button: true,
+                              selected: isSelected,
+                              label: 'Hijri offset $label',
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  key: ValueKey('offset_chip_$offsetValue'),
+                                  onTap: () => _setOffset(offsetValue),
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 150),
+                                    padding: const EdgeInsets.symmetric(vertical: 10),
+                                    alignment: Alignment.center,
+                                    decoration: ShapeDecoration(
+                                      color: isSelected
+                                          ? colors.primary.withValues(alpha: 0.18)
+                                          : colors.elevatedBackground,
+                                      shape: ContinuousRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                        side: BorderSide(
+                                          color: isSelected ? colors.primary : colors.divider,
+                                          width: isSelected ? 1.5 : 1.0,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      label,
+                                      style: TextStyle(
+                                        color: isSelected ? colors.primary : colors.primaryText.withValues(alpha: 0.85),
+                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                          side: BorderSide(
-                            color: isSelected ? colors.primary : colors.divider,
-                          ),
-                          shape: ContinuousRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          onSelected: (selected) {
-                            if (selected) _setOffset(offsetValue);
-                          },
                         );
                       }).toList(),
                     ),
