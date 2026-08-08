@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../core/services/app_haptics.dart';
+
+import '../../../../core/utils/url_launcher_utils.dart';
 
 /// Screen displaying the Privacy Policy for Salah Companion.
 /// Highlights open source commitment, zero ads, zero tracking, and local-only GPS usage.
@@ -213,12 +214,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
               InkWell(
                 onTap: () async {
                   AppHaptics.selection();
-                  final uri = Uri.parse(githubUrl);
-                  try {
-                    if (await canLaunchUrl(uri)) {
-                      await launchUrl(uri, mode: LaunchMode.externalApplication);
-                    }
-                  } catch (_) {}
+                  await UrlLauncherUtils.openUrl(context, githubUrl);
                 },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(

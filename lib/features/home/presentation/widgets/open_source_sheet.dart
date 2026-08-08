@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/theme/app_theme.dart';
 import '../../../../core/constants/app_provenance.dart';
 import '../../../../core/services/app_haptics.dart';
+
+import '../../../../core/utils/url_launcher_utils.dart';
 
 /// Modal sheet presenting Salah Companion's 100% Open Source & Zero Data Tracking guarantee.
 class OpenSourceSheet extends StatelessWidget {
@@ -24,20 +25,7 @@ class OpenSourceSheet extends StatelessWidget {
 
   Future<void> _launchGitHub(BuildContext context) async {
     AppHaptics.selection();
-    final uri = Uri.parse(repoUrl);
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        if (context.mounted) {
-          _copyToClipboard(context);
-        }
-      }
-    } catch (_) {
-      if (context.mounted) {
-        _copyToClipboard(context);
-      }
-    }
+    await UrlLauncherUtils.openUrl(context, repoUrl);
   }
 
   void _copyToClipboard(BuildContext context) {
