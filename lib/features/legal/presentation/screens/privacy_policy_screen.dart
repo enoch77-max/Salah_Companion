@@ -130,7 +130,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 title: 'Online Hosted Privacy Policy',
                 description:
                     'You can also read the official hosted web version of our privacy policy online on GitHub:',
-                githubUrl: 'https://enoch77-max.github.io/Salah_Companion/docs/privacy.html',
+                githubUrl: 'https://github.com/enoch77-max/Salah_Companion/blob/main/docs/PRIVACY_POLICY.md',
               ),
               const SizedBox(height: 32),
 
