@@ -1,5 +1,5 @@
 name: salah_companion
-description: "A new Flutter project."
+description: "Authentic, offline-first Islamic prayer times, Qibla compass, Tasbih counter, and Hadith companion."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

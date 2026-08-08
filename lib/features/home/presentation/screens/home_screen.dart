@@ -113,6 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<PrayerItem> _prayers = [];
   Map<String, DateTime> _calculatedTimesMap = {};
   DateTime? _currentCalcDate;
+  String? _lastLoadedDateStr;
   DailyContentItem? _reflectionItem;
   bool _isDatabaseHydrated = false;
   bool _showWalkthrough = false;
@@ -211,13 +212,18 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final todayStr = _getTodayDateStr(_currentCalcDate);
+    final isSameDay = _lastLoadedDateStr == todayStr;
+    _lastLoadedDateStr = todayStr;
+
     final savedLogs = await _loadTodayPrayerLogs(todayStr);
 
     PrayerStatus resolveStatus(String name) {
       final dbStatus = savedLogs[name];
       if (dbStatus != null && dbStatus != PrayerStatus.pending) return dbStatus;
-      for (final p in _prayers) {
-        if (p.name == name && p.status != PrayerStatus.pending) return p.status;
+      if (isSameDay) {
+        for (final p in _prayers) {
+          if (p.name == name && p.status != PrayerStatus.pending) return p.status;
+        }
       }
       return dbStatus ?? PrayerStatus.pending;
     }
@@ -649,13 +655,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _currentCalcDate = DateTime(calcDate.year, calcDate.month, calcDate.day);
     final todayStr = _getTodayDateStr(_currentCalcDate);
+    final isSameDay = _lastLoadedDateStr == todayStr;
+    _lastLoadedDateStr = todayStr;
+
     final savedLogs = await _loadTodayPrayerLogs(todayStr);
 
     PrayerStatus resolveStatus(String name) {
       final dbStatus = savedLogs[name];
       if (dbStatus != null && dbStatus != PrayerStatus.pending) return dbStatus;
-      for (final p in _prayers) {
-        if (p.name == name && p.status != PrayerStatus.pending) return p.status;
+      if (isSameDay) {
+        for (final p in _prayers) {
+          if (p.name == name && p.status != PrayerStatus.pending) return p.status;
+        }
       }
       return dbStatus ?? PrayerStatus.pending;
     }

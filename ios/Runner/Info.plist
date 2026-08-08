@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Salah Companion requires your location to calculate accurate astronomical prayer times and determine the Qibla direction for your current area.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Salah Companion requires location access to keep your prayer schedule accurate when traveling across locations.</string>
 </dict>
 </plist>

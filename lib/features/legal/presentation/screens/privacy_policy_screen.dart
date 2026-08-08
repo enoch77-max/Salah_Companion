@@ -120,6 +120,17 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 description:
                     'All prayer calculation preferences, logged prayers, tasbih counts, and settings are stored locally on your device in an encrypted SQLite database. You remain in complete control of your data.',
               ),
+              const SizedBox(height: 16),
+
+              _buildPolicySection(
+                context,
+                icon: Icons.language_rounded,
+                iconColor: const Color(0xFF10B981),
+                title: 'Online Hosted Privacy Policy',
+                description:
+                    'You can also read the official hosted web version of our privacy policy online on GitHub:',
+                githubUrl: 'https://enoch77-max.github.io/Salah_Companion/docs/privacy.html',
+              ),
               const SizedBox(height: 32),
 
               Center(
