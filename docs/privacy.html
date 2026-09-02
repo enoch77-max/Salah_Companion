@@ -3,140 +3,476 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - Salah Companion</title>
+    <title>Privacy Policy — Salah Companion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ─── App-matched color tokens (from app_colors.dart) ──────── */
         :root {
-            --bg-color: #0F172A;
-            --card-bg: #1E293B;
-            --text-primary: #F8FAFC;
-            --text-secondary: #94A3B8;
-            --accent-green: #10B981;
-            --border-color: #334155;
-            --accent-soft: rgba(16, 185, 129, 0.15);
+            /* Light mode — iOS System Grouped Palette */
+            --primary:        #0284C7;  /* lightPrimary */
+            --primary-soft:   rgba(2,132,199,0.10);  /* lightPrimarySoft */
+            --primary-text:   #0369A1;  /* lightPrimaryText */
+            --bg:             #F2F2F7;  /* lightBackground */
+            --surface:        #FFFFFF;  /* lightSurface */
+            --elevated:       #FFFFFF;  /* lightElevatedBackground */
+            --hover:          #F8F9FA;  /* lightSurfaceHover */
+            --text-primary:   #1C1C1E;  /* lightTextPrimary */
+            --text-secondary: #6C6C70;  /* lightTextSecondary */
+            --text-tertiary:  #8E8E93;  /* lightTextTertiary */
+            --divider:        rgba(0,0,0,0.08);  /* lightDivider */
+            --divider-strong: rgba(0,0,0,0.15);  /* lightDividerStrong */
+            --shadow:         rgba(0,0,0,0.06);  /* lightShadow */
+            --success:        #059669;  /* lightSuccess */
+            --success-text:   #047857;  /* lightSuccessText */
         }
 
-        @media (prefers-color-scheme: light) {
+        @media (prefers-color-scheme: dark) {
             :root {
-                --bg-color: #F8FAFC;
-                --card-bg: #FFFFFF;
-                --text-primary: #0F172A;
-                --text-secondary: #475569;
-                --border-color: #E2E8F0;
+                /* Dark mode — Warm Sand Gold */
+                --primary:        #D4A574;  /* darkPrimary */
+                --primary-soft:   rgba(212,165,116,0.12);  /* darkPrimarySoft */
+                --primary-text:   #E8C9A0;  /* darkPrimaryText */
+                --bg:             #0D0F14;  /* darkBackground */
+                --surface:        #181B22;  /* darkSurface */
+                --elevated:       #12151C;  /* darkElevatedBackground */
+                --hover:          #1E222C;  /* darkSurfaceHover */
+                --text-primary:   #F0EDE8;  /* darkTextPrimary */
+                --text-secondary: #8B9099;  /* darkTextSecondary */
+                --text-tertiary:  #5A5F68;  /* darkTextTertiary */
+                --divider:        rgba(255,255,255,0.05);  /* darkDivider */
+                --divider-strong: rgba(255,255,255,0.09);  /* darkDividerStrong */
+                --shadow:         rgba(0,0,0,0.50);  /* darkShadow */
+                --success:        #10B981;  /* darkSuccess */
+                --success-text:   #34D399;  /* darkSuccessText */
             }
         }
 
+        /* ─── Reset & base ─────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
             color: var(--text-primary);
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
+        /* ─── Container ────────────────────────────────────────────── */
         .container {
-            max-width: 800px;
+            max-width: 720px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 48px 24px 64px;
+        }
+
+        /* ─── Header ───────────────────────────────────────────────── */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .app-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-text));
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+
+        .app-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: #FFFFFF;
         }
 
         .badge {
             display: inline-block;
-            background-color: var(--accent-soft);
-            color: var(--accent-green);
-            font-weight: 700;
+            background-color: var(--primary-soft);
+            color: var(--primary-text);
+            font-weight: 600;
             padding: 6px 16px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 13px;
             margin-bottom: 16px;
+            letter-spacing: 0.02em;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 800;
-            letter-spacing: -0.025em;
-            margin: 0 0 12px 0;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+            margin: 0 0 8px 0;
+            line-height: 1.2;
         }
 
-        p.subtitle {
-            font-size: 1.125rem;
+        .subtitle {
+            font-size: 1rem;
             color: var(--text-secondary);
-            margin-bottom: 36px;
+            margin-bottom: 4px;
+            font-weight: 400;
         }
 
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
+        .effective-date {
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        /* ─── Section cards (Apple squircle style) ─────────────────── */
+        .section {
+            background-color: var(--surface);
+            border: 1px solid var(--divider-strong);
+            border-radius: 20px;
             padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px var(--shadow);
+            transition: box-shadow 0.2s ease;
         }
 
-        .card h2 {
-            font-size: 1.25rem;
-            margin-top: 0;
-            color: var(--accent-green);
+        .section:hover {
+            box-shadow: 0 8px 24px var(--shadow);
         }
 
-        footer {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 0.875rem;
+        .section h2 {
+            font-size: 1.0625rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h2 .icon {
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary-soft);
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .section h2 .icon svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--primary);
+        }
+
+        .section p, .section li {
             color: var(--text-secondary);
-            border-top: 1px solid var(--border-color);
-            padding-top: 24px;
+            font-size: 0.9375rem;
+            line-height: 1.7;
         }
 
+        .section p + p {
+            margin-top: 12px;
+        }
+
+        .section strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .section ul {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0 0 0;
+        }
+
+        .section ul li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+        }
+
+        .section ul li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--primary);
+        }
+
+        /* ─── Highlight box ────────────────────────────────────────── */
+        .highlight-box {
+            background-color: var(--primary-soft);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .highlight-box p {
+            color: var(--primary-text);
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        /* ─── Permission items ─────────────────────────────────────── */
+        .perm-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .perm-item {
+            background-color: var(--hover);
+            border-radius: 12px;
+            padding: 14px 16px;
+        }
+
+        .perm-item .perm-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            margin-bottom: 4px;
+        }
+
+        .perm-item .perm-tag {
+            display: inline-block;
+            background-color: var(--primary-soft);
+            color: var(--primary-text);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .perm-item .perm-desc {
+            color: var(--text-secondary);
+            font-size: 0.8125rem;
+            line-height: 1.5;
+        }
+
+        /* ─── Links ────────────────────────────────────────────────── */
         a {
-            color: var(--accent-green);
+            color: var(--primary);
             text-decoration: none;
+            transition: opacity 0.15s ease;
         }
 
         a:hover {
+            opacity: 0.8;
             text-decoration: underline;
+        }
+
+        .contact-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        /* ─── Footer ───────────────────────────────────────────────── */
+        footer {
+            margin-top: 48px;
+            text-align: center;
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+            border-top: 1px solid var(--divider-strong);
+            padding-top: 24px;
+        }
+
+        /* ─── Responsive ───────────────────────────────────────────── */
+        @media (max-width: 480px) {
+            .container { padding: 32px 16px 48px; }
+            h1 { font-size: 1.625rem; }
+            .section { padding: 20px; border-radius: 16px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="badge">100% Private & Open Source</div>
-        <h1>Privacy Policy for Salah Companion</h1>
-        <p class="subtitle">Effective Date: August 8, 2026</p>
-
-        <div class="card">
-            <h2>1. Strict Zero-Tracking Architecture</h2>
-            <p>Salah Companion is designed from the ground up to respect your spiritual focus and personal privacy. We do not collect, transmit, store, share, or sell any personal data or behavioral analytics. The application contains zero commercial SDKs, zero advertising networks, and zero tracking scripts.</p>
+        <!-- ─── HEADER ──────────────────────────────────────────────── -->
+        <div class="header">
+            <div class="app-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
+            <div class="badge">🔒 100% Offline · Zero Tracking · Open Source</div>
+            <h1>Privacy Policy</h1>
+            <p class="subtitle">Salah Companion — Your privacy is sacred, not an afterthought.</p>
+            <p class="effective-date">Effective Date: September 1, 2026 · Last updated: September 1, 2026</p>
         </div>
 
-        <div class="card">
-            <h2>2. Location Permission & Usage</h2>
-            <p>GPS and network location permissions are requested exclusively to calculate astronomical prayer times and determine Qibla direction for your current coordinates.</p>
-            <p><strong>Local-Only Processing:</strong> Your geographical coordinates are processed 100% locally on your device. Coordinates are never transmitted off-device to any cloud server, third-party API, or backend service.</p>
+        <!-- ─── 1. INTRODUCTION & DEVELOPER INFO ────────────────────── -->
+        <div class="section">
+            <h2>
+                <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></span>
+                1. Introduction
+            </h2>
+            <p>Salah Companion ("we", "our", or "the app") is an authentic, offline-first Islamic prayer times, Qibla compass, Tasbih counter, and Hadith companion application developed by <strong>enoch77-max</strong>.</p>
+            <p>This Privacy Policy explains what data the app accesses, how it is used, how it is stored, and your rights regarding your information. This policy applies to all versions of Salah Companion distributed through Google Play and other platforms.</p>
         </div>
 
-        <div class="card">
-            <h2>3. Local Storage & Data Retention</h2>
-            <p>All user preferences, calculation settings, prayer logs, and Tasbih counts are stored strictly within an encrypted SQLite database on your local device storage. You maintain 100% ownership and control over your data. Uninstalling the application completely deletes all local data.</p>
+        <!-- ─── 2. DATA WE COLLECT ──────────────────────────────────── -->
+        <div class="section">
+            <h2>
+                <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg></span>
+                2. Data We Collect
+            </h2>
+            <p><strong>None.</strong></p>
+            <p>Salah Companion operates entirely offline. We do not collect, transmit, or store any personal data on external servers. We do not use any analytics services, crash reporting tools, advertising SDKs, or tracking mechanisms of any kind.</p>
+            <div class="highlight-box">
+                <p>✅ Zero advertisements · Zero third-party analytics · Zero user accounts required · Zero behavioral tracking</p>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>4. Third-Party Services & Links</h2>
-            <p>Salah Companion operates entirely offline. It does not integrate third-party authentication services, cloud backup services, or ad networks.</p>
+        <!-- ─── 3. LOCAL DATA STORAGE ───────────────────────────────── -->
+        <div class="section">
+            <h2>
+                <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></svg></span>
+                3. Local Data Storage
+            </h2>
+            <p>All data generated by the app — including prayer calculation preferences, logged prayers, Tasbih counts, madhab settings, and user preferences — is stored <strong>strictly on your local device</strong> in an encrypted SQLite database.</p>
+            <p>You remain in complete control of your data at all times. No data is ever synced, backed up, or transmitted to any cloud service or remote server.</p>
         </div>
 
-        <div class="card">
-            <h2>5. Open Source Code Auditability</h2>
-            <p>Salah Companion is open-source under the PolyForm Noncommercial License 1.0.0. The full codebase is available for public audit on GitHub: <a href="https://github.com/enoch77-max/Salah_Companion" target="_blank" rel="noopener">https://github.com/enoch77-max/Salah_Companion</a></p>
+        <!-- ─── 4. PERMISSIONS ──────────────────────────────────────── -->
+        <div class="section">
+            <h2>
+                <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM8.9 6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2H8.9V6z"/></svg></span>
+                4. Permissions We Request
+            </h2>
+            <p>The app requests only the minimum permissions necessary for core functionality. All permissions are optional — the app functions without them, with reduced features.</p>
+            <div class="perm-grid">
+                <div class="perm-item">
+                    <div class="perm-name">📍 Location <span class="perm-tag">Optional</span></div>
+                    <div class="perm-desc">Used exclusively to calculate accurate prayer times and Qibla direction for your geographic position. Location data is processed entirely on-device using the local <code>adhan_dart</code> library and is <strong>never transmitted anywhere</strong>.</div>
+                </div>
+                <div class="perm-item">
+                    <div class="perm-name">🔔 Notifications <span class="perm-tag">Optional</span></div>
+                    <div class="perm-desc">Used to deliver prayer time reminders (Adhan alerts). All notification scheduling is handled locally on your device. No notification data is sent to external servers.</div>
+                </div>
+                <div class="perm-item">
+                    <div class="perm-name">⏰ Exact Alarm <span class="perm-tag">Android 12+</span></div>
+                    <div class="perm-desc">Required on Android 12 and above to schedule precise, time-critical prayer notifications. No data is collected or sent externally through this permission.</div>
+                </div>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>6. Contact & Support</h2>
-            <p>If you have any questions regarding this Privacy Policy, please open an issue on our official GitHub repository or contact the maintainer at <a href="https://github.com/enoch77-max/Salah_Companion">GitHub Repository Issues</a>.</p>
+        <!-- ─── 5. THIRD-PARTY SERVICES ─────────────────────────────── -->
+        <div class="section">
+            <h2>
+                <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></span>
+                5. Third-Party Services
+            </h2>
+            <p>Salah Companion does <strong>not</strong> integrate any third-party analytics, advertising, authentication, or data-collection services.</p>
+            <ul>
+                <li><strong>Google Fonts (Inter):</strong> Typography fonts are bundled with the app at build time and do not make network requests at runtime.</li>
+                <li><strong>System Share Sheet:</strong> The share functionality uses the native operating system share dialog. We do not intercept or log shared content.</li>
+                <li><strong>Platform Geocoding:</strong> Reverse geocoding (converting coordinates to place names) uses the built-in platform APIs (Google Play Services on Android, CoreLocation on iOS) and does not involve any custom third-party service.</li>
+            </ul>
         </div>
 
+        <!-- ─── 6. DATA RETENTION & DELETION ────────────────────────── -->
+        <div class="section">
+            <h2>
+                <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></span>
+                6. Data Retention &amp; Deletion
+            </h2>
+            <p>Since all data is stored locally on your device, <strong>you have full control</strong> over data retention and deletion:</p>
+            <ul>
+                <li><strong>Clear App Data:</strong> Go to your device Settings → Apps → Salah Companion → Storage → Clear Data to remove all stored preferences and prayer data.</li>
+                <li><strong>Uninstall:</strong> Uninstalling the app completely and permanently deletes all locally stored data.</li>
+                <li><strong>No remote data exists:</strong> Since we never collect or transmit data, there is no server-side data to request deletion of.</li>
+            </ul>
+        </div>
+
+        <!-- ─── 7. YOUR RIGHTS ──────────────────────────────────────── -->
+        <div class="section">
+            <h2>
+                <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></span>
+                7. Your Rights
+            </h2>
+            <p>Because Salah Companion collects zero personal data and stores everything locally on your device, you inherently retain full rights over your information:</p>
+            <ul>
+                <li><strong>Right to Access:</strong> All your data is stored on your device and accessible through the app at any time.</li>
+                <li><strong>Right to Rectification:</strong> You can modify your prayer settings, preferences, and logged data directly within the app.</li>
+                <li><strong>Right to Deletion:</strong> You can delete all data by clearing app data or uninstalling the application.</li>
+                <li><strong>Right to Data Portability:</strong> Your data lives on your device and is not locked behind any account or cloud service.</li>
+            </ul>
+        </div>
+
+        <!-- ─── 8. CHILDREN'S PRIVACY ───────────────────────────────── -->
+        <div class="section">
+            <h2>
+                <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></span>
+                8. Children's Privacy
+            </h2>
+            <p>Salah Companion does not knowingly collect personal information from anyone, including children under the age of 13. Since the app collects zero personal data and operates entirely offline, it is safe for users of all ages. No age verification is required because no personal information is gathered.</p>
+        </div>
+
+        <!-- ─── 9. SECURITY ─────────────────────────────────────────── -->
+        <div class="section">
+            <h2>
+                <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg></span>
+                9. Security
+            </h2>
+            <p>Your data is protected by the security measures built into your device's operating system. The app stores data in an encrypted SQLite database. Since no data is transmitted over the internet, there is no risk of data interception during transmission.</p>
+        </div>
+
+        <!-- ─── 10. OPEN SOURCE ─────────────────────────────────────── -->
+        <div class="section">
+            <h2>
+                <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg></span>
+                10. Open Source &amp; Transparency
+            </h2>
+            <p>Salah Companion is open source under the PolyForm Noncommercial License 1.0.0. You can verify every privacy claim in this policy by reviewing our complete source code:</p>
+            <p><a class="contact-link" href="https://github.com/enoch77-max/Salah_Companion" target="_blank" rel="noopener">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="var(--primary)"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                github.com/enoch77-max/Salah_Companion
+            </a></p>
+        </div>
+
+        <!-- ─── 11. CHANGES TO THIS POLICY ──────────────────────────── -->
+        <div class="section">
+            <h2>
+                <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg></span>
+                11. Changes to This Policy
+            </h2>
+            <p>We may update this Privacy Policy from time to time. Any changes will be reflected on this page with an updated "Effective Date" and within the app. We encourage you to review this policy periodically. Continued use of the app after changes constitutes acceptance of the updated policy.</p>
+        </div>
+
+        <!-- ─── 12. CONTACT ─────────────────────────────────────────── -->
+        <div class="section">
+            <h2>
+                <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></span>
+                12. Contact Us
+            </h2>
+            <p>If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:</p>
+            <p>
+                <a class="contact-link" href="mailto:salahcompanion@gmail.com">
+                    ✉️ salahcompanion@gmail.com
+                </a>
+            </p>
+            <p>
+                <a class="contact-link" href="https://github.com/enoch77-max/Salah_Companion/issues" target="_blank" rel="noopener">
+                    🐛 GitHub Issues — Report a concern
+                </a>
+            </p>
+        </div>
+
+        <!-- ─── FOOTER ──────────────────────────────────────────────── -->
         <footer>
-            Salah Companion &bull; Built for the Global Muslim Ummah &bull; Copyright &copy; 2026 enoch77-max
+            <p>Salah Companion · Built for the Global Muslim Ummah</p>
+            <p style="margin-top: 8px;">© 2026 enoch77-max · <a href="https://github.com/enoch77-max/Salah_Companion" target="_blank" rel="noopener">Source Code</a></p>
         </footer>
     </div>
 </body>
