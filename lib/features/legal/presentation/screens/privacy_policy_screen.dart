@@ -129,8 +129,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 iconColor: const Color(0xFF10B981),
                 title: 'Online Hosted Privacy Policy',
                 description:
-                    'You can also read the official hosted web version of our privacy policy online on GitHub:',
-                githubUrl: 'https://github.com/enoch77-max/Salah_Companion/blob/main/docs/PRIVACY_POLICY.md',
+                    'You can also read the official hosted web version of our privacy policy online:',
+                githubUrl: 'https://enoch77-max.github.io/Salah_Companion/privacy.html',
               ),
               const SizedBox(height: 32),
 
