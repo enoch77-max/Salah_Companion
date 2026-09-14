@@ -37,14 +37,15 @@ class DailyReflectionCard extends StatelessWidget {
   });
 
   /// Helper to share a [DailyContentItem] via system share sheet using `share_plus`.
-  static void shareContent(DailyContentItem content) {
+  static void shareContent(DailyContentItem content, [String? langCode]) {
     AppHaptics.light();
+    final translation = content.getLocalizedTranslation(langCode);
     final text = StringBuffer();
     if (content.arabicText.trim().isNotEmpty) {
       text.writeln(content.arabicText);
       text.writeln();
     }
-    text.writeln('"${content.translationText}"');
+    text.writeln('"$translation"');
     text.writeln();
     text.writeln('— ${content.reference}');
     if (content.grade != null && content.grade!.trim().isNotEmpty) {
@@ -65,6 +66,8 @@ class DailyReflectionCard extends StatelessWidget {
     final colors = context.appColors;
     final isHadith = content.type == DailyContentType.hadith;
     const accentGold = Color(0xFFF59E0B);
+    final langCode = Localizations.localeOf(context).languageCode;
+    final localizedTranslation = content.getLocalizedTranslation(langCode);
 
     final TextStyle arabicTextStyle = (isHadith
             ? AppTypography.hadithStyle(color: colors.textPrimary)
@@ -75,7 +78,7 @@ class DailyReflectionCard extends StatelessWidget {
       color: colors.textPrimary,
     ).copyWith(height: 1.45, fontSize: 14.0);
 
-    final shareCallback = onShare ?? () => shareContent(content);
+    final shareCallback = onShare ?? () => shareContent(content, langCode);
 
     return Container(
       decoration: ShapeDecoration(
@@ -167,7 +170,7 @@ class DailyReflectionCard extends StatelessWidget {
 
             // Translation Text (Lora italic)
             Text(
-              content.translationText,
+              localizedTranslation,
               textAlign: TextAlign.center,
               style: translationTextStyle,
             ),
@@ -181,7 +184,7 @@ class DailyReflectionCard extends StatelessWidget {
               runSpacing: 4,
               children: [
                 Text(
-                  content.reference,
+                  content.getLocalizedSource(langCode),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: colors.textSecondary,

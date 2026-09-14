@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -6,16 +7,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/theme/app_theme.dart';
 import '../../../../core/database/app_database.dart';
+import '../../../../core/localization/language_registry.dart';
 import '../../../../core/services/app_haptics.dart';
 import '../../../../core/services/app_info_service.dart';
 import '../../../../core/services/battery_service.dart';
 import '../../../../core/services/notification_service.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../battery_protection/presentation/sheets/battery_optimization_sheet.dart';
 import '../../../home/presentation/widgets/widget_preview_sheet.dart';
 import '../../../legal/presentation/screens/calculation_docs_screen.dart';
 import '../../../legal/presentation/screens/privacy_policy_screen.dart';
 import '../../../legal/presentation/screens/terms_screen.dart';
 import '../../../home/presentation/widgets/open_source_sheet.dart';
+import '../../../onboarding/presentation/screens/onboarding_screen.dart';
 import '../../../reflection/data/repositories/daily_content_repository.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -43,6 +47,10 @@ class SettingsScreen extends StatefulWidget {
   final Function(bool enabled)? onDailyReflectionToggled;
   final Function(TimeOfDay time)? onDailyReflectionTimeChanged;
   final Function(String prayer, bool enabled)? onPrayerNotificationToggled;
+  final Function(Locale locale)? onLocaleChanged;
+  final Locale? currentLocale;
+  final ThemeMode? currentThemeMode;
+  final Function(ThemeMode mode)? onThemeModeChanged;
   final VoidCallback? onReplayWalkthrough;
 
   const SettingsScreen({
@@ -71,6 +79,10 @@ class SettingsScreen extends StatefulWidget {
     this.onDailyReflectionToggled,
     this.onDailyReflectionTimeChanged,
     this.onPrayerNotificationToggled,
+    this.onLocaleChanged,
+    this.currentLocale,
+    this.currentThemeMode,
+    this.onThemeModeChanged,
     this.onReplayWalkthrough,
   });
 
@@ -113,10 +125,16 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     'Traditional Soft Tone',
   ];
 
+  late AppLanguage _selectedLanguage;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    final initialCode = widget.currentLocale?.languageCode ??
+        LanguageRegistry.resolveDeviceLanguage().code;
+    _selectedLanguage = LanguageRegistry.getLanguage(initialCode);
 
     _calculationMethod = widget.initialCalculationMethod ?? 'Umm Al-Qura (Saudi Arabia)';
     _madhab = widget.initialMadhab ?? 'Shafi / Standard';
@@ -136,10 +154,54 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     _fetchBatteryStatus();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final activeLocale = Localizations.maybeLocaleOf(context);
+    if (activeLocale != null) {
+      _selectedLanguage = LanguageRegistry.getLanguage(activeLocale.languageCode);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant SettingsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.currentLocale != oldWidget.currentLocale && widget.currentLocale != null) {
+      _selectedLanguage = LanguageRegistry.getLanguage(widget.currentLocale!.languageCode);
+    }
+  }
+
+  String _localizeAdhanVoice(BuildContext context, String voice) {
+    final l10n = AppLocalizations.of(context);
+    if (voice.contains('Makkah')) return l10n?.adhanVoiceMakkah ?? voice;
+    if (voice.contains('Madinah')) return l10n?.adhanVoiceMadinah ?? voice;
+    if (voice.contains('Al-Aqsa')) return l10n?.adhanVoiceAlAqsa ?? voice;
+    if (voice.contains('Soft') || voice.contains('Traditional')) return l10n?.adhanVoiceSoft ?? voice;
+    return voice;
+  }
+
+  String _localizeCalcMethod(BuildContext context, String method) {
+    final l10n = AppLocalizations.of(context);
+    if (method.contains('Umm Al-Qura')) return l10n?.calcMethodUmmAlQura ?? method;
+    if (method.contains('Muslim World League')) return l10n?.calcMethodMwl ?? method;
+    if (method.contains('Egyptian')) return l10n?.calcMethodEgyptian ?? method;
+    if (method.contains('ISNA')) return l10n?.calcMethodIsna ?? method;
+    if (method.contains('Karachi')) return l10n?.calcMethodKarachi ?? method;
+    if (method.contains('Dubai')) return l10n?.calcMethodDubai ?? method;
+    if (method.contains('Diyanet')) return l10n?.calcMethodDiyanet ?? method;
+    if (method.contains('Singapore') || method.contains('MUIS')) return l10n?.calcMethodSingapore ?? method;
+    return method;
+  }
+
   Future<void> _loadSavedSettings() async {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
     setState(() {
+      final langCode = prefs.getString('selected_language_code');
+      if (langCode != null) {
+        _selectedLanguage = LanguageRegistry.getLanguage(langCode);
+      }
+
       _calculationMethod = prefs.getString('calc_method') ?? _calculationMethod;
       _madhab = prefs.getString('calc_madhab') ?? _madhab;
       _adhanVoice = prefs.getString('adhan_voice') ?? _adhanVoice;
@@ -250,10 +312,104 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   }
 
   Future<void> _selectReflectionTime() async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _dailyReflectionTime,
+    final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
+
+    DateTime selectedDateTime = DateTime(
+      2026,
+      1,
+      1,
+      _dailyReflectionTime.hour,
+      _dailyReflectionTime.minute,
     );
+
+    final TimeOfDay? picked = await showModalBottomSheet<TimeOfDay>(
+      context: context,
+      backgroundColor: colors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header with Cancel, Title, Done
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(sheetContext).pop(),
+                      child: Text(
+                        l10n?.onboardingSkip ?? 'Cancel',
+                        style: TextStyle(
+                          color: colors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      l10n?.settingsDailyReflection ?? 'Reflection Time',
+                      style: Theme.of(sheetContext).textTheme.titleMedium?.copyWith(
+                            color: colors.textPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(sheetContext).pop(
+                          TimeOfDay(
+                            hour: selectedDateTime.hour,
+                            minute: selectedDateTime.minute,
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Done',
+                        style: TextStyle(
+                          color: colors.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              SizedBox(
+                height: 220,
+                child: CupertinoTheme(
+                  data: CupertinoThemeData(
+                    brightness: Theme.of(sheetContext).brightness,
+                    textTheme: CupertinoTextThemeData(
+                      dateTimePickerTextStyle: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.time,
+                    initialDateTime: selectedDateTime,
+                    use24hFormat: false,
+                    onDateTimeChanged: (DateTime newDateTime) {
+                      selectedDateTime = newDateTime;
+                      if (_hapticFeedback) AppHaptics.selection();
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
     if (picked != null) {
       setState(() {
         _dailyReflectionTime = picked;
@@ -287,6 +443,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
 
   void _showAdhanVoicePicker() async {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
     final player = AudioPlayer();
     String? playingVoice;
 
@@ -312,7 +469,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Adhan Reciter & Tone',
+                      l10n?.settingsAdhanReciterTone ?? 'Adhan Reciter & Tone',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: colors.textPrimary,
                             fontWeight: FontWeight.bold,
@@ -328,7 +485,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                             ? Icon(Icons.check_rounded, color: colors.primary)
                             : const SizedBox(width: 24, height: 24),
                         title: Text(
-                          voice,
+                          _localizeAdhanVoice(context, voice),
                           style: TextStyle(
                             color: isSelected ? colors.primary : colors.textPrimary,
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -394,6 +551,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
 
   void _showCalculationMethodPicker() {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
 
     showModalBottomSheet(
       context: context,
@@ -410,7 +568,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Calculation Method',
+                    l10n?.settingsCalculationMethod ?? 'Calculation Method',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: colors.textPrimary,
                           fontWeight: FontWeight.bold,
@@ -424,7 +582,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                           ? Icon(Icons.check_rounded, color: colors.primary)
                           : const SizedBox(width: 24, height: 24),
                       title: Text(
-                        method,
+                        _localizeCalcMethod(context, method),
                         style: TextStyle(
                           color: isSelected ? colors.primary : colors.textPrimary,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -448,6 +606,256 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     );
   }
 
+  void _showLanguagePicker() {
+    final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
+    String searchQuery = '';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: colors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final activeLangCode = Localizations.maybeLocaleOf(context)?.languageCode ?? _selectedLanguage.code;
+            final filtered = LanguageRegistry.supportedLanguages.where((lang) {
+              if (searchQuery.trim().isEmpty) return true;
+              final q = searchQuery.toLowerCase();
+              return lang.nativeName.toLowerCase().contains(q) ||
+                  lang.englishName.toLowerCase().contains(q) ||
+                  lang.code.toLowerCase().contains(q);
+            }).toList();
+
+            return SafeArea(
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.7,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l10n?.settingsLanguage ?? 'Language',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: colors.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close_rounded),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                      child: TextField(
+                        onChanged: (val) => setModalState(() => searchQuery = val),
+                        style: TextStyle(color: colors.textPrimary, fontSize: 14),
+                        decoration: InputDecoration(
+                          hintText: l10n?.searchLanguagePlaceholder ?? 'Search language...',
+                          hintStyle: TextStyle(color: colors.textTertiary),
+                          prefixIcon: Icon(Icons.search_rounded, color: colors.textTertiary),
+                          filled: true,
+                          fillColor: colors.background,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                        ),
+                      ),
+                    ),
+                    const Divider(height: 12),
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: filtered.length,
+                        separatorBuilder: (context, index) => Divider(
+                          height: 1,
+                          indent: 56,
+                          color: colors.divider.withValues(alpha: 0.5),
+                        ),
+                        itemBuilder: (context, index) {
+                          final lang = filtered[index];
+                          final isSelected = lang.code == activeLangCode;
+
+                          return ListTile(
+                            key: ValueKey('lang_tile_${lang.code}'),
+                            leading: Text(
+                              lang.flag,
+                              style: const TextStyle(fontSize: 22),
+                            ),
+                            title: Text(
+                              lang.nativeName,
+                              style: TextStyle(
+                                color: isSelected ? colors.primary : colors.textPrimary,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              ),
+                            ),
+                            subtitle: Text(
+                              lang.englishName,
+                              style: TextStyle(
+                                color: colors.textTertiary,
+                                fontSize: 12,
+                              ),
+                            ),
+                            trailing: isSelected
+                                ? Icon(Icons.check_circle_rounded, color: colors.primary)
+                                : null,
+                            onTap: () async {
+                              if (_hapticFeedback) HapticFeedback.selectionClick();
+                              setState(() => _selectedLanguage = lang);
+                              widget.onLocaleChanged?.call(lang.locale);
+                              final prefs = await SharedPreferences.getInstance();
+                              await prefs.setString('selected_language_code', lang.code);
+                              if (context.mounted) Navigator.pop(context);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showFiqhPicker() {
+    final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n?.settingsAsrCalculationTitle ?? 'Asr Calculation Method (Fiqh)',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: colors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n?.settingsAsrCalculationSubtitle ?? 'Select juristic school for computing Asr prayer start time.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                ),
+                const SizedBox(height: 16),
+                _buildFiqhOptionTile(
+                  title: l10n?.settingsFiqhStandardTitle ?? 'Shafi / Standard (Default)',
+                  subtitle: l10n?.settingsFiqhStandardSub ??
+                      'Shadow length = 1x object height. Followed by Shafi, Maliki, Hanbali & most global authorities.',
+                  value: 'Shafi / Standard',
+                ),
+                const SizedBox(height: 10),
+                _buildFiqhOptionTile(
+                  title: l10n?.settingsFiqhHanafiTitle ?? 'Hanafi',
+                  subtitle: l10n?.settingsFiqhHanafiSub ??
+                      'Shadow length = 2x object height. Followed by the Hanafi school of jurisprudence.',
+                  value: 'Hanafi',
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFiqhOptionTile({
+    required String title,
+    required String subtitle,
+    required String value,
+  }) {
+    final colors = context.appColors;
+    final isSelected = _madhab == value || (_madhab.contains('Shafi') && value.contains('Shafi'));
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () async {
+          if (_hapticFeedback) HapticFeedback.selectionClick();
+          setState(() => _madhab = value);
+          widget.onMadhabChanged?.call(value);
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('calc_madhab', value);
+          if (mounted && Navigator.canPop(context)) Navigator.pop(context);
+        },
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: ShapeDecoration(
+            color: isSelected ? colors.primary.withValues(alpha: 0.12) : colors.elevatedBackground,
+            shape: ContinuousRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: BorderSide(
+                color: isSelected ? colors.primary : colors.divider,
+                width: isSelected ? 1.5 : 1.0,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+                color: isSelected ? colors.primary : colors.textTertiary,
+                size: 22,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: isSelected ? colors.primary : colors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: colors.textSecondary,
+                        fontSize: 12,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _updatePrayerNotificationsMaster(bool val) async {
     if (_hapticFeedback) HapticFeedback.selectionClick();
     setState(() => _prayerNotificationsEnabled = val);
@@ -467,6 +875,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -478,7 +887,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             children: [
               // Title
               Text(
-                'Settings',
+                l10n?.settingsTitle ?? 'Settings',
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
                       color: colors.textPrimary,
                       fontWeight: FontWeight.w800,
@@ -489,15 +898,15 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               const SizedBox(height: 20),
 
               // SECTION 1: NOTIFICATIONS (Positioned at VERY TOP as requested)
-              _SectionHeader(title: 'NOTIFICATIONS'),
+              _SectionHeader(title: l10n?.settingsNotifications ?? 'NOTIFICATIONS'),
               const SizedBox(height: 8),
               _IOSGroupedCard(
                 children: [
                   _IOSGroupedTile(
                     key: const ValueKey('prayer_notifications_master_tile'),
                     icon: Icons.notifications_active_rounded,
-                    iconColor: const Color(0xFF10B981), // Emerald Green
-                    title: 'Prayer Notifications',
+                    iconColor: const Color(0xFFF59E0B), // Marigold Amber (Prayer Alerts)
+                    title: l10n?.settingsPrayerNotifications ?? 'Prayer Notifications',
                     trailing: Switch.adaptive(
                       key: const ValueKey('prayer_notifications_master_switch'),
                       value: _prayerNotificationsEnabled,
@@ -512,8 +921,8 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('adhan_audio_master_tile'),
                     icon: Icons.volume_up_rounded,
-                    iconColor: const Color(0xFF6366F1), // Indigo
-                    title: 'Adhan Audio',
+                    iconColor: const Color(0xFF0284C7), // Cerulean Azure (Audio Acoustics)
+                    title: l10n?.settingsAdhanAudio ?? 'Adhan Audio',
                     trailing: Switch.adaptive(
                       key: const ValueKey('adhan_audio_master_switch'),
                       value: _adhanAudioEnabled,
@@ -528,17 +937,18 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('adhan_voice_tile'),
                     icon: Icons.record_voice_over_rounded,
-                    iconColor: const Color(0xFFF59E0B), // Warm Amber
-                    title: 'Adhan Voice',
-                    valueText: _adhanVoice,
+                    iconColor: const Color(0xFFEA580C), // Terracotta Coral (Mu'adhin Voice)
+                    title: l10n?.settingsAdhanVoice ?? 'Adhan Voice',
+                    valueText: _localizeAdhanVoice(context, _adhanVoice),
                     onTap: _showAdhanVoicePicker,
                   ),
                   const _IOSDivider(),
                   _IOSGroupedTile(
                     key: const ValueKey('daily_reflection_tile'),
                     icon: Icons.auto_stories_rounded,
-                    iconColor: const Color(0xFF8B5CF6), // Royal Purple
-                    title: 'Daily Reflection',
+                    iconColor: const Color(0xFF9333EA), // Rich Amethyst (Spiritual Reflection)
+                    title: l10n?.settingsDailyReflection ?? 'Daily Reflection',
+                    subtitle: l10n?.settingsDailyReflectionSubtitle ?? 'Morning verse & Hadith reminder',
                     trailing: Switch.adaptive(
                       key: const ValueKey('daily_reflection_switch'),
                       value: _dailyReflectionEnabled,
@@ -560,8 +970,8 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                     _IOSGroupedTile(
                       key: const ValueKey('daily_reflection_time_tile'),
                       icon: Icons.access_time_rounded,
-                      iconColor: const Color(0xFF0EA5E9), // Ocean Blue
-                      title: 'Reflection Notification Time',
+                      iconColor: const Color(0xFFD946EF), // Fuchsia Magenta (Scheduled Time)
+                      title: l10n?.settingsDailyReminderTime ?? 'Reflection Notification',
                       valueText: _dailyReflectionTime.format(context),
                       onTap: _selectReflectionTime,
                     ),
@@ -570,9 +980,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('home_widgets_tile'),
                     icon: Icons.widgets_rounded,
-                    iconColor: const Color(0xFF10B981), // Emerald Green
-                    title: 'Home Screen Widgets',
-                    valueText: '3 Live Widgets',
+                    iconColor: const Color(0xFF06B6D4), // Electric Cyan (Live Widgets)
+                    title: l10n?.widgetsTitle ?? 'Widgets',
+                    valueText: l10n?.settingsLiveWidgetsCount(3) ?? '3 Live Widgets',
                     onTap: () {
                       WidgetPreviewSheet.show(context);
                     },
@@ -582,43 +992,39 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
 
               const SizedBox(height: 24),
 
-              // SECTION 2: CALCULATION & MADHAB
-              _SectionHeader(title: 'CALCULATION & MADHAB'),
+              // SECTION 2: CALCULATION & FIQH
+              _SectionHeader(title: l10n?.settingsCalculationFiqh ?? 'CALCULATION & FIQH'),
               const SizedBox(height: 8),
               _IOSGroupedCard(
                 children: [
                   _IOSGroupedTile(
                     key: const ValueKey('calculation_method_tile'),
                     icon: Icons.calculate_rounded,
-                    iconColor: const Color(0xFF8B5CF6), // Vibrant Purple
-                    title: 'Calculation Method',
-                    valueText: _calculationMethod.contains('(')
-                        ? _calculationMethod.split('(').first.trim()
-                        : _calculationMethod,
+                    iconColor: const Color(0xFF4F46E5), // Deep Indigo (Solar Math)
+                    title: l10n?.settingsCalculationMethod ?? 'Calculation Method',
+                    valueText: _localizeCalcMethod(context, _calculationMethod),
                     onTap: _showCalculationMethodPicker,
                   ),
                   const _IOSDivider(),
                   _IOSGroupedTile(
                     key: const ValueKey('madhab_tile'),
                     icon: Icons.balance_rounded,
-                    iconColor: const Color(0xFFF59E0B), // Warm Amber
-                    title: 'Madhab (Asr Timing)',
-                    valueText: _madhab,
-                    onTap: () async {
-                      if (_hapticFeedback) HapticFeedback.selectionClick();
-                      final next = _madhab.contains('Shafi') ? 'Hanafi' : 'Shafi / Standard';
-                      setState(() => _madhab = next);
-                      widget.onMadhabChanged?.call(next);
-                      final prefs = await SharedPreferences.getInstance();
-                      await prefs.setString('calc_madhab', next);
-                    },
+                    iconColor: const Color(0xFF059669), // Fiqh Forest Emerald (Jurisprudence)
+                    title: l10n?.settingsFiqhAsr ?? 'Fiqh (Asr Timing)',
+                    subtitle: _madhab.contains('Shafi')
+                        ? (l10n?.settingsFiqhStandardDesc ?? 'Shafi, Maliki & Hanbali (1x Shadow)')
+                        : (l10n?.settingsFiqhHanafiDesc ?? 'Hanafi School (2x Shadow)'),
+                    valueText: _madhab.contains('Shafi')
+                        ? (l10n?.madhabShafi ?? 'Shafi')
+                        : (l10n?.madhabHanafi ?? 'Hanafi'),
+                    onTap: _showFiqhPicker,
                   ),
                   const _IOSDivider(),
                   _IOSGroupedTile(
                     key: const ValueKey('pre_adhan_reminder_tile'),
                     icon: Icons.alarm_rounded,
-                    iconColor: const Color(0xFF0EA5E9), // Vibrant Blue
-                    title: 'Pre-Adhan Reminder',
+                    iconColor: const Color(0xFFEAB308), // Golden Sun Yellow (Early Warning)
+                    title: l10n?.settingsPreAdhanReminder ?? 'Pre-Adhan Reminder',
                     trailing: Switch.adaptive(
                       value: _preAdhanReminder,
                       activeTrackColor: colors.primary,
@@ -638,108 +1044,116 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               const SizedBox(height: 24),
 
               // SECTION 3: BATTERY OPTIMIZATION
-              _SectionHeader(title: 'BATTERY OPTIMIZATION'),
+              _SectionHeader(title: l10n?.settingsBattery ?? 'BATTERY OPTIMIZATION'),
               const SizedBox(height: 8),
               _IOSGroupedCard(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  _IOSGroupedTile(
+                    key: const ValueKey('battery_status_tile'),
+                    iconWidget: _IOSBatteryBadge(isExempt: _isBatteryExempt),
+                    title: l10n?.onboardingPermBatteryTitle ?? 'Battery Optimization',
+                    subtitle: _isBatteryExempt
+                        ? (l10n?.settingsBatteryExemptDesc ?? 'Exempt — Adhan alerts will fire reliably')
+                        : (l10n?.settingsBatteryNotExemptDesc ?? 'Not exempt — alerts may be delayed'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        InkWell(
-                          onTap: _isCheckingBattery ? null : _checkBatteryNow,
-                          borderRadius: BorderRadius.circular(12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: (_isBatteryExempt ? colors.success : colors.missed).withValues(alpha: 0.14),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: (_isBatteryExempt ? colors.success : colors.missed).withValues(alpha: 0.35),
+                              width: 0.8,
+                            ),
+                          ),
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
-                                width: 32,
-                                height: 32,
+                                width: 6,
+                                height: 6,
                                 decoration: BoxDecoration(
-                                  color: (_isBatteryExempt ? colors.success : colors.missed).withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Icon(
-                                  _isBatteryExempt ? Icons.battery_full_rounded : Icons.battery_alert_rounded,
                                   color: _isBatteryExempt ? colors.success : colors.missed,
-                                  size: 18,
+                                  shape: BoxShape.circle,
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Battery Status',
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                            color: colors.textPrimary,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                    Text(
-                                      _isBatteryExempt
-                                          ? 'Exempt — Adhan alerts will fire reliably'
-                                          : 'Not exempt — alerts may be delayed',
-                                      key: const ValueKey('battery_status_text'),
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            color: _isBatteryExempt ? colors.successText : colors.missedText,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    ),
-                                  ],
+                              const SizedBox(width: 5),
+                              Text(
+                                _isBatteryExempt
+                                    ? (l10n?.settingsBatteryExempt ?? 'Exempt')
+                                    : (l10n?.settingsBatteryRestricted ?? 'Restricted'),
+                                key: const ValueKey('battery_status_text'),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: _isBatteryExempt ? colors.successText : colors.missedText,
                                 ),
-                              ),
-                              Icon(
-                                Icons.chevron_right_rounded,
-                                color: colors.textTertiary,
-                                size: 20,
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 14),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            key: const ValueKey('check_battery_button'),
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: colors.dividerStrong),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                            icon: _isCheckingBattery
-                                ? SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: colors.primary),
-                                  )
-                                : const Icon(Icons.sync_rounded, size: 18),
-                            label: const Text('Check battery optimization status now'),
-                            onPressed: _isCheckingBattery ? null : _checkBatteryNow,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        SwitchListTile.adaptive(
-                          key: const ValueKey('warn_battery_switch'),
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            'Warn me if battery optimization turns back on',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: colors.textPrimary,
-                                ),
-                          ),
-                          activeTrackColor: colors.primary,
-                          activeThumbColor: Colors.white,
-                          inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
-                          inactiveThumbColor: colors.textSecondary,
-                          value: _warnBatteryOpt,
-                          onChanged: (val) {
-                            if (_hapticFeedback) HapticFeedback.selectionClick();
-                            setState(() => _warnBatteryOpt = val);
-                            widget.batteryService?.setNagDisabled(!val);
-                          },
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: colors.textTertiary,
+                          size: 20,
                         ),
                       ],
+                    ),
+                    onTap: () {
+                      if (_hapticFeedback) HapticFeedback.selectionClick();
+                      _checkBatteryNow();
+                    },
+                  ),
+                  const _IOSDivider(),
+                  _IOSGroupedTile(
+                    key: const ValueKey('check_battery_button'),
+                    icon: Icons.sync_rounded,
+                    iconColor: const Color(0xFF2563EB), // Cobalt Blue (Hardware Sync)
+                    title: l10n?.settingsCheckBatteryNow ?? 'Check Status Now',
+                    subtitle: l10n?.settingsCheckBatterySubtitle ?? 'Verify background wake permissions',
+                    trailing: _isCheckingBattery
+                        ? SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.0,
+                              color: colors.primary,
+                            ),
+                          )
+                        : Icon(
+                            Icons.chevron_right_rounded,
+                            color: colors.textTertiary,
+                            size: 20,
+                          ),
+                    onTap: _isCheckingBattery
+                        ? null
+                        : () {
+                            if (_hapticFeedback) HapticFeedback.selectionClick();
+                            _checkBatteryNow();
+                          },
+                  ),
+                  const _IOSDivider(),
+                  _IOSGroupedTile(
+                    key: const ValueKey('warn_battery_tile'),
+                    icon: Icons.shield_outlined,
+                    iconColor: const Color(0xFF0F766E), // Guard Teal (Protection Shield)
+                    title: l10n?.settingsWarnBattery ?? 'Warn if Re-optimized',
+                    subtitle: l10n?.settingsWarnBatterySubtitle ?? 'Alert if OS turns power saver back on',
+                    trailing: Switch.adaptive(
+                      key: const ValueKey('warn_battery_switch'),
+                      value: _warnBatteryOpt,
+                      activeTrackColor: colors.primary,
+                      activeThumbColor: Colors.white,
+                      inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
+                      inactiveThumbColor: colors.textSecondary,
+                      onChanged: (val) {
+                        if (_hapticFeedback) HapticFeedback.selectionClick();
+                        setState(() => _warnBatteryOpt = val);
+                        widget.batteryService?.setNagDisabled(!val);
+                      },
                     ),
                   ),
                 ],
@@ -748,15 +1162,28 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               const SizedBox(height: 24),
 
               // SECTION 4: APPEARANCE & HAPTICS
-              _SectionHeader(title: 'APPEARANCE & HAPTICS'),
+              _SectionHeader(title: l10n?.settingsAppearance ?? 'APPEARANCE & HAPTICS'),
               const SizedBox(height: 8),
               _IOSGroupedCard(
                 children: [
                   _IOSGroupedTile(
+                    key: const ValueKey('language_settings_tile'),
+                    icon: Icons.translate_rounded,
+                    iconColor: const Color(0xFFE11D48), // Global Rose Ruby (World Languages)
+                    title: l10n?.settingsLanguage ?? 'Language',
+                    valueText: '${_selectedLanguage.flag} ${_selectedLanguage.nativeName}',
+                    onTap: () {
+                      if (_hapticFeedback) HapticFeedback.selectionClick();
+                      _showLanguagePicker();
+                    },
+                  ),
+                  const _IOSDivider(),
+                  _IOSGroupedTile(
                     key: const ValueKey('haptic_feedback_tile'),
                     icon: Icons.vibration_rounded,
-                    iconColor: const Color(0xFF475569), // Slate Grey
-                    title: 'Haptic Feedback',
+                    iconColor: const Color(0xFF475569), // Slate Graphite (Tactile Hardware)
+                    title: l10n?.settingsHaptics ?? 'Haptic Feedback',
+                    subtitle: l10n?.settingsHapticsSubtitle ?? 'Tactile vibrations for taps and events',
                     trailing: Switch.adaptive(
                       value: _hapticFeedback,
                       activeTrackColor: colors.primary,
@@ -778,46 +1205,31 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
 
               const SizedBox(height: 24),
 
-              // SECTION 5: ABOUT & PRIVACY
-              _SectionHeader(title: 'ABOUT & PRIVACY'),
+              // SECTION 5: GUIDE & ONBOARDING
+              _SectionHeader(title: l10n?.settingsGuideOnboarding ?? 'GUIDE & ONBOARDING'),
               const SizedBox(height: 8),
               _IOSGroupedCard(
                 children: [
                   _IOSGroupedTile(
-                    key: const ValueKey('privacy_policy_tile'),
-                    icon: Icons.shield_rounded,
-                    iconColor: const Color(0xFF10B981), // Emerald Green
-                    title: 'Privacy Policy',
+                    key: const ValueKey('replay_walkthrough_tile'),
+                    icon: Icons.explore_rounded,
+                    iconColor: const Color(0xFF0284C7), // Sky Blue (Feature Tour)
+                    title: l10n?.onboardingReplayTour ?? 'Replay Onboarding Tour',
+                    subtitle: l10n?.onboardingReplayTourSubtitle ??
+                        'Explore app features, privacy commitment, and setup again',
                     onTap: () {
                       if (_hapticFeedback) HapticFeedback.selectionClick();
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => const PrivacyPolicyScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  _IOSGroupedTile(
-                    key: const ValueKey('open_source_tile'),
-                    icon: Icons.code_rounded,
-                    iconColor: const Color(0xFF8B5CF6), // Purple
-                    title: '100% Open Source (GitHub)',
-                    onTap: () {
-                      if (_hapticFeedback) HapticFeedback.selectionClick();
-                      OpenSourceSheet.show(context);
-                    },
-                  ),
-                  const _IOSDivider(),
-                  _IOSGroupedTile(
-                    key: const ValueKey('terms_tile'),
-                    icon: Icons.description_rounded,
-                    iconColor: const Color(0xFF0EA5E9), // Ocean Blue
-                    title: 'Terms & Conditions',
-                    onTap: () {
-                      if (_hapticFeedback) HapticFeedback.selectionClick();
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const TermsScreen(),
+                          builder: (context) => OnboardingScreen(
+                            isReplay: true,
+                            onLocaleChanged: (locale) {
+                              widget.onLocaleChanged?.call(locale);
+                              setState(() {
+                                _selectedLanguage = LanguageRegistry.getLanguage(locale.languageCode);
+                              });
+                            },
+                          ),
                         ),
                       );
                     },
@@ -825,9 +1237,10 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   const _IOSDivider(),
                   _IOSGroupedTile(
                     key: const ValueKey('calculation_docs_tile'),
-                    icon: Icons.help_outline_rounded,
-                    iconColor: const Color(0xFF8B5CF6), // Purple
-                    title: 'Calculation Accuracy & FAQ',
+                    icon: Icons.menu_book_rounded,
+                    iconColor: const Color(0xFF7C3AED), // Lavender Violet (Knowledge Base)
+                    title: l10n?.settingsCalculationDocs ?? 'Calculation Accuracy & FAQ',
+                    subtitle: l10n?.settingsCalculationDocsSubtitle ?? 'Learn how prayer times and solar angles are calculated',
                     onTap: () {
                       if (_hapticFeedback) HapticFeedback.selectionClick();
                       Navigator.of(context).push(
@@ -837,16 +1250,54 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                       );
                     },
                   ),
-                  const _IOSDivider(),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              // SECTION 6: ABOUT & PRIVACY
+              _SectionHeader(title: l10n?.settingsAboutPrivacy ?? 'ABOUT & PRIVACY'),
+              const SizedBox(height: 8),
+              _IOSGroupedCard(
+                children: [
                   _IOSGroupedTile(
-                    key: const ValueKey('replay_walkthrough_tile'),
-                    icon: Icons.auto_awesome_rounded,
-                    iconColor: const Color(0xFFF59E0B), // Warm Amber
-                    title: 'Replay App Walkthrough',
+                    key: const ValueKey('privacy_policy_tile'),
+                    icon: Icons.shield_rounded,
+                    iconColor: const Color(0xFF10B981), // Safety Mint Emerald (Data Privacy)
+                    title: l10n?.settingsPrivacyPolicy ?? 'Privacy Policy',
                     onTap: () {
                       if (_hapticFeedback) HapticFeedback.selectionClick();
-                      Navigator.of(context).pop();
-                      widget.onReplayWalkthrough?.call();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const PrivacyPolicyScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const _IOSDivider(),
+                  _IOSGroupedTile(
+                    key: const ValueKey('open_source_tile'),
+                    icon: Icons.code_rounded,
+                    iconColor: const Color(0xFF334155), // GitHub Carbon Slate (Source Code)
+                    title: l10n?.settingsOpenSource ?? '100% Open Source (GitHub)',
+                    onTap: () {
+                      if (_hapticFeedback) HapticFeedback.selectionClick();
+                      OpenSourceSheet.show(context);
+                    },
+                  ),
+                  const _IOSDivider(),
+                  _IOSGroupedTile(
+                    key: const ValueKey('terms_tile'),
+                    icon: Icons.description_rounded,
+                    iconColor: const Color(0xFFD97706), // Warm Ochre Amber (Legal Terms)
+                    title: l10n?.settingsTerms ?? 'Terms & Conditions',
+                    onTap: () {
+                      if (_hapticFeedback) HapticFeedback.selectionClick();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const TermsScreen(),
+                        ),
+                      );
                     },
                   ),
                 ],
@@ -857,7 +1308,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 child: Column(
                   children: [
                     Text(
-                      '100% Free & Open Source • Zero Ads • No Data Collection',
+                      l10n?.settingsOpenSourceFootnote ?? '100% Free & Open Source • Zero Ads • No Data Collection',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: colors.textTertiary,
                             fontWeight: FontWeight.w500,
@@ -929,20 +1380,147 @@ class _IOSGroupedCard extends StatelessWidget {
   }
 }
 
+/// Apple-style Horizontal Battery Badge with SF Symbol styling
+class _IOSBatteryBadge extends StatelessWidget {
+  final bool isExempt;
+
+  const _IOSBatteryBadge({required this.isExempt});
+
+  @override
+  Widget build(BuildContext context) {
+    final gradient = isExempt
+        ? const LinearGradient(
+            colors: [Color(0xFF34C759), Color(0xFF248A3D)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          )
+        : const LinearGradient(
+            colors: [Color(0xFFFF9500), Color(0xFFD97706)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          );
+
+    return Container(
+      width: 34,
+      height: 34,
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: (isExempt ? const Color(0xFF34C759) : const Color(0xFFFF9500)).withValues(alpha: 0.28),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Center(
+        child: CustomPaint(
+          size: const Size(20, 11),
+          painter: _IOSBatteryPainter(isExempt: isExempt),
+        ),
+      ),
+    );
+  }
+}
+
+class _IOSBatteryPainter extends CustomPainter {
+  final bool isExempt;
+
+  const _IOSBatteryPainter({required this.isExempt});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final bodyWidth = size.width - 2.8;
+    final bodyHeight = size.height;
+
+    // 1. Outer Battery Body Rounded Rect
+    final bodyRRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, bodyWidth, bodyHeight),
+      const Radius.circular(3.0),
+    );
+
+    final borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.3;
+
+    canvas.drawRRect(bodyRRect, borderPaint);
+
+    // 2. Battery Terminal Cap (right protrusion)
+    final capRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(bodyWidth + 0.8, (bodyHeight - 4.5) / 2, 1.4, 4.5),
+      const Radius.circular(1.0),
+    );
+    final capPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+    canvas.drawRRect(capRect, capPaint);
+
+    // 3. Fill Level Inside
+    if (isExempt) {
+      // Full charge fill
+      final fillRRect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(1.8, 1.8, bodyWidth - 3.6, bodyHeight - 3.6),
+        const Radius.circular(1.6),
+      );
+      final fillPaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill;
+      canvas.drawRRect(fillRRect, fillPaint);
+
+      // Inner lightning bolt cutout
+      final boltPath = Path();
+      final cx = bodyWidth / 2;
+      final cy = bodyHeight / 2;
+      boltPath.moveTo(cx + 0.6, cy - 3.3);
+      boltPath.lineTo(cx - 2.2, cy + 0.3);
+      boltPath.lineTo(cx - 0.2, cy + 0.3);
+      boltPath.lineTo(cx - 0.6, cy + 3.3);
+      boltPath.lineTo(cx + 2.2, cy - 0.3);
+      boltPath.lineTo(cx + 0.1, cy - 0.3);
+      boltPath.close();
+
+      final boltPaint = Paint()
+        ..color = const Color(0xFF248A3D)
+        ..style = PaintingStyle.fill;
+      canvas.drawPath(boltPath, boltPaint);
+    } else {
+      // Partial / Alert charge fill
+      final fillRRect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(1.8, 1.8, (bodyWidth - 3.6) * 0.35, bodyHeight - 3.6),
+        const Radius.circular(1.5),
+      );
+      final fillPaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill;
+      canvas.drawRRect(fillRRect, fillPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _IOSBatteryPainter oldDelegate) =>
+      oldDelegate.isExempt != isExempt;
+}
+
 /// Apple iOS-Inspired Grouped List Tile with Squircle Icon Badge
 class _IOSGroupedTile extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
+  final IconData? icon;
+  final Color? iconColor;
+  final Widget? iconWidget;
   final String title;
+  final String? subtitle;
   final String? valueText;
   final Widget? trailing;
   final VoidCallback? onTap;
 
   const _IOSGroupedTile({
     super.key,
-    required this.icon,
-    required this.iconColor,
+    this.icon,
+    this.iconColor,
+    this.iconWidget,
     required this.title,
+    this.subtitle,
     this.valueText,
     this.trailing,
     this.onTap,
@@ -958,46 +1536,69 @@ class _IOSGroupedTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           children: [
-            // Rounded Squircle Icon Badge
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: iconColor,
-                borderRadius: BorderRadius.circular(10),
+            // Rounded Squircle Icon Badge or Custom Icon Widget
+            if (iconWidget != null)
+              iconWidget!
+            else if (icon != null)
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: iconColor ?? colors.primary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  icon!,
+                  color: Colors.white,
+                  size: 18,
+                ),
               ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 18,
-              ),
-            ),
             const SizedBox(width: 14),
 
-            // Title
+            // Title & Optional Subtitle
             Expanded(
-              child: Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: colors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle!,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: colors.textSecondary,
+                            fontSize: 12,
+                          ),
                     ),
+                  ],
+                ],
               ),
             ),
 
             // Trailing Value or Switch
             if (valueText != null) ...[
-              Text(
-                valueText!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: colors.textSecondary,
-                      fontSize: 14,
-                    ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  valueText!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colors.textSecondary,
+                        fontSize: 14,
+                      ),
+                ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
             ],
 
             if (trailing case final Widget t) t,

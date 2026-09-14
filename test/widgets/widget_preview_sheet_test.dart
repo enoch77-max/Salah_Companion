@@ -33,7 +33,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Home Screen Widgets'), findsOneWidget);
+      expect(find.text('Widgets'), findsOneWidget);
       expect(find.text('Salah Time'), findsOneWidget);
       expect(find.text('Full Salah Schedule'), findsOneWidget);
       expect(find.text('Daily Dua & Reflection'), findsOneWidget);

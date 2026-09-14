@@ -450,5 +450,57 @@ void main() {
             androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           )).called(1);
     });
+
+    test('schedulePrayerNotifications falls back gracefully to inexact alarms when exact alarms throw exception', () async {
+      int exactAttemptCount = 0;
+      when(() => mockPlugin.zonedSchedule(
+            id: any(named: 'id'),
+            title: any(named: 'title'),
+            body: any(named: 'body'),
+            scheduledDate: any(named: 'scheduledDate'),
+            notificationDetails: any(named: 'notificationDetails'),
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          )).thenAnswer((_) async {
+        exactAttemptCount++;
+        throw Exception('exact_alarms_not_permitted: battery saver active');
+      });
+
+      when(() => mockPlugin.zonedSchedule(
+            id: any(named: 'id'),
+            title: any(named: 'title'),
+            body: any(named: 'body'),
+            scheduledDate: any(named: 'scheduledDate'),
+            notificationDetails: any(named: 'notificationDetails'),
+            androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          )).thenAnswer((_) async {});
+
+      final now = DateTime(2026, 7, 24, 12, 0);
+      final prayerTimes = {'Dhuhr': now.add(const Duration(hours: 1))};
+
+      await service.schedulePrayerNotifications(
+        prayerTimes: prayerTimes,
+        enabledPrayers: {'Dhuhr': true},
+        nowOverride: now,
+      );
+
+      expect(exactAttemptCount, equals(2)); // start notification (103) + 15m post reminder (1103)
+      verify(() => mockPlugin.zonedSchedule(
+            id: 103,
+            title: 'Dhuhr Prayer',
+            body: any(named: 'body'),
+            scheduledDate: any(named: 'scheduledDate'),
+            notificationDetails: any(named: 'notificationDetails'),
+            androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          )).called(1);
+      verify(() => mockPlugin.zonedSchedule(
+            id: 1103,
+            title: 'Early Prayer Reminder — Dhuhr',
+            body: any(named: 'body'),
+            scheduledDate: any(named: 'scheduledDate'),
+            notificationDetails: any(named: 'notificationDetails'),
+            androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          )).called(1);
+    });
   });
 }
+

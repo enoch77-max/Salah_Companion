@@ -14,7 +14,7 @@ plugins {
 
 android {
     namespace = "com.salahcompanion.salah_companion"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

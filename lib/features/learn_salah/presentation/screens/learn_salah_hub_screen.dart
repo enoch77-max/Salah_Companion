@@ -4,6 +4,7 @@ import 'package:salah_companion/app/theme/app_theme.dart';
 import 'package:salah_companion/features/learn_salah/data/salah_guide_data.dart';
 import 'package:salah_companion/features/learn_salah/domain/models/salah_learning_models.dart';
 import 'package:salah_companion/features/learn_salah/presentation/widgets/posture_avatars.dart';
+import 'package:salah_companion/l10n/generated/app_localizations.dart';
 import 'salah_step_by_step_screen.dart';
 import 'salah_category_detail_screen.dart';
 
@@ -28,6 +29,7 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -36,7 +38,7 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Learn Salah',
+          l10n?.learnSalah ?? 'Learn Salah',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: colors.textPrimary,
@@ -98,7 +100,7 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                               ),
                             ),
                             child: Text(
-                              'AUTHENTIC SUNNAH GUIDE',
+                              l10n?.learnSalahAuthenticBadge ?? 'AUTHENTIC SUNNAH GUIDE',
                               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                     color: colors.primary,
                                     fontWeight: FontWeight.bold,
@@ -108,7 +110,7 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            'Pray as the Prophet ﷺ Prayed',
+                            l10n?.learnSalahProphetQuoteTitle ?? 'Pray as the Prophet ﷺ Prayed',
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w800,
                                   color: colors.textPrimary,
@@ -178,7 +180,7 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                     });
                   },
                   decoration: InputDecoration(
-                    hintText: 'Search posture, step, or Hadith proof...',
+                    hintText: l10n?.learnSalahSearchPlaceholder ?? 'Search posture, step, or Hadith proof...',
                     hintStyle: TextStyle(color: colors.textTertiary, fontSize: 14),
                     prefixIcon: Icon(Icons.search_rounded, color: colors.textSecondary),
                     suffixIcon: _searchQuery.isNotEmpty
@@ -205,7 +207,7 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               child: Text(
-                'LEARNING MODULES',
+                l10n?.learnSalahLearningModules ?? 'LEARNING MODULES',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: colors.textSecondary,
                       fontWeight: FontWeight.bold,
@@ -223,8 +225,8 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                 [
                   // Module 1: Step-by-Step Guide
                   _ModuleCard(
-                    title: 'Step-by-Step Prophetic Guide',
-                    subtitle: '10 Sequential steps with 2D postures & proofs',
+                    title: l10n?.learnSalahStepByStepTitle ?? 'Step-by-Step Prophetic Guide',
+                    subtitle: l10n?.learnSalahStepByStepSubtitle ?? '10 Sequential steps with 2D postures & proofs',
                     badgeText: 'FULL GUIDE',
                     icon: Icons.directions_walk_rounded,
                     accentColor: const Color(0xFF10B981), // Emerald Teal
@@ -243,8 +245,8 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
 
                   // Module 2: The 14 Pillars
                   _ModuleCard(
-                    title: 'The 14 Pillars of Salah (Arkan)',
-                    subtitle: 'Must-do essential foundations of prayer',
+                    title: l10n?.learnSalahPillarsTitle ?? 'The 14 Pillars of Salah (Arkan)',
+                    subtitle: l10n?.learnSalahPillarsSubtitle ?? 'Must-do essential foundations of prayer',
                     badgeText: '14 PILLARS',
                     icon: Icons.account_balance_rounded,
                     accentColor: const Color(0xFFD97706), // Warm Amber
@@ -253,8 +255,8 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SalahCategoryDetailScreen(
-                            title: '14 Pillars of Salah (Arkan)',
+                          builder: (context) => SalahCategoryDetailScreen(
+                            title: l10n?.learnSalahPillarsTitle ?? '14 Pillars of Salah (Arkan)',
                             category: SalahRuleCategory.pillar,
                             items: SalahGuideData.pillars,
                           ),
@@ -267,8 +269,8 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
 
                   // Module 3: The 8 Obligations
                   _ModuleCard(
-                    title: 'The 8 Obligations (Waajibaat)',
-                    subtitle: 'Mandatory acts compensated by Sujood as-Sahw',
+                    title: l10n?.learnSalahObligationsTitle ?? 'The 8 Obligations (Waajibaat)',
+                    subtitle: l10n?.learnSalahObligationsSubtitle ?? 'Mandatory acts compensated by Sujood as-Sahw',
                     badgeText: '8 OBLIGATIONS',
                     icon: Icons.task_alt_rounded,
                     accentColor: const Color(0xFF0EA5E9), // Ocean Blue
@@ -277,8 +279,8 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SalahCategoryDetailScreen(
-                            title: '8 Obligations of Salah (Waajibaat)',
+                          builder: (context) => SalahCategoryDetailScreen(
+                            title: l10n?.learnSalahObligationsTitle ?? '8 Obligations of Salah (Waajibaat)',
                             category: SalahRuleCategory.obligation,
                             items: SalahGuideData.obligations,
                           ),
@@ -291,8 +293,8 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
 
                   // Module 4: Sunnah Practices
                   _ModuleCard(
-                    title: 'Sunnah Practices (Sunan)',
-                    subtitle: 'Verbal & action Sunnahs of Prophet Muhammad ﷺ',
+                    title: l10n?.learnSalahSunanTitle ?? 'Sunnah Practices (Sunan)',
+                    subtitle: l10n?.learnSalahSunanSubtitle ?? 'Verbal & action Sunnahs of Prophet Muhammad ﷺ',
                     badgeText: 'SUNNAH ACTS',
                     icon: Icons.auto_awesome_rounded,
                     accentColor: const Color(0xFF8B5CF6), // Royal Purple
@@ -301,8 +303,8 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SalahCategoryDetailScreen(
-                            title: 'Sunnah Practices of Salah',
+                          builder: (context) => SalahCategoryDetailScreen(
+                            title: l10n?.learnSalahSunanTitle ?? 'Sunnah Practices of Salah',
                             category: SalahRuleCategory.sunnahAction,
                             items: SalahGuideData.pillars, // Handled inside detail
                           ),
@@ -315,8 +317,8 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
 
                   // Module 5: Errors to Avoid
                   _ModuleCard(
-                    title: 'Common Errors & Prohibited Actions',
-                    subtitle: 'Pitfalls, Bid\'ah, & invalidating mistakes',
+                    title: l10n?.learnSalahInvalidatorsTitle ?? 'Invalidators of Salah (Mubtilaat)',
+                    subtitle: l10n?.learnSalahInvalidatorsSubtitle ?? 'Things that break or invalidate your prayer',
                     badgeText: 'ERRORS TO AVOID',
                     icon: Icons.warning_amber_rounded,
                     accentColor: const Color(0xFFEF4444), // Coral Red
@@ -325,8 +327,8 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SalahCategoryDetailScreen(
-                            title: 'Common Errors to Avoid',
+                          builder: (context) => SalahCategoryDetailScreen(
+                            title: l10n?.learnSalahInvalidatorsTitle ?? 'Invalidators of Salah (Mubtilaat)',
                             category: SalahRuleCategory.errorToAvoid,
                             items: SalahGuideData.errorsToAvoid,
                           ),

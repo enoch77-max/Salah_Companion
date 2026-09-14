@@ -1,16 +1,11 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:drift/drift.dart' hide Column;
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:adhan_dart/adhan_dart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../core/database/app_database.dart';
-import '../../../../core/presentation/widgets/dua_hands_icon.dart';
-import '../../../../core/presentation/widgets/tasbih_icon.dart';
 import '../../../../core/services/app_haptics.dart';
-import '../../../../core/services/app_info_service.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/widget_service.dart';
@@ -19,22 +14,19 @@ import '../../../../core/utils/location_formatter.dart';
 import '../../../calendar/presentation/screens/hijri_calendar_screen.dart';
 import '../../../duas/presentation/screens/duas_screen.dart';
 import '../../../qibla/presentation/screens/qibla_screen.dart';
-import '../../../onboarding/presentation/widgets/walkthrough_overlay.dart';
 import '../../../reflection/data/repositories/daily_content_repository.dart';
 import '../../../reflection/domain/models/daily_content.dart';
-import '../../../reflection/presentation/screens/favorites_screen.dart';
 import '../../../settings/presentation/screens/settings_screen.dart';
 import '../../../tasbih/presentation/screens/tasbih_screen.dart';
-import '../../../tracker/presentation/screens/tracker_screen.dart';
-import '../../../learn_salah/presentation/screens/learn_salah_hub_screen.dart';
 import '../../domain/prayer_times_calculator.dart';
 import '../widgets/daily_reflection_card.dart';
 import '../widgets/hijri_strip.dart';
 import '../widgets/prayer_countdown_hero.dart';
 import '../widgets/prayer_list_card.dart';
 import '../widgets/prayer_streak_sheet.dart';
-import '../widgets/widget_preview_sheet.dart';
-import '../widgets/open_source_sheet.dart';
+import '../../../../l10n/generated/app_localizations.dart';
+import '../widgets/app_navigation_drawer.dart';
+import '../widgets/frosted_glass_bottom_nav_bar.dart';
 
 /// Home Dashboard Screen integrating top app bar with 3-line drawer menu,
 /// 6-item frosted-glass navigation bar matching design spec (Home, Tracker, Qibla, Tasbih, Duas, Calendar),
@@ -51,6 +43,8 @@ class HomeScreen extends StatefulWidget {
   final ThemeMode currentThemeMode;
   final ValueChanged<ThemeMode>? onThemeModeChanged;
   final NotificationService? notificationService;
+  final Locale? currentLocale;
+  final ValueChanged<Locale>? onLocaleChanged;
 
   const HomeScreen({
     super.key,
@@ -65,6 +59,8 @@ class HomeScreen extends StatefulWidget {
     this.currentThemeMode = ThemeMode.dark,
     this.onThemeModeChanged,
     this.notificationService,
+    this.currentLocale,
+    this.onLocaleChanged,
   });
 
   static final defaultReflection = DailyContentItem(
@@ -116,7 +112,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _lastLoadedDateStr;
   DailyContentItem? _reflectionItem;
   bool _isDatabaseHydrated = false;
-  bool _showWalkthrough = false;
 
   @override
   void initState() {
@@ -132,37 +127,18 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     _initLocationAndPrayers();
-    _checkWalkthroughStatus();
 
     _periodicRefreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       _reEvaluateCurrentPrayerState();
     });
   }
 
-  Future<void> _checkWalkthroughStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final completed = prefs.getBool('has_completed_walkthrough') ?? false;
-    if (!completed && mounted) {
-      setState(() {
-        _showWalkthrough = true;
-      });
+  @override
+  void didUpdateWidget(covariant HomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentLocale != widget.currentLocale) {
+      _reEvaluateCurrentPrayerState();
     }
-  }
-
-  Future<void> _completeWalkthrough() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('has_completed_walkthrough', true);
-    if (mounted) {
-      setState(() {
-        _showWalkthrough = false;
-      });
-    }
-  }
-
-  void _startWalkthrough() {
-    setState(() {
-      _showWalkthrough = true;
-    });
   }
 
   @override
@@ -291,6 +267,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetService().updateFromPrayerTimes(
       prayerTimes: {
         'Fajr': prayerTimes.fajr,
+        'Sunrise': prayerTimes.sunrise,
         'Dhuhr': prayerTimes.dhuhr,
         'Asr': prayerTimes.asr,
         'Maghrib': prayerTimes.maghrib,
@@ -336,8 +313,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return '${hour.toString().padLeft(2, '0')}:$minute $ampm';
   }
 
-  DateTime _getIslamicCalculationDate([DateTime? nowTime, Coordinates? coords, CalculationParameters? params]) {
-    final now = nowTime ?? DateTime.now();
+  DateTime _getIslamicCalculationDate([DateTime? referenceDate, Coordinates? coords, CalculationParameters? params]) {
+    final now = referenceDate ?? DateTime.now();
     if (coords != null && params != null) {
       final calc = const PrayerTimesCalculator();
       return calc.getIslamicCalculationDate(
@@ -345,11 +322,6 @@ class _HomeScreenState extends State<HomeScreen> {
         coordinates: coords,
         calculationParameters: params,
       );
-    } else if (_calculatedTimesMap.containsKey('Fajr')) {
-      final currentFajr = _calculatedTimesMap['Fajr']!;
-      if (now.isBefore(currentFajr)) {
-        return DateTime(now.year, now.month, now.day).subtract(const Duration(days: 1));
-      }
     } else if (now.hour < 4) {
       return DateTime(now.year, now.month, now.day).subtract(const Duration(days: 1));
     }
@@ -421,10 +393,13 @@ class _HomeScreenState extends State<HomeScreen> {
     required Map<String, PrayerStatus> logs,
   }) {
     final now = DateTime.now();
+    final l10n = AppLocalizations.of(context);
+    final upcomingLabel = l10n?.upcomingPrayer ?? 'UPCOMING PRAYER';
+    final currentSalahLabel = l10n?.currentSalah ?? 'CURRENT SALAH';
 
     PrayerStatus statusOf(String name) => logs[name] ?? PrayerStatus.pending;
 
-    String headerLabel = 'UPCOMING PRAYER';
+    String headerLabel = upcomingLabel;
     String heroPrayerName = 'Dhuhr';
     String? currentActivePrayerName;
     String upcomingNextPrayerName = 'Dhuhr';
@@ -442,57 +417,57 @@ class _HomeScreenState extends State<HomeScreen> {
     final tomorrowFajrStr = _formatTime12h(tomorrowFajr);
 
     if (now.isBefore(fajr)) {
-      headerLabel = 'UPCOMING PRAYER';
+      headerLabel = upcomingLabel;
       heroPrayerName = 'Fajr';
       currentActivePrayerName = null;
       upcomingNextPrayerName = 'Fajr';
-      periodText = 'Starts at $fajrStr';
+      periodText = l10n?.startsAt(fajrStr) ?? 'Starts at $fajrStr';
       targetTime = fajr;
       pStart = fajr.subtract(const Duration(hours: 6));
       pEnd = fajr;
     } else if (now.isBefore(sunrise)) {
       upcomingNextPrayerName = 'Dhuhr';
       if (statusOf('Fajr') != PrayerStatus.prayed) {
-        headerLabel = 'CURRENT SALAH';
+        headerLabel = currentSalahLabel;
         heroPrayerName = 'Fajr';
         currentActivePrayerName = 'Fajr';
-        periodText = 'Period: $fajrStr – $sunriseStr';
+        periodText = l10n?.periodRange(fajrStr, sunriseStr) ?? 'Period: $fajrStr – $sunriseStr';
         targetTime = sunrise;
         pStart = fajr;
         pEnd = sunrise;
       } else {
-        headerLabel = 'UPCOMING PRAYER';
+        headerLabel = upcomingLabel;
         heroPrayerName = 'Dhuhr';
         currentActivePrayerName = null;
-        periodText = 'Starts at $dhuhrStr';
+        periodText = l10n?.startsAt(dhuhrStr) ?? 'Starts at $dhuhrStr';
         targetTime = dhuhr;
         pStart = sunrise;
         pEnd = dhuhr;
       }
     } else if (now.isBefore(dhuhr)) {
-      headerLabel = 'UPCOMING PRAYER';
+      headerLabel = upcomingLabel;
       heroPrayerName = 'Dhuhr';
       currentActivePrayerName = null;
       upcomingNextPrayerName = 'Dhuhr';
-      periodText = 'Starts at $dhuhrStr';
+      periodText = l10n?.startsAt(dhuhrStr) ?? 'Starts at $dhuhrStr';
       targetTime = dhuhr;
       pStart = sunrise;
       pEnd = dhuhr;
     } else if (now.isBefore(asr)) {
       upcomingNextPrayerName = 'Asr';
       if (statusOf('Dhuhr') != PrayerStatus.prayed) {
-        headerLabel = 'CURRENT SALAH';
+        headerLabel = currentSalahLabel;
         heroPrayerName = 'Dhuhr';
         currentActivePrayerName = 'Dhuhr';
-        periodText = 'Period: $dhuhrStr – $asrStr';
+        periodText = l10n?.periodRange(dhuhrStr, asrStr) ?? 'Period: $dhuhrStr – $asrStr';
         targetTime = asr;
         pStart = dhuhr;
         pEnd = asr;
       } else {
-        headerLabel = 'UPCOMING PRAYER';
+        headerLabel = upcomingLabel;
         heroPrayerName = 'Asr';
         currentActivePrayerName = null;
-        periodText = 'Starts at $asrStr';
+        periodText = l10n?.startsAt(asrStr) ?? 'Starts at $asrStr';
         targetTime = asr;
         pStart = dhuhr;
         pEnd = asr;
@@ -500,18 +475,18 @@ class _HomeScreenState extends State<HomeScreen> {
     } else if (now.isBefore(maghrib)) {
       upcomingNextPrayerName = 'Maghrib';
       if (statusOf('Asr') != PrayerStatus.prayed) {
-        headerLabel = 'CURRENT SALAH';
+        headerLabel = currentSalahLabel;
         heroPrayerName = 'Asr';
         currentActivePrayerName = 'Asr';
-        periodText = 'Period: $asrStr – $maghribStr';
+        periodText = l10n?.periodRange(asrStr, maghribStr) ?? 'Period: $asrStr – $maghribStr';
         targetTime = maghrib;
         pStart = asr;
         pEnd = maghrib;
       } else {
-        headerLabel = 'UPCOMING PRAYER';
+        headerLabel = upcomingLabel;
         heroPrayerName = 'Maghrib';
         currentActivePrayerName = null;
-        periodText = 'Starts at $maghribStr';
+        periodText = l10n?.startsAt(maghribStr) ?? 'Starts at $maghribStr';
         targetTime = maghrib;
         pStart = asr;
         pEnd = maghrib;
@@ -519,18 +494,18 @@ class _HomeScreenState extends State<HomeScreen> {
     } else if (now.isBefore(isha)) {
       upcomingNextPrayerName = 'Isha';
       if (statusOf('Maghrib') != PrayerStatus.prayed) {
-        headerLabel = 'CURRENT SALAH';
+        headerLabel = currentSalahLabel;
         heroPrayerName = 'Maghrib';
         currentActivePrayerName = 'Maghrib';
-        periodText = 'Period: $maghribStr – $ishaStr';
+        periodText = l10n?.periodRange(maghribStr, ishaStr) ?? 'Period: $maghribStr – $ishaStr';
         targetTime = isha;
         pStart = maghrib;
         pEnd = isha;
       } else {
-        headerLabel = 'UPCOMING PRAYER';
+        headerLabel = upcomingLabel;
         heroPrayerName = 'Isha';
         currentActivePrayerName = null;
-        periodText = 'Starts at $ishaStr';
+        periodText = l10n?.startsAt(ishaStr) ?? 'Starts at $ishaStr';
         targetTime = isha;
         pStart = maghrib;
         pEnd = isha;
@@ -538,19 +513,21 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       upcomingNextPrayerName = 'Fajr';
       if (statusOf('Isha') != PrayerStatus.prayed) {
-        headerLabel = 'CURRENT SALAH';
+        headerLabel = currentSalahLabel;
         heroPrayerName = 'Isha';
         currentActivePrayerName = 'Isha';
-        periodText = 'Period: $ishaStr – $tomorrowFajrStr';
+        periodText = l10n?.periodRange(ishaStr, tomorrowFajrStr) ?? 'Period: $ishaStr – $tomorrowFajrStr';
         targetTime = tomorrowFajr;
         pStart = isha;
         pEnd = tomorrowFajr;
       } else {
         final isSameDayFajr = tomorrowFajr.day == now.day;
-        headerLabel = 'UPCOMING PRAYER';
+        headerLabel = upcomingLabel;
         heroPrayerName = 'Fajr';
         currentActivePrayerName = null;
-        periodText = isSameDayFajr ? 'Starts at $tomorrowFajrStr' : 'Tomorrow at $tomorrowFajrStr';
+        periodText = isSameDayFajr
+            ? (l10n?.startsAt(tomorrowFajrStr) ?? 'Starts at $tomorrowFajrStr')
+            : 'Tomorrow at $tomorrowFajrStr';
         targetTime = tomorrowFajr;
         pStart = isha;
         pEnd = tomorrowFajr;
@@ -1085,21 +1062,26 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.settings_rounded),
             color: colors.textPrimary,
             tooltip: 'Settings',
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => SettingsScreen(
-                    onReplayWalkthrough: _startWalkthrough,
+                    currentThemeMode: widget.currentThemeMode,
+                    onThemeModeChanged: widget.onThemeModeChanged,
+                    currentLocale: widget.currentLocale,
+                    onLocaleChanged: widget.onLocaleChanged,
                   ),
                 ),
               );
+              final loc = LocationService.savedLocation ?? LocationService.defaultFallbackLocation;
+              await _applyLocationAndCalculate(loc);
             },
           ),
           const SizedBox(width: 8),
         ],
       ),
-      drawer: _AppNavigationDrawer(
+      drawer: AppNavigationDrawer(
         currentThemeMode: widget.currentThemeMode,
         onThemeModeChanged: widget.onThemeModeChanged,
       ),
@@ -1117,7 +1099,7 @@ class _HomeScreenState extends State<HomeScreen> {
               left: 0,
               right: 0,
               bottom: 0,
-              child: _FrostedGlassBottomNavBar(
+              child: FrostedGlassBottomNavBar(
                 selectedIndex: _selectedNavIndex,
                 onItemSelected: (index) {
                   setState(() {
@@ -1126,14 +1108,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
             ),
-
-            // First-Install / Interactive Onboarding Feature Walkthrough Overlay
-            if (_showWalkthrough)
-              Positioned.fill(
-                child: WalkthroughOverlay(
-                  onDismiss: _completeWalkthrough,
-                ),
-              ),
           ],
         ),
       ),
@@ -1141,734 +1115,3 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-/// Custom 3-Line Navigation Drawer housing Saved Items, Settings, and Theme Toggle.
-class _AppNavigationDrawer extends StatelessWidget {
-  final ThemeMode currentThemeMode;
-  final ValueChanged<ThemeMode>? onThemeModeChanged;
-
-  const _AppNavigationDrawer({
-    required this.currentThemeMode,
-    this.onThemeModeChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return Drawer(
-      backgroundColor: colors.background,
-      child: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    // Drawer Header Card
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        decoration: ShapeDecoration(
-                          color: colors.surface,
-                          shape: ContinuousRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            side: BorderSide(color: colors.divider, width: 1.0),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: colors.primarySoft,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.mosque_rounded,
-                                color: colors.primary,
-                                size: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Salah Companion',
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                          color: colors.textPrimary,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 17,
-                                        ),
-                                  ),
-                                  const SizedBox(height: 1),
-                                  Text(
-                                    'Prayer & Reflection',
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: colors.textSecondary,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // 1. GUIDANCE Category (Learn Salah on Top of Navigation)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 4.0, bottom: 6.0, top: 4.0),
-                            child: Text(
-                              'GUIDANCE',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: const Color(0xFF6366F1), // Indigo Violet
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.8,
-                                  ),
-                            ),
-                          ),
-                          Material(
-                            color: colors.surface,
-                            shape: ContinuousRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
-                              side: BorderSide(
-                                color: const Color(0xFF6366F1).withValues(alpha: 0.35),
-                                width: 1.2,
-                              ),
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: _DrawerGroupedTile(
-                              tileKey: const ValueKey('drawer_learn_salah_item'),
-                              icon: Icons.auto_stories_rounded,
-                              iconColor: const Color(0xFF6366F1), // Indigo Violet
-                              title: 'Learn Salah',
-                              subtitle: 'Learn Salah with authentic Sunnah and Hadith',
-                              onTap: () {
-                                Navigator.pop(context); // Close drawer
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const LearnSalahHubScreen(),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // 2. Navigation Grouped Inset Card (Matching SettingsScreen iOS Style)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 4.0, bottom: 6.0, top: 4.0),
-                            child: Text(
-                              'NAVIGATION',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: colors.textSecondary,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.8,
-                                  ),
-                            ),
-                          ),
-                          Material(
-                            color: colors.surface,
-                            shape: ContinuousRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
-                              side: BorderSide(color: colors.divider, width: 1.0),
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // 1. Saved Screen Option
-                                _DrawerGroupedTile(
-                                  tileKey: const ValueKey('drawer_favorites_item'),
-                                  icon: Icons.bookmark_rounded,
-                                  iconColor: const Color(0xFFF59E0B), // Warm Amber
-                                  title: 'Saved',
-                                  subtitle: 'Hadiths, Verses & Duas',
-                                  onTap: () {
-                                    Navigator.pop(context); // Close drawer
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => FavoritesScreen(
-                                          repository: DailyContentRepository(AppDatabase.instance()),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                Divider(height: 1, thickness: 1, color: colors.divider, indent: 64),
-                                // 2. Prayer Tracker Option
-                                _DrawerGroupedTile(
-                                  tileKey: const ValueKey('drawer_tracker_item'),
-                                  icon: Icons.trending_up_rounded,
-                                  iconColor: const Color(0xFF0EA5E9), // Ocean Blue
-                                  title: 'Prayer Tracker',
-                                  subtitle: 'View your prayer statistics',
-                                  onTap: () {
-                                    Navigator.pop(context); // Close drawer
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const TrackerScreen(),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                Divider(height: 1, thickness: 1, color: colors.divider, indent: 64),
-                                // 3. Home Screen Widgets Option
-                                _DrawerGroupedTile(
-                                  tileKey: const ValueKey('drawer_widgets_item'),
-                                  icon: Icons.widgets_rounded,
-                                  iconColor: const Color(0xFF10B981), // Emerald Green
-                                  title: 'Home Screen Widgets',
-                                  subtitle: 'Add widgets to home screen',
-                                  onTap: () {
-                                    Navigator.pop(context); // Close drawer
-                                    WidgetPreviewSheet.show(context);
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // 3. OPEN SOURCE & PRIVACY Inset Card
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 4.0, bottom: 6.0, top: 4.0),
-                            child: Text(
-                              'OPEN SOURCE & PRIVACY',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: colors.textSecondary,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.8,
-                                  ),
-                            ),
-                          ),
-                          Material(
-                            color: colors.surface,
-                            shape: ContinuousRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
-                              side: BorderSide(color: colors.divider, width: 1.0),
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: _DrawerGroupedTile(
-                              tileKey: const ValueKey('drawer_open_source_privacy_item'),
-                              icon: Icons.verified_user_rounded,
-                              iconColor: const Color(0xFF10B981), // Emerald Green
-                              title: 'Open Source & Privacy',
-                              subtitle: '100% offline, zero tracking & Non-Commercial',
-                              onTap: () {
-                                Navigator.pop(context); // Close drawer
-                                OpenSourceSheet.show(context);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // 3-Option Segmented Pill Theme Switcher (Bottom of Menu)
-            _ThemeSegmentedControl(
-              key: const ValueKey('drawer_theme_segmented_control'),
-              currentThemeMode: currentThemeMode,
-              onThemeModeChanged: onThemeModeChanged,
-            ),
-
-            // Footer
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Text(
-                AppInfoService.drawerFooterText,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colors.textTertiary,
-                    ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Helper tile widget for iOS Grouped Inset style drawer navigation tiles.
-class _DrawerGroupedTile extends StatelessWidget {
-  final Key? tileKey;
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _DrawerGroupedTile({
-    this.tileKey,
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return InkWell(
-      key: tileKey,
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: iconColor,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                        ),
-                  ),
-                  const SizedBox(height: 1),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colors.textSecondary,
-                          fontSize: 12,
-                        ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: colors.textTertiary,
-              size: 20,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 3-Option Segmented Sliding Control for Theme Mode (System / Light / Dark).
-class _ThemeSegmentedControl extends StatelessWidget {
-  final ThemeMode currentThemeMode;
-  final ValueChanged<ThemeMode>? onThemeModeChanged;
-
-  const _ThemeSegmentedControl({
-    super.key,
-    required this.currentThemeMode,
-    this.onThemeModeChanged,
-  });
-
-  int _getSelectedIndex() {
-    switch (currentThemeMode) {
-      case ThemeMode.light:
-        return 1;
-      case ThemeMode.dark:
-        return 2;
-      case ThemeMode.system:
-        return 0;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    final selectedIndex = _getSelectedIndex();
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
-            child: Text(
-              'THEME MODE',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: colors.textSecondary,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.8,
-                  ),
-            ),
-          ),
-          Container(
-            height: 44,
-            decoration: ShapeDecoration(
-              color: colors.surface,
-              shape: ContinuousRectangleBorder(
-                borderRadius: BorderRadius.circular(22),
-                side: BorderSide(color: colors.divider, width: 1.0),
-              ),
-            ),
-            padding: const EdgeInsets.all(3.0),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final itemWidth = (constraints.maxWidth - 6) / 3;
-                final alignment = selectedIndex == 0
-                    ? Alignment.centerLeft
-                    : selectedIndex == 1
-                        ? Alignment.center
-                        : Alignment.centerRight;
-
-                return Stack(
-                  children: [
-                    // Sliding Pill Surface Indicator
-                    AnimatedAlign(
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeOutCubic,
-                      alignment: alignment,
-                      child: Container(
-                        width: itemWidth,
-                        height: double.infinity,
-                        decoration: ShapeDecoration(
-                          color: colors.primary,
-                          shape: ContinuousRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          shadows: [
-                            BoxShadow(
-                              color: colors.primary.withValues(alpha: 0.25),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // 3 Tappable Options: System / Light / Dark
-                    Row(
-                      children: [
-                        _buildSegment(
-                          context,
-                          index: 0,
-                          label: 'System',
-                          icon: Icons.brightness_auto_rounded,
-                          mode: ThemeMode.system,
-                          selectedIndex: selectedIndex,
-                        ),
-                        _buildSegment(
-                          context,
-                          index: 1,
-                          label: 'Light',
-                          icon: Icons.light_mode_rounded,
-                          mode: ThemeMode.light,
-                          selectedIndex: selectedIndex,
-                        ),
-                        _buildSegment(
-                          context,
-                          index: 2,
-                          label: 'Dark',
-                          icon: Icons.dark_mode_rounded,
-                          mode: ThemeMode.dark,
-                          selectedIndex: selectedIndex,
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSegment(
-    BuildContext context, {
-    required int index,
-    required String label,
-    required IconData icon,
-    required ThemeMode mode,
-    required int selectedIndex,
-  }) {
-    final colors = context.appColors;
-    final isSelected = selectedIndex == index;
-    final textColor = isSelected ? colors.background : colors.textSecondary;
-
-    return Expanded(
-      child: GestureDetector(
-        key: ValueKey('theme_segment_$index'),
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          HapticFeedback.selectionClick();
-          onThemeModeChanged?.call(mode);
-        },
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 14,
-                color: textColor,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                label.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                  letterSpacing: 0.6,
-                  color: textColor,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FrostedGlassBottomNavBar extends StatefulWidget {
-  final int selectedIndex;
-  final ValueChanged<int> onItemSelected;
-
-  const _FrostedGlassBottomNavBar({
-    required this.selectedIndex,
-    required this.onItemSelected,
-  });
-
-  @override
-  State<_FrostedGlassBottomNavBar> createState() => _FrostedGlassBottomNavBarState();
-}
-
-class _FrostedGlassBottomNavBarState extends State<_FrostedGlassBottomNavBar> {
-  int? _pressedIndex;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    final bottomPadding = MediaQuery.paddingOf(context).bottom;
-
-    final navItems = const [
-      _NavItemData(selectedIcon: Icons.home_rounded, unselectedIcon: Icons.home_outlined, label: 'Home'),
-      _NavItemData(selectedIcon: Icons.book_rounded, unselectedIcon: Icons.book_outlined, label: 'Duas'),
-      _NavItemData(selectedIcon: Icons.radio_button_checked_rounded, unselectedIcon: Icons.radio_button_off_rounded, label: 'Tasbih'),
-      _NavItemData(selectedIcon: Icons.explore_rounded, unselectedIcon: Icons.explore_outlined, label: 'Qibla'),
-      _NavItemData(selectedIcon: Icons.calendar_month_rounded, unselectedIcon: Icons.calendar_today_outlined, label: 'Calendar'),
-    ];
-
-    return RepaintBoundary(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 0, 16, bottomPadding > 0 ? bottomPadding + 4 : 12),
-        child: Container(
-          decoration: BoxDecoration(
-            color: colors.surface.withValues(alpha: 0.88),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(
-              color: colors.dividerStrong,
-              width: 1.0,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.14),
-                blurRadius: 20,
-                offset: const Offset(0, 6),
-                spreadRadius: -2,
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(28),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-              child: Container(
-                height: 58,
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final availableWidth = constraints.maxWidth;
-                    final itemWidth = availableWidth / navItems.length;
-
-                    return Stack(
-                      children: [
-                        // ─── FLUID SLIDING SELECTION HIGHLIGHT PILL (Fully Rounded Edges) ───
-                        AnimatedPositioned(
-                          duration: const Duration(milliseconds: 260),
-                          curve: Curves.easeOutCubic,
-                          left: (widget.selectedIndex * itemWidth) + 3,
-                          top: 2,
-                          bottom: 2,
-                          width: itemWidth - 6,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: colors.primarySoft,
-                              borderRadius: BorderRadius.circular(23), // Fully rounded stadium pill!
-                              border: Border.all(
-                                color: colors.primary.withValues(alpha: 0.35),
-                                width: 1.0,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: colors.primary.withValues(alpha: 0.12),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // ─── NAV ITEMS ROW ──────────────────────────────────────────
-                        Row(
-                          children: List.generate(navItems.length, (index) {
-                            final item = navItems[index];
-                            final isSelected = widget.selectedIndex == index;
-                            final isPressed = _pressedIndex == index;
-
-                            return Expanded(
-                              child: GestureDetector(
-                                key: ValueKey('nav_item_$index'),
-                                behavior: HitTestBehavior.opaque,
-                                onTapDown: (_) {
-                                  setState(() {
-                                    _pressedIndex = index;
-                                  });
-                                  HapticFeedback.selectionClick();
-                                },
-                                onTapUp: (_) {
-                                  setState(() {
-                                    _pressedIndex = null;
-                                  });
-                                  widget.onItemSelected(index);
-                                },
-                                onTapCancel: () {
-                                  setState(() {
-                                    _pressedIndex = null;
-                                  });
-                                },
-                                child: AnimatedScale(
-                                  scale: isPressed ? 0.92 : 1.0,
-                                  duration: const Duration(milliseconds: 120),
-                                  curve: Curves.easeOutCubic,
-                                  child: Container(
-                                    color: Colors.transparent,
-                                    alignment: Alignment.center,
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        AnimatedScale(
-                                          scale: isSelected ? 1.10 : 1.0,
-                                          duration: const Duration(milliseconds: 220),
-                                          curve: Curves.easeOutBack,
-                                          child: index == 1
-                                              ? DuaHandsIcon(
-                                                  color: isSelected ? colors.primary : colors.textTertiary,
-                                                  size: 20,
-                                                  isSelected: isSelected,
-                                                )
-                                              : index == 2
-                                                  ? TasbihIcon(
-                                                      color: isSelected ? colors.primary : colors.textTertiary,
-                                                      size: 20,
-                                                      isSelected: isSelected,
-                                                    )
-                                                  : Icon(
-                                                      isSelected ? item.selectedIcon : item.unselectedIcon,
-                                                      color: isSelected ? colors.primary : colors.textTertiary,
-                                                      size: 20,
-                                                    ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        AnimatedDefaultTextStyle(
-                                          duration: const Duration(milliseconds: 200),
-                                          style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                                                color: isSelected ? colors.primary : colors.textTertiary,
-                                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                                                fontSize: 10.5,
-                                                letterSpacing: isSelected ? -0.1 : 0.0,
-                                              ),
-                                          child: Text(
-                                            item.label,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _NavItemData {
-  final IconData selectedIcon;
-  final IconData unselectedIcon;
-  final String label;
-
-  const _NavItemData({
-    required this.selectedIcon,
-    required this.unselectedIcon,
-    required this.label,
-  });
-}

@@ -5,6 +5,29 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../app/theme/app_theme.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../l10n/generated/app_localizations.dart';
+
+String _localizeHeroPrayerName(BuildContext context, String rawName) {
+  final l10n = AppLocalizations.of(context);
+  switch (rawName.toLowerCase()) {
+    case 'fajr':
+      return l10n?.prayerFajr ?? 'Fajr';
+    case 'sunrise':
+      return l10n?.prayerSunrise ?? 'Sunrise';
+    case 'dhuhr':
+      return l10n?.prayerDhuhr ?? 'Dhuhr';
+    case 'asr':
+      return l10n?.prayerAsr ?? 'Asr';
+    case 'maghrib':
+      return l10n?.prayerMaghrib ?? 'Maghrib';
+    case 'isha':
+      return l10n?.prayerIsha ?? 'Isha';
+    case 'sunset':
+      return l10n?.prayerSunset ?? 'Sunset';
+    default:
+      return rawName;
+  }
+}
 
 /// Hero Widget showing next prayer countdown with circular progress ring
 /// and animated blinking LED dot.
@@ -224,9 +247,13 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
       animate: widget.animate,
     );
 
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Container(
+    return Semantics(
+      container: true,
+      label: '${widget.headerLabel}: ${widget.nextPrayerName}, $formattedTime remaining',
+      hint: widget.onTap != null ? 'Double tap to open prayer streak' : null,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Container(
         width: double.infinity,
         decoration: ShapeDecoration(
           gradient: _getBackgroundGradient(brightness),
@@ -268,7 +295,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      widget.nextPrayerName,
+                      _localizeHeroPrayerName(context, widget.nextPrayerName),
                       style: Theme.of(context).textTheme.displayMedium?.copyWith(
                             color: colors.textPrimary,
                             fontWeight: FontWeight.w700,
@@ -310,7 +337,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                                 _SunTimePillRow(
                                   icon: Icons.wb_sunny_rounded,
                                   iconColor: const Color(0xFFF59E0B),
-                                  label: 'Sunrise',
+                                  label: AppLocalizations.of(context)?.prayerSunrise ?? 'Sunrise',
                                   time: sTime,
                                   textSecondary: colors.textSecondary,
                                   textPrimary: colors.textPrimary,
@@ -329,7 +356,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                                 _SunTimePillRow(
                                   icon: Icons.wb_twilight_rounded,
                                   iconColor: const Color(0xFFEF6C00),
-                                  label: 'Sunset',
+                                  label: AppLocalizations.of(context)?.prayerSunset ?? 'Sunset',
                                   time: setTime,
                                   textSecondary: colors.textSecondary,
                                   textPrimary: colors.textPrimary,
@@ -396,8 +423,9 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _CountdownRingPainter extends CustomPainter {
@@ -587,16 +615,16 @@ class _PulsingDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget dot = Container(
-      width: 8,
-      height: 8,
+      width: 5.5,
+      height: 5.5,
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.6),
-            blurRadius: 6,
-            spreadRadius: 2,
+            color: color.withValues(alpha: 0.5),
+            blurRadius: 3,
+            spreadRadius: 0.5,
           ),
         ],
       ),

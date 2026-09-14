@@ -57,30 +57,40 @@ class HijriStrip extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Hijri Date with Sleek Micro Icon Badge
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.dark_mode_rounded,
-                    size: 16,
-                    color: colors.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    hijriString,
-                    key: const ValueKey('hijri_date_text'),
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13.5,
-                          letterSpacing: -0.2,
+              Expanded(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.dark_mode_rounded,
+                      size: 15,
+                      color: colors.primary,
+                    ),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          hijriString,
+                          key: const ValueKey('hijri_date_text'),
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                color: colors.textPrimary,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13.0,
+                                letterSpacing: -0.2,
+                              ),
                         ),
-                  ),
-                ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
+
+              const SizedBox(width: 10),
 
               // Sleek Location Subtitle Badge Pill
               GestureDetector(

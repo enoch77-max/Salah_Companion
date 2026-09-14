@@ -13,6 +13,7 @@ import '../../../../core/services/location_service.dart';
 import '../../../../core/utils/compass_filter.dart';
 import '../../../../core/utils/geomagnetic_calculator.dart';
 import '../../../home/domain/prayer_times_calculator.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 /// Qibla Compass Screen providing real-time high-precision compass direction
 /// towards the Kaaba in Makkah with automatic True North declination correction,
@@ -288,6 +289,7 @@ class _QiblaScreenState extends State<QiblaScreen>
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
+        final l10n = AppLocalizations.of(context);
         return Padding(
           padding: EdgeInsets.only(
             left: 20,
@@ -396,22 +398,22 @@ class _QiblaScreenState extends State<QiblaScreen>
               _buildCalibrationStepRow(
                 context,
                 stepNumber: '1',
-                title: 'Clear Magnetic Interference',
-                subtitle: 'Step away from metal desks, computers, or magnetic phone covers.',
+                title: l10n?.qiblaCalibClearInterference ?? 'Clear Magnetic Interference',
+                subtitle: l10n?.qiblaCalibClearInterferenceDesc ?? 'Step away from metal desks, computers, or magnetic phone covers.',
               ),
               const SizedBox(height: 10),
               _buildCalibrationStepRow(
                 context,
                 stepNumber: '2',
-                title: 'Hold Device Flat Horizontal',
-                subtitle: 'Keep your phone flat horizontal parallel to the ground for peak precision.',
+                title: l10n?.qiblaCalibHoldFlat ?? 'Hold Device Flat Horizontal',
+                subtitle: l10n?.qiblaCalibHoldFlatDesc ?? 'Keep your phone flat horizontal parallel to the ground for peak precision.',
               ),
               const SizedBox(height: 10),
               _buildCalibrationStepRow(
                 context,
                 stepNumber: '3',
-                title: 'Perform Figure-8 Sweep',
-                subtitle: 'Sweep your phone smoothly along an 8-shaped loop in the air.',
+                title: l10n?.qiblaCalibFigure8 ?? 'Perform Figure-8 Sweep',
+                subtitle: l10n?.qiblaCalibFigure8Desc ?? 'Sweep your phone smoothly along an 8-shaped loop in the air.',
               ),
               const SizedBox(height: 22),
 
@@ -621,9 +623,14 @@ class _QiblaScreenState extends State<QiblaScreen>
                         // Animated Compass Dial & Qibla Pointer Needle
                         Center(
                           child: Semantics(
+                            liveRegion: true,
                             label: 'Qibla compass dial',
                             value:
-                                '${_currentHeading?.round() ?? 0} degrees heading, Qibla at ${_qiblaBearing?.round() ?? 0} degrees',
+                                '${_currentHeading?.round() ?? 0} degrees heading, Qibla at ${_qiblaBearing?.round() ?? 0} degrees${isAligned ? ", Perfectly facing Kaaba" : ""}',
+                            hint: isAligned
+                                ? 'Device is aligned with Kaaba in Makkah'
+                                : 'Turn device to align with Qibla needle',
+                            excludeSemantics: true,
                             child: RepaintBoundary(
                               child: Container(
                                 width: 300,
@@ -855,18 +862,23 @@ class _QiblaScreenState extends State<QiblaScreen>
         ? '${qiblaBearing.round()}° ${_getCardinalDirection(qiblaBearing)}'
         : '--';
 
+    final l10n = AppLocalizations.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colors.divider),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: colors.divider,
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _MetricDisplayTile(
-            label: 'HEADING (TRUE)',
+            label: l10n?.qiblaHeadingTrue ?? 'HEADING (TRUE)',
             value: headingStr,
             colors: colors,
           ),
@@ -876,7 +888,7 @@ class _QiblaScreenState extends State<QiblaScreen>
             color: colors.dividerStrong,
           ),
           _MetricDisplayTile(
-            label: 'QIBLA BEARING',
+            label: l10n?.qiblaBearingLabel ?? 'QIBLA BEARING',
             value: bearingStr,
             colors: colors,
           ),
@@ -934,6 +946,7 @@ class _QiblaScreenState extends State<QiblaScreen>
 
   Widget _buildErrorView(BuildContext context, String error) {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
 
     return Center(
       child: Padding(
@@ -966,7 +979,7 @@ class _QiblaScreenState extends State<QiblaScreen>
             ElevatedButton.icon(
               onPressed: _fetchLocation,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry Location'),
+              label: Text(l10n?.qiblaRetryLocation ?? 'Retry Location'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: colors.primary,
                 foregroundColor: Colors.white,

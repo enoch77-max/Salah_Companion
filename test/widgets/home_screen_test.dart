@@ -241,7 +241,7 @@ void main() {
 
       // Verify drawer items
       expect(find.text('Saved'), findsOneWidget);
-      expect(find.text('Prayer Tracker'), findsOneWidget);
+      expect(find.text('Widgets'), findsOneWidget);
       expect(find.text('THEME MODE'), findsOneWidget);
       expect(find.byKey(const ValueKey('drawer_theme_segmented_control')), findsOneWidget);
     });

@@ -3,6 +3,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../core/services/app_haptics.dart';
 import '../../../../core/services/widget_service.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 class WidgetPreviewSheet extends StatefulWidget {
   final WidgetService? widgetService;
@@ -179,7 +180,7 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
               _triggerNativePin(type, title);
             },
             icon: const Icon(Icons.add_rounded, size: 18),
-            label: const Text('Add Another'),
+            label: Text(AppLocalizations.of(ctx)?.widgetAddAnother ?? 'Add Another'),
             style: ElevatedButton.styleFrom(
               backgroundColor: colors.primary,
               foregroundColor: Colors.white,
@@ -295,7 +296,7 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
               _service.openWidgetPermissionSettings();
             },
             icon: const Icon(Icons.settings_rounded, size: 14),
-            label: const Text('Open Settings'),
+            label: Text(AppLocalizations.of(ctx)?.widgetOpenSettings ?? 'Open Settings'),
             style: OutlinedButton.styleFrom(
               foregroundColor: colors.primary,
               side: BorderSide(color: colors.primary.withValues(alpha: 0.5)),
@@ -310,7 +311,7 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
               _service.goToHomeScreen();
             },
             icon: const Icon(Icons.home_rounded, size: 16),
-            label: const Text('Go to Home Screen'),
+            label: Text(AppLocalizations.of(ctx)?.widgetGoToHome ?? 'Go to Home Screen'),
             style: ElevatedButton.styleFrom(
               backgroundColor: colors.primary,
               foregroundColor: Colors.white,
@@ -380,7 +381,7 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Home Screen Widgets',
+                        'Widgets',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: colors.textPrimary,
                               fontWeight: FontWeight.bold,

@@ -1,0 +1,461 @@
+{
+  "@@locale": "en",
+  "appTitle": "Salah Companion",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "navHome": "Home",
+  "navDuas": "Duas",
+  "navTasbih": "Tasbih",
+  "navQibla": "Qibla",
+  "navCalendar": "Calendar",
+  "prayerFajr": "Fajr",
+  "prayerSunrise": "Sunrise",
+  "prayerDhuhr": "Dhuhr",
+  "prayerAsr": "Asr",
+  "prayerMaghrib": "Maghrib",
+  "prayerIsha": "Isha",
+  "upcomingPrayer": "UPCOMING PRAYER",
+  "currentSalah": "CURRENT SALAH",
+  "remaining": "remaining",
+  "statusPrayed": "Prayed",
+  "statusMissed": "Missed",
+  "statusPending": "Pending",
+  "qiblaCompassTitle": "Qibla Compass",
+  "qiblaCalibrate": "Calibrate",
+  "qiblaFacingKaaba": "Perfect alignment with Kaaba",
+  "tasbihTitle": "Digital Tasbih",
+  "tasbihReset": "Reset",
+  "tasbihAutoNext": "Auto Next",
+  "tasbihBestOnFingers": "It's best to count on fingers",
+  "guidanceCategory": "GUIDANCE",
+  "learnSalah": "Learn Salah",
+  "learnSalahSubtitle": "Learn Salah with authentic Sunnah and Hadith",
+  "savedItems": "Saved",
+  "savedItemsSubtitle": "Hadiths, Verses & Duas",
+  "prayerTracker": "Prayer Tracker",
+  "prayerTrackerSubtitle": "View your prayer statistics",
+  "widgetsTitle": "Widgets",
+  "widgetsSubtitle": "Add widgets to home screen",
+  "openSourcePrivacy": "Open Source & Privacy",
+  "openSourcePrivacySubtitle": "100% offline, zero tracking & Non-Commercial",
+  "themeMode": "THEME MODE",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "notificationPrayerTitle": "{prayer} Prayer",
+  "@notificationPrayerTitle": {
+    "description": "Notification title for prayer start",
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationPrayerStartBody": "It is time for {prayer} prayer. Prepare yourself for prayer.",
+  "@notificationPrayerStartBody": {
+    "description": "Notification body for prayer start",
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationEarlyReminderTitle": "Early Prayer Reminder — {prayer}",
+  "@notificationEarlyReminderTitle": {
+    "description": "Notification title for early 15-minute reminder",
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationEarlyReminderBody": "15 minutes into {prayer} time. Have you prayed yet?",
+  "@notificationEarlyReminderBody": {
+    "description": "Notification body for early 15-minute reminder",
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationUrgentWarningTitle": "Urgent — 30 Mins Left for {prayer}",
+  "@notificationUrgentWarningTitle": {
+    "description": "Notification title for 30 minutes left",
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationUrgentWarningBody": "Only 30 minutes left for {prayer} prayer. Have you prayed yet?",
+  "@notificationUrgentWarningBody": {
+    "description": "Notification body for 30 minutes left",
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationDailyReflectionTitle": "Daily Reflection",
+  "notificationTestTitle": "Salah Companion Alert",
+  "notificationTestBody": "Notifications and Adhan audio are configured properly.",
+  "onboardingChooseLanguage": "Choose Your Language",
+  "onboardingChooseLanguageSubtitle": "Select your preferred language for prayer times, guidance, and reflections.",
+  "onboardingWelcomeTitle": "Welcome to Salah Companion",
+  "onboardingWelcomeBody": "Your authentic, distraction-free companion for accurate prayer times, daily reflections, Qibla directional guidance, and authentic Sunnah practices.",
+  "onboardingSwipeTitle": "Swipe Left Edge for Menu",
+  "onboardingSwipeBody": "Swipe from the far-left edge of your screen to immediately reveal your Saved items, Prayer Tracker statistics, and Theme preferences anywhere in the app.",
+  "onboardingSunnahTitle": "Authentic Sunnah & Guidance",
+  "onboardingSunnahBody": "Access daily Quranic verses, Sahih Hadiths, authentic Duas, and Sunnah Raka'at prayer guidance without clutter or unverified content.",
+  "onboardingCustomizationTitle": "Qibla, Tasbih & Customization",
+  "onboardingCustomizationBody": "Use the Qibla compass, digital Tasbih counter, and top-right Settings to customize calculation methods, notifications, and Madhab options anytime.",
+  "onboardingStepOf": "{current} OF {total}",
+  "@onboardingStepOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingGetStarted": "Get Started",
+  "systemDefault": "System Default",
+  "moreLanguages": "More Languages",
+  "searchLanguagePlaceholder": "Search language...",
+  "settingsTitle": "Settings",
+  "settingsLanguage": "Language",
+  "settingsLanguageSubtitle": "Change application language",
+  "onboardingTrustTitle": "Our Sacred Trust to You",
+  "onboardingTrustSubtitle": "Built purely for the sake of Allah — zero ads, zero tracking, 100% private.",
+  "onboardingTrustOfflineTitle": "100% On-Device & Private",
+  "onboardingTrustOfflineDesc": "Your location and prayer records never leave your phone. All astronomical solar math is calculated locally with zero network calls.",
+  "onboardingTrustNoAdsTitle": "No Advertisements. Ever.",
+  "onboardingTrustNoAdsDesc": "Zero banners, zero commercial popups, and zero distractions between you and your Creator.",
+  "onboardingTrustNoTrackingTitle": "Zero Analytics & Tracking",
+  "onboardingTrustNoTrackingDesc": "No Firebase tracking, no user profiling, no data collection, and no background telemetry.",
+  "onboardingTrustFreeTitle": "Free Forever for the Ummah",
+  "onboardingTrustFreeDesc": "Built as a pure Sadaqah Jariyah. No paywalls, no subscriptions, no monetization.",
+  "onboardingFeaturesTitle": "Explore Core Features",
+  "onboardingFeaturesSubtitle": "Experience precision prayer times, authentic Sunnah, and mindful worship tools.",
+  "onboardingFeaturePrayerTitle": "Astronomical Precision",
+  "onboardingFeaturePrayerDesc": "Exact solar calculation with custom angle methods and gentle Sunnah reminders.",
+  "onboardingFeatureQiblaTitle": "Real-Time Qibla Compass",
+  "onboardingFeatureQiblaDesc": "Geomagnetically stabilized directional pointer to the Holy Kaaba.",
+  "onboardingFeatureTasbihTitle": "Tactile Digital Tasbih",
+  "onboardingFeatureTasbihDesc": "Physical bead simulation with authentic Prophetic Dhikr and haptic taps.",
+  "onboardingFeatureSunnahTitle": "Authentic Sunnah & Duas",
+  "onboardingFeatureSunnahDesc": "Daily Quranic reflections and verified Sahih Hadiths with full scholarly citations.",
+  "onboardingFeatureQiblaAligned": "Qibla Aligned • Makkah Al-Mukarramah",
+  "onboardingFeatureTapToCount": "Tap anywhere or drag to count",
+  "onboardingPermissionsTitle": "Seamless Setup",
+  "onboardingPermissionsSubtitle": "Enable permissions for accurate solar calculations and timely Adhan notifications.",
+  "onboardingPermLocationTitle": "Precise Location",
+  "onboardingPermLocationDesc": "Used strictly on-device to compute solar prayer times for your coordinates.",
+  "onboardingPermNotifTitle": "Adhan & Prayer Alerts",
+  "onboardingPermNotifDesc": "Delivers gentle Adhan calls and Sunnah reminders right on time.",
+  "onboardingPermBatteryTitle": "Reliable Background Alarms",
+  "onboardingPermBatteryDesc": "Prevents Android battery optimization from canceling scheduled Fajr and midnight alarms.",
+  "onboardingPermGrant": "Grant Access",
+  "onboardingPermGranted": "Granted",
+  "onboardingPermEnableLater": "Configure Later in Settings",
+  "onboardingDedicationVerse": "“Indeed, prayer has been decreed upon the believers a decree of specified times.”",
+  "onboardingDedicationReference": "Surah An-Nisa (4:103)",
+  "onboardingBeginJourney": "Bismillah • Get Started",
+  "onboardingReplayTour": "Replay Onboarding Tour",
+  "onboardingReplayTourSubtitle": "Explore app features, privacy commitment, and setup again",
+  "onboardingBack": "Back",
+  "navTracker": "Tracker",
+  "prayerSunset": "Sunset",
+  "statusNotPrayed": "Not Prayed",
+  "statusUpcoming": "Upcoming",
+  "statusNotYet": "Not yet",
+  "todaysPrayers": "TODAY'S PRAYERS",
+  "startsAt": "Starts at {time}",
+  "periodRange": "Period: {start} – {end}",
+  "locating": "Locating...",
+  "drawerNavigation": "NAVIGATION",
+  "drawerOpenSourcePrivacy": "OPEN SOURCE & PRIVACY",
+  "drawerQuickActions": "QUICK ACTIONS",
+  "prayerAndReflection": "Prayer & Reflection",
+  "settingsNotifications": "NOTIFICATIONS",
+  "settingsCalculationFiqh": "CALCULATION & FIQH",
+  "settingsBattery": "BATTERY OPTIMIZATION",
+  "settingsAppearance": "APPEARANCE & HAPTICS",
+  "settingsGuideOnboarding": "GUIDE & ONBOARDING",
+  "settingsAboutPrivacy": "ABOUT & PRIVACY",
+  "settingsAdhanAudio": "Adhan Audio",
+  "settingsAdhanVoice": "Adhan Voice",
+  "settingsDailyReflection": "Daily Reflection",
+  "settingsDailyReflectionSubtitle": "Morning verse & Hadith reminder",
+  "settingsCalculationMethod": "Calculation Method",
+  "settingsJuristicMethod": "Asr Juristic Method (Madhab)",
+  "settingsHighLatitude": "High Latitude Rule",
+  "settingsHijriAdjustment": "Hijri Date Adjustment",
+  "settingsBatteryHeader": "Background Execution",
+  "settingsBatteryDesc": "Exclude Salah Companion from OS battery optimization to ensure accurate Fajr and scheduled notifications.",
+  "settingsBatteryExempt": "Exempt",
+  "settingsBatteryNotExempt": "Battery Optimization: Active (Tap to Fix)",
+  "settingsCheckBattery": "Check Battery Status",
+  "settingsTheme": "Theme Mode",
+  "settingsHaptics": "Haptic Feedback",
+  "settingsHapticsSubtitle": "Tactile vibrations for taps and events",
+  "settingsPrivacyPolicy": "Privacy Policy",
+  "settingsOpenSource": "100% Open Source (GitHub)",
+  "settingsTerms": "Terms & Conditions",
+  "settingsCalculationDocs": "Calculation Accuracy & FAQ",
+  "settingsCalculationDocsSubtitle": "Learn how prayer times and solar angles are calculated",
+  "sunnahMuakkadah": "Sunnah Mu'akkadah",
+  "sunnahGhairMuakkadah": "Sunnah Ghair Mu'akkadah",
+  "sunnahWajibWitr": "Sunnah & Wajib Witr",
+  "sunnahVoluntary": "Voluntary Prayer",
+  "@startsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@periodRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryAll": "All",
+  "categoryHadith": "Hadiths",
+  "categoryAyah": "Verses",
+  "categoryDua": "Duas",
+  "categoryMorning": "Morning",
+  "categoryEvening": "Evening",
+  "categoryAfterPrayer": "After Prayer",
+  "categoryForgiveness": "Forgiveness",
+  "categoryProtection": "Protection",
+  "categoryDaily": "Daily",
+  "categoryTravel": "Travel",
+  "noSavedItems": "No saved items yet",
+  "noSavedItemsSubtitle": "Tap the bookmark icon on any content to save it here.",
+  "searchPlaceholder": "Search duas, translations, or sources...",
+  "sunnahPrayerHeader": "SUNNAH PRAYER",
+  "sunnahFajrDesc": "2 Raka'at Sunnah Before (Emphasized)",
+  "sunnahDhuhrDesc": "4 Raka'at Before & 2 After",
+  "sunnahAsrDesc": "4 Raka'at Sunnah Before",
+  "sunnahMaghribDesc": "2 Raka'at Sunnah After",
+  "sunnahIshaDesc": "2 Raka'at After + 3 Witr",
+  "forbiddenNaflHeader": "FORBIDDEN TIMES FOR NAFL PRAYERS",
+  "forbiddenNaflBody": "Voluntary (Nafl) prayers are prohibited during sunrise (~20m), solar zenith (~10m before Dhuhr), and sunset (~20m before Maghrib). Obligatory (Fard) make-ups remain valid. (Sahih Muslim 831)",
+  "forbiddenNaflSunriseHeader": "FORBIDDEN NAFL TIME • SUNRISE",
+  "forbiddenNaflSunriseBody": "Sun is rising ({startTime} – {endTime}). Voluntary (Nafl) prayers are prohibited until the sun is fully risen. (Sahih Muslim 831)",
+  "forbiddenNaflZawalHeader": "FORBIDDEN NAFL TIME • ZENITH (ZAWAL)",
+  "forbiddenNaflZawalBody": "Sun is at its zenith ({startTime} – {endTime}). Nafl prayers are prohibited during this midday peak. (Sahih Muslim 831)",
+  "forbiddenNaflSunsetHeader": "FORBIDDEN NAFL TIME • SUNSET",
+  "forbiddenNaflSunsetBody": "Sun is setting ({startTime} – {endTime}). Nafl prayers are prohibited until sunset is complete. (Sahih Muslim 831)",
+  "prayerNotStartedYet": "{prayer} prayer time has not started yet ({time})",
+  "@forbiddenNaflSunriseBody": {
+    "placeholders": {
+      "startTime": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "@forbiddenNaflZawalBody": {
+    "placeholders": {
+      "startTime": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "@forbiddenNaflSunsetBody": {
+    "placeholders": {
+      "startTime": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "@prayerNotStartedYet": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "timeStart": "Start",
+  "timeEnd": "End",
+  "onboardingShowcasePrayerTitle": "Astronomical Precision Prayer Times",
+  "onboardingShowcasePrayerSubtitle": "Exact prayer calculations computed 100% offline using trusted global calculation methods.",
+  "onboardingShowcaseQiblaTitle": "Instant True-North Qibla",
+  "onboardingShowcaseQiblaSubtitle": "Find the exact direction of the Kaaba anywhere on Earth with smooth gyroscopic guidance.",
+  "onboardingShowcaseTasbihTitle": "Tactile Digital Tasbih",
+  "onboardingShowcaseTasbihSubtitle": "Immersive dhikr counter with physical haptic vibrations and seamless auto-progression.",
+  "onboardingShowcaseReflectionTitle": "Daily Spiritual Reflections & Duas",
+  "onboardingShowcaseReflectionSubtitle": "Carefully verified Quranic verses, authentic Sahih Hadiths, and essential daily supplications.",
+  "settingsPrayerNotifications": "Prayer Notifications",
+  "settingsAdhanReciterTone": "Adhan Reciter & Tone",
+  "settingsDailyReminderTime": "Reflection Notification",
+  "settingsLiveWidgetsCount": "{count} Live Widgets",
+  "@settingsLiveWidgetsCount": {
+    "description": "Number of live home widgets",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "settingsFiqhAsr": "Fiqh (Asr Timing)",
+  "settingsFiqhStandardTitle": "Shafi / Standard (Default)",
+  "settingsFiqhStandardDesc": "Shafi, Maliki & Hanbali (1x Shadow)",
+  "settingsFiqhStandardSub": "Shadow length = 1x object height. Followed by Shafi, Maliki, Hanbali & most global authorities.",
+  "settingsFiqhHanafiTitle": "Hanafi",
+  "settingsFiqhHanafiDesc": "Hanafi School (2x Shadow)",
+  "settingsFiqhHanafiSub": "Shadow length = 2x object height. Followed by the Hanafi school of jurisprudence.",
+  "settingsPreAdhanReminder": "Pre-Adhan Reminder",
+  "settingsBatteryRestricted": "Restricted",
+  "settingsBatteryExemptDesc": "Exempt — Adhan alerts will fire reliably",
+  "settingsBatteryNotExemptDesc": "Not exempt — alerts may be delayed",
+  "settingsCheckBatteryNow": "Check Status Now",
+  "settingsCheckBatterySubtitle": "Verify background wake permissions",
+  "settingsWarnBattery": "Warn if Re-optimized",
+  "settingsWarnBatterySubtitle": "Alert if OS turns power saver back on",
+  "settingsOpenSourceFootnote": "100% Free & Open Source • Zero Ads • No Data Collection",
+  "settingsAsrCalculationTitle": "Asr Calculation Method (Fiqh)",
+  "settingsAsrCalculationSubtitle": "Select juristic school for computing Asr prayer start time.",
+  "adhanVoiceMakkah": "Makkah (Ali Mulla)",
+  "adhanVoiceMadinah": "Madinah (Abdul Majeed)",
+  "adhanVoiceAlAqsa": "Al-Aqsa (Yasser Al-Dossari)",
+  "adhanVoiceSoft": "Traditional Soft Tone",
+  "calcMethodUmmAlQura": "Umm Al-Qura (Saudi Arabia)",
+  "calcMethodMwl": "Muslim World League",
+  "calcMethodEgyptian": "Egyptian General Authority",
+  "calcMethodIsna": "ISNA (North America)",
+  "calcMethodKarachi": "Karachi (Pakistan/India)",
+  "calcMethodDubai": "Dubai (UAE)",
+  "calcMethodDiyanet": "Diyanet (Turkey)",
+  "calcMethodSingapore": "MUIS (Singapore)",
+  "learnSalahProphetQuoteTitle": "Pray as the Prophet ﷺ Prayed",
+  "learnSalahAuthenticBadge": "AUTHENTIC SUNNAH GUIDE",
+  "learnSalahSearchPlaceholder": "Search posture, step, or Hadith proof...",
+  "learnSalahLearningModules": "LEARNING MODULES",
+  "learnSalahStepByStepTitle": "Step-by-Step Prophetic Guide",
+  "learnSalahStepByStepSubtitle": "10 Sequential steps with 2D postures & proofs",
+  "learnSalahPillarsTitle": "The 14 Pillars of Salah (Arkan)",
+  "learnSalahPillarsSubtitle": "Must-do essential foundations of prayer",
+  "learnSalahObligationsTitle": "The 8 Obligations (Waajibaat)",
+  "learnSalahObligationsSubtitle": "Mandatory acts compensated by Sujood as-Sahw",
+  "learnSalahSunanTitle": "Sunnah Practices (Sunan)",
+  "learnSalahSunanSubtitle": "Verbal & action Sunnahs of Prophet Muhammad ﷺ",
+  "learnSalahInvalidatorsTitle": "Invalidators of Salah (Mubtilaat)",
+  "learnSalahInvalidatorsSubtitle": "Things that break or invalidate your prayer",
+  "learnSalahForbiddenTimesTitle": "Forbidden Prayer Times",
+  "learnSalahForbiddenTimesSubtitle": "Times when voluntary Salah is strictly prohibited",
+  "madhabShafi": "Shafi",
+  "madhabHanafi": "Hanafi",
+  "eventIslamicNewYear": "Islamic New Year",
+  "eventTasua": "Tasu'a",
+  "eventAshura": "Day of Ashura",
+  "eventMawlid": "Mawlid al-Nabi",
+  "eventIsraMiraj": "Isra and Mi'raj",
+  "eventMidShaban": "Mid-Sha'ban",
+  "eventRamadanStart": "First Day of Ramadan",
+  "eventBattleOfBadr": "Battle of Badr",
+  "eventLaylatAlQadr": "Laylat al-Qadr",
+  "eventEidAlFitr": "Eid al-Fitr",
+  "eventShawwalSixFasting": "Six Days of Shawwal Fasting",
+  "eventDhuAlHijjahStart": "First Day of Dhu al-Hijjah",
+  "eventDayOfArafah": "Day of Arafah",
+  "eventEidAlAdha": "Eid al-Adha",
+  "eventDaysOfTashreeq": "Days of Tashreeq",
+  "qiblaHeadingTrue": "HEADING (TRUE)",
+  "qiblaBearingLabel": "QIBLA BEARING",
+  "qiblaRetryLocation": "Retry Location",
+  "qiblaCalibClearInterference": "Clear Magnetic Interference",
+  "qiblaCalibClearInterferenceDesc": "Step away from metal desks, computers, or magnetic phone covers.",
+  "qiblaCalibHoldFlat": "Hold Device Flat Horizontal",
+  "qiblaCalibHoldFlatDesc": "Keep your phone flat horizontal parallel to the ground for peak precision.",
+  "qiblaCalibFigure8": "Perform Figure-8 Sweep",
+  "qiblaCalibFigure8Desc": "Sweep your phone smoothly along an 8-shaped loop in the air.",
+  "stepPrevious": "Previous",
+  "stepNext": "Next Step",
+  "stepFinishGuide": "Finish Guide",
+  "widgetAddAnother": "Add Another",
+  "widgetOpenSettings": "Open Settings",
+  "widgetGoToHome": "Go to Home Screen",
+  "trackerWeeklyRate": "Weekly Rate",
+  "trackerMonthlyRate": "Monthly Rate",
+  "trackerPrayersRatio": "{prayed} / {total} Prayers",
+  "@trackerPrayersRatio": {
+    "placeholders": {
+      "prayed": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "tasbihHadithTitle": "HADITH ON TASBIH",
+  "tasbihHadithText": "“Glorify Allah, declare His oneness, and exalt His holiness, and count your remembrance on your fingertips—for indeed, your fingers will be questioned on the Day of Judgment and made to speak.”",
+  "tasbihHadithReference": "— Sunan Abi Dawud 1496",
+  "dhikrSubhanAllah": "SubhanAllah",
+  "dhikrAlhamdulillah": "Alhamdulillah",
+  "dhikrAllahuAkbar": "Allahu Akbar",
+  "dhikrAstaghfirullah": "Astaghfirullah",
+  "dhikrLaIlahaIllallah": "La ilaha illallah",
+  "dhikrSubhanAllahTranslation": "Glory be to Allah",
+  "dhikrAlhamdulillahTranslation": "Praise be to Allah",
+  "dhikrAllahuAkbarTranslation": "Allah is the Greatest",
+  "dhikrAstaghfirullahTranslation": "I seek forgiveness from Allah",
+  "dhikrLaIlahaIllallahTranslation": "There is no deity except Allah",
+  "tasbihNextDhikr": "Next: {dhikr}",
+  "tasbihCustomTarget": "Custom",
+  "tasbihCustomTargetCount": "Custom ({count})",
+  "tasbihSetCustomTarget": "Set Custom Target",
+  "tasbihTargetHint": "Enter target number (e.g. 50)",
+  "tasbihCancel": "Cancel",
+  "tasbihSetTarget": "Set Target",
+  "tasbihLap": "Lap {lap}",
+  "@tasbihNextDhikr": {
+    "description": "Button label to switch to next dhikr",
+    "placeholders": {
+      "dhikr": {
+        "type": "String"
+      }
+    }
+  },
+  "@tasbihCustomTargetCount": {
+    "description": "Chip label showing active custom target count",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@tasbihLap": {
+    "description": "Lap counter tag on tasbih bead",
+    "placeholders": {
+      "lap": {
+        "type": "String"
+      }
+    }
+  }
+}

@@ -104,6 +104,7 @@ void main() {
       expect(find.textContaining('Sunan Abi Dawud 1496'), findsOneWidget);
       expect(find.text('SubhanAllah'), findsWidgets);
       expect(find.text('Glory be to Allah'), findsOneWidget);
+      expect(find.text("It's best to count on fingers"), findsOneWidget);
       expect(find.text('00'), findsOneWidget);
       expect(find.text('/ 33'), findsOneWidget);
 
@@ -232,9 +233,10 @@ void main() {
       expect(find.text('Prayer Notifications'), findsOneWidget);
       expect(find.text('Adhan Audio'), findsOneWidget);
       expect(find.text('Adhan Voice'), findsOneWidget);
-      expect(find.text('CALCULATION & MADHAB'), findsOneWidget);
+      expect(find.text('CALCULATION & FIQH'), findsOneWidget);
       expect(find.text('BATTERY OPTIMIZATION'), findsOneWidget);
       expect(find.text('APPEARANCE & HAPTICS'), findsOneWidget);
+      expect(find.text('GUIDE & ONBOARDING'), findsOneWidget);
       expect(find.text('ABOUT & PRIVACY'), findsOneWidget);
 
       // Ensure visible and toggle Daily Reflection switch
@@ -252,6 +254,12 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(checkBtnFinder);
       await tester.pumpAndSettle();
+
+      // Ensure visible and verify replay walkthrough tile
+      final replayFinder = find.byKey(const ValueKey('replay_walkthrough_tile'));
+      await tester.ensureVisible(replayFinder);
+      await tester.pumpAndSettle();
+      expect(replayFinder, findsOneWidget);
     });
   });
 }

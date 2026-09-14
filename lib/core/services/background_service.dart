@@ -15,6 +15,7 @@ import '../../features/reflection/data/repositories/daily_content_repository.dar
 import '../../features/reflection/domain/models/daily_content.dart';
 import 'location_service.dart';
 import 'notification_service.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 /// Top-level callback dispatcher required by [Workmanager].
 @pragma('vm:entry-point')
@@ -154,11 +155,18 @@ class MidnightRefreshHandler {
       }
 
       // 3. Reschedule prayer and daily reflection notifications
+      final savedLangCode = effectivePrefs.getString('selected_language_code') ?? 'en';
+      AppLocalizations? localizations;
+      try {
+        localizations = lookupAppLocalizations(Locale(savedLangCode));
+      } catch (_) {}
+
       await effectiveNotif.schedulePrayerNotifications(
         prayerTimes: prayerMap,
         enabledPrayers: enabledPrayers,
         playAdhanSound: notifAdhanMaster,
         adhanVoice: adhanVoice,
+        localizations: localizations,
       );
 
       // Reflection notification settings from SharedPreferences
@@ -227,22 +235,30 @@ class BackgroundService {
 
   /// Initializes [Workmanager] with [callbackDispatcher].
   Future<void> initialize() async {
-    await _workmanager.initialize(
-      callbackDispatcher,
-    );
+    try {
+      await _workmanager.initialize(
+        callbackDispatcher,
+      );
+    } catch (_) {
+      // Gracefully handle platform exceptions when background services are restricted
+    }
   }
 
   /// Configures the midnight periodic refresh job.
   Future<void> registerMidnightRefreshJob() async {
-    await _workmanager.registerPeriodicTask(
-      midnightTaskName,
-      midnightTaskName,
-      tag: midnightTaskTag,
-      frequency: const Duration(hours: 24),
-      existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
-      constraints: Constraints(
-        networkType: NetworkType.notRequired,
-      ),
-    );
+    try {
+      await _workmanager.registerPeriodicTask(
+        midnightTaskName,
+        midnightTaskName,
+        tag: midnightTaskTag,
+        frequency: const Duration(hours: 24),
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
+        constraints: Constraints(
+          networkType: NetworkType.notRequired,
+        ),
+      );
+    } catch (_) {
+      // Gracefully handle periodic work registration failure under OS restrictions
+    }
   }
 }

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/theme/app_theme.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 class IslamicOccasion {
   final int month;
@@ -19,6 +20,44 @@ class IslamicOccasion {
     required this.arabicTitle,
     required this.description,
   });
+
+  String getLocalizedTitle(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    switch ('$month-$day') {
+      case '1-1':
+        return l10n?.eventIslamicNewYear ?? title;
+      case '1-9':
+        return l10n?.eventTasua ?? title;
+      case '1-10':
+        return l10n?.eventAshura ?? title;
+      case '3-12':
+        return l10n?.eventMawlid ?? title;
+      case '7-27':
+        return l10n?.eventIsraMiraj ?? title;
+      case '8-15':
+        return l10n?.eventMidShaban ?? title;
+      case '9-1':
+        return l10n?.eventRamadanStart ?? title;
+      case '9-17':
+        return l10n?.eventBattleOfBadr ?? title;
+      case '9-27':
+        return l10n?.eventLaylatAlQadr ?? title;
+      case '10-1':
+        return l10n?.eventEidAlFitr ?? title;
+      case '10-2':
+        return l10n?.eventShawwalSixFasting ?? title;
+      case '12-1':
+        return l10n?.eventDhuAlHijjahStart ?? title;
+      case '12-9':
+        return l10n?.eventDayOfArafah ?? title;
+      case '12-10':
+        return l10n?.eventEidAlAdha ?? title;
+      case '12-11':
+        return l10n?.eventDaysOfTashreeq ?? title;
+      default:
+        return title;
+    }
+  }
 }
 
 class HijriCalendarScreen extends StatefulWidget {
@@ -240,6 +279,7 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
     final now = DateTime.now();
 
     final todayHijri = HijriCalendarConfig.fromGregorian(now.add(Duration(days: _offset)));
@@ -310,7 +350,7 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
             children: [
               // Display Title
               Text(
-                _isGregorian ? 'English Calendar' : 'Hijri Calendar',
+                _isGregorian ? 'English Calendar' : (l10n?.navCalendar ?? 'Hijri Calendar'),
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
                       color: colors.textPrimary,
                       fontWeight: FontWeight.w800,
@@ -387,12 +427,16 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                                         color: !_isGregorian ? colors.primaryText : colors.textSecondary,
                                       ),
                                       const SizedBox(width: 6),
-                                      Text(
-                                        'Hijri Calendar',
-                                        style: TextStyle(
-                                          color: !_isGregorian ? colors.primaryText : colors.textSecondary,
-                                          fontWeight: !_isGregorian ? FontWeight.bold : FontWeight.w600,
-                                          fontSize: 13,
+                                      Flexible(
+                                        child: Text(
+                                          'Hijri Calendar',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: !_isGregorian ? colors.primaryText : colors.textSecondary,
+                                            fontWeight: !_isGregorian ? FontWeight.bold : FontWeight.w600,
+                                            fontSize: 13,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -423,12 +467,16 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                                         color: _isGregorian ? colors.primaryText : colors.textSecondary,
                                       ),
                                       const SizedBox(width: 6),
-                                      Text(
-                                        'English Calendar',
-                                        style: TextStyle(
-                                          color: _isGregorian ? colors.primaryText : colors.textSecondary,
-                                          fontWeight: _isGregorian ? FontWeight.bold : FontWeight.w600,
-                                          fontSize: 13,
+                                      Flexible(
+                                        child: Text(
+                                          'English Calendar',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: _isGregorian ? colors.primaryText : colors.textSecondary,
+                                            fontWeight: _isGregorian ? FontWeight.bold : FontWeight.w600,
+                                            fontSize: 13,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -462,14 +510,19 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'MOON-SIGHTING ADJUSTMENT',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: colors.textSecondary,
-                                letterSpacing: 1.2,
-                                fontWeight: FontWeight.bold,
-                              ),
+                        Expanded(
+                          child: Text(
+                            'MOON-SIGHTING ADJUSTMENT',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: colors.textSecondary,
+                                  letterSpacing: 1.2,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         Text(
                           _offset == 0
                               ? 'Default (0d)'
@@ -561,24 +614,33 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                           icon: Icon(Icons.chevron_left_rounded, color: colors.textPrimary),
                           onPressed: () => _changeMonth(-1),
                         ),
-                        Column(
-                          children: [
-                            Text(
-                              monthDisplayTitle,
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    color: colors.textPrimary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
-                            ),
-                            Text(
-                              monthDisplaySubtitle,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: colors.primaryText,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                          ],
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                monthDisplayTitle,
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: colors.textPrimary,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                              ),
+                              Text(
+                                monthDisplaySubtitle,
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: colors.primaryText,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                            ],
+                          ),
                         ),
                         IconButton(
                           key: const ValueKey('next_month_button'),
@@ -591,14 +653,14 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                     // Days of week header
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) {
+                      children: ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d) {
                         return SizedBox(
-                          width: 36,
+                          width: 38,
                           child: Text(
-                            day,
+                            d,
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: colors.textTertiary,
+                                  color: colors.textSecondary,
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
@@ -700,7 +762,7 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
 
               // Islamic Occasions Section Header
               Padding(
-                padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Text(
                   'KEY ISLAMIC OCCASIONS',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -710,6 +772,7 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                       ),
                 ),
               ),
+              const SizedBox(height: 12),
 
               currentMonthOccasions.isEmpty
                   ? Container(
@@ -771,13 +834,18 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(
-                                                occasion.title,
-                                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                                      color: colors.textPrimary,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
+                                              Expanded(
+                                                child: Text(
+                                                  occasion.getLocalizedTitle(context),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                        color: colors.textPrimary,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                ),
                                               ),
+                                              const SizedBox(width: 8),
                                               Text(
                                                 item.dateBadge,
                                                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -821,7 +889,7 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                       ),
                     ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 76),
             ],
           ),
         ),

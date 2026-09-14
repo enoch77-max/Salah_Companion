@@ -5,6 +5,7 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../features/reflection/domain/models/daily_content.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 /// Data model representing prayer notification scheduling information.
 class PrayerNotificationData {
@@ -224,6 +225,7 @@ class NotificationService {
     DateTime? nowOverride,
     bool playAdhanSound = true,
     String adhanVoice = 'Makkah (Ali Mulla)',
+    AppLocalizations? localizations,
   }) async {
     final now = nowOverride ?? DateTime.now();
     final models = buildPrayerNotificationModels(
@@ -273,13 +275,17 @@ class NotificationService {
         iOS: iosDetails,
       );
 
-      await notificationsPlugin.zonedSchedule(
+      final startTitle = localizations?.notificationPrayerTitle(model.prayerName) ??
+          '${model.prayerName} Prayer';
+      final startBody = localizations?.notificationPrayerStartBody(model.prayerName) ??
+          SunnahReminders.getStartMessage(model.prayerName);
+
+      await _safeZonedSchedule(
         id: model.notificationId,
-        title: '${model.prayerName} Prayer',
-        body: SunnahReminders.getStartMessage(model.prayerName),
+        title: startTitle,
+        body: startBody,
         scheduledDate: tzScheduledDate,
         notificationDetails: notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
 
       if (!isCompleted) {
@@ -299,16 +305,18 @@ class NotificationService {
             iOS: DarwinNotificationDetails(),
           );
 
-          final msg = SunnahReminders.post15MinReminders[model.prayerName] ??
-              '15 minutes into ${model.prayerName} time. Have you prayed yet?';
+          final msg = localizations?.notificationEarlyReminderBody(model.prayerName) ??
+              (SunnahReminders.post15MinReminders[model.prayerName] ??
+                  '15 minutes into ${model.prayerName} time. Have you prayed yet?');
+          final earlyTitle = localizations?.notificationEarlyReminderTitle(model.prayerName) ??
+              'Early Prayer Reminder — ${model.prayerName}';
 
-          await notificationsPlugin.zonedSchedule(
+          await _safeZonedSchedule(
             id: model.notificationId + 1000,
-            title: 'Early Prayer Reminder — ${model.prayerName}',
+            title: earlyTitle,
             body: msg,
             scheduledDate: tzPost15,
             notificationDetails: notificationDetails,
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           );
         }
 
@@ -330,16 +338,18 @@ class NotificationService {
               iOS: DarwinNotificationDetails(),
             );
 
-            final msg = SunnahReminders.pre30MinReminders[model.prayerName] ??
-                'Only 30 minutes left for ${model.prayerName} prayer. Have you prayed yet?';
+            final msg = localizations?.notificationUrgentWarningBody(model.prayerName) ??
+                (SunnahReminders.pre30MinReminders[model.prayerName] ??
+                    'Only 30 minutes left for ${model.prayerName} prayer. Have you prayed yet?');
+            final urgentTitle = localizations?.notificationUrgentWarningTitle(model.prayerName) ??
+                'Urgent — 30 Mins Left for ${model.prayerName}';
 
-            await notificationsPlugin.zonedSchedule(
+            await _safeZonedSchedule(
               id: model.notificationId + 2000,
-              title: 'Urgent — 30 Mins Left for ${model.prayerName}',
+              title: urgentTitle,
               body: msg,
               scheduledDate: tzPre30,
               notificationDetails: notificationDetails,
-              androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
             );
           }
         }
@@ -384,15 +394,49 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    await notificationsPlugin.zonedSchedule(
+    await _safeZonedSchedule(
       id: notificationId,
       title: content.reference,
       body: truncatedBody,
       scheduledDate: tzScheduledDate,
       notificationDetails: notificationDetails,
       payload: payload,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
+  }
+
+  /// Helper to safely schedule notifications with exact alarm permissions,
+  /// falling back gracefully to inexact alarms when exact alarms are restricted or battery saver is active.
+  Future<void> _safeZonedSchedule({
+    required int id,
+    required String title,
+    required String body,
+    required tz.TZDateTime scheduledDate,
+    required NotificationDetails notificationDetails,
+    String? payload,
+  }) async {
+    try {
+      await notificationsPlugin.zonedSchedule(
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: scheduledDate,
+        notificationDetails: notificationDetails,
+        payload: payload,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      );
+    } catch (_) {
+      try {
+        await notificationsPlugin.zonedSchedule(
+          id: id,
+          title: title,
+          body: body,
+          scheduledDate: scheduledDate,
+          notificationDetails: notificationDetails,
+          payload: payload,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        );
+      } catch (_) {}
+    }
   }
 
   /// Displays an immediate local notification to test audio, vibration, and system permissions.

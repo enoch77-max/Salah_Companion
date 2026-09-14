@@ -4,6 +4,7 @@ import 'package:salah_companion/app/theme/app_theme.dart';
 import 'package:salah_companion/features/learn_salah/data/salah_guide_data.dart';
 import 'package:salah_companion/features/learn_salah/domain/models/salah_learning_models.dart';
 import 'package:salah_companion/features/learn_salah/presentation/widgets/posture_avatars.dart';
+import 'package:salah_companion/l10n/generated/app_localizations.dart';
 
 /// Step-by-Step Interactive Prophetic Salah Guide Screen.
 class SalahStepByStepScreen extends StatefulWidget {
@@ -58,6 +59,7 @@ class _SalahStepByStepScreenState extends State<SalahStepByStepScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
     final totalSteps = SalahGuideData.propheticSteps.length;
 
     return Scaffold(
@@ -79,21 +81,13 @@ class _SalahStepByStepScreenState extends State<SalahStepByStepScreen> {
           // Step Progress Bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Row(
-              children: List.generate(
-                totalSteps,
-                (index) => Expanded(
-                  child: Container(
-                    height: 4,
-                    margin: const EdgeInsets.symmetric(horizontal: 2.0),
-                    decoration: BoxDecoration(
-                      color: index <= _currentStep
-                          ? colors.primary
-                          : colors.divider.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: (_currentStep + 1) / totalSteps,
+                minHeight: 4,
+                backgroundColor: colors.divider.withValues(alpha: 0.35),
+                valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
               ),
             ),
           ),
@@ -124,7 +118,7 @@ class _SalahStepByStepScreenState extends State<SalahStepByStepScreen> {
                       child: OutlinedButton.icon(
                         onPressed: _previousStep,
                         icon: const Icon(Icons.arrow_back_rounded),
-                        label: const Text('Previous'),
+                        label: Text(l10n?.stepPrevious ?? 'Previous'),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -139,7 +133,7 @@ class _SalahStepByStepScreenState extends State<SalahStepByStepScreen> {
                       child: ElevatedButton.icon(
                         onPressed: _nextStep,
                         icon: const Icon(Icons.arrow_forward_rounded),
-                        label: const Text('Next Step'),
+                        label: Text(l10n?.stepNext ?? 'Next Step'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: colors.primary,
                           foregroundColor: colors.background,
@@ -153,7 +147,7 @@ class _SalahStepByStepScreenState extends State<SalahStepByStepScreen> {
                       child: ElevatedButton.icon(
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.check_circle_rounded),
-                        label: const Text('Finish Guide'),
+                        label: Text(l10n?.stepFinishGuide ?? 'Finish Guide'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF10B981),
                           foregroundColor: Colors.white,
@@ -209,21 +203,26 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: ShapeDecoration(
-                        color: colors.primary.withValues(alpha: 0.15),
-                        shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: Text(
-                        step.ruleTypeBadgeText,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: colors.primary,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.0,
-                            ),
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: ShapeDecoration(
+                          color: colors.primary.withValues(alpha: 0.15),
+                          shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: Text(
+                          step.ruleTypeBadgeText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: colors.primary,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.0,
+                              ),
+                        ),
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       'STEP ${step.stepNumber}',
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(

@@ -6,8 +6,10 @@ import '../../../../app/theme/app_theme.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../core/presentation/widgets/tasbih_icon.dart';
 import '../../../../core/services/app_haptics.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 class DhikrItem {
+  final String id;
   final String title;
   final String arabic;
   final String transliteration;
@@ -15,12 +17,49 @@ class DhikrItem {
   final int defaultTarget;
 
   const DhikrItem({
+    required this.id,
     required this.title,
     required this.arabic,
     required this.transliteration,
     required this.translation,
     this.defaultTarget = 33,
   });
+
+  String getLocalizedTitle(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    switch (id) {
+      case 'subhanallah':
+        return l10n?.dhikrSubhanAllah ?? title;
+      case 'alhamdulillah':
+        return l10n?.dhikrAlhamdulillah ?? title;
+      case 'allahu_akbar':
+        return l10n?.dhikrAllahuAkbar ?? title;
+      case 'astaghfirullah':
+        return l10n?.dhikrAstaghfirullah ?? title;
+      case 'la_ilaha_illallah':
+        return l10n?.dhikrLaIlahaIllallah ?? title;
+      default:
+        return title;
+    }
+  }
+
+  String getLocalizedTranslation(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    switch (id) {
+      case 'subhanallah':
+        return l10n?.dhikrSubhanAllahTranslation ?? translation;
+      case 'alhamdulillah':
+        return l10n?.dhikrAlhamdulillahTranslation ?? translation;
+      case 'allahu_akbar':
+        return l10n?.dhikrAllahuAkbarTranslation ?? translation;
+      case 'astaghfirullah':
+        return l10n?.dhikrAstaghfirullahTranslation ?? translation;
+      case 'la_ilaha_illallah':
+        return l10n?.dhikrLaIlahaIllallahTranslation ?? translation;
+      default:
+        return translation;
+    }
+  }
 }
 
 class TasbihScreen extends StatefulWidget {
@@ -28,6 +67,7 @@ class TasbihScreen extends StatefulWidget {
 
   static const List<DhikrItem> dhikrs = [
     DhikrItem(
+      id: 'subhanallah',
       title: 'SubhanAllah',
       arabic: 'سُبْحَانَ اللَّهِ',
       transliteration: 'SubhanAllah',
@@ -35,6 +75,7 @@ class TasbihScreen extends StatefulWidget {
       defaultTarget: 33,
     ),
     DhikrItem(
+      id: 'alhamdulillah',
       title: 'Alhamdulillah',
       arabic: 'الْحَمْدُ لِلَّهِ',
       transliteration: 'Alhamdulillah',
@@ -42,6 +83,7 @@ class TasbihScreen extends StatefulWidget {
       defaultTarget: 33,
     ),
     DhikrItem(
+      id: 'allahu_akbar',
       title: 'Allahu Akbar',
       arabic: 'اللَّهُ أَكْبَرُ',
       transliteration: 'Allahu Akbar',
@@ -49,6 +91,7 @@ class TasbihScreen extends StatefulWidget {
       defaultTarget: 34,
     ),
     DhikrItem(
+      id: 'astaghfirullah',
       title: 'Astaghfirullah',
       arabic: 'أَسْتَغْفِرُ اللَّهَ',
       transliteration: 'Astaghfirullah',
@@ -56,6 +99,7 @@ class TasbihScreen extends StatefulWidget {
       defaultTarget: 100,
     ),
     DhikrItem(
+      id: 'la_ilaha_illallah',
       title: 'La ilaha illallah',
       arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ',
       transliteration: 'La ilaha illallah',
@@ -187,13 +231,14 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
       context: context,
       builder: (context) {
         final colors = context.appColors;
+        final l10n = AppLocalizations.of(context);
         return AlertDialog(
           backgroundColor: colors.surface,
           shape: ContinuousRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
           title: Text(
-            'Set Custom Target',
+            l10n?.tasbihSetCustomTarget ?? 'Set Custom Target',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(color: colors.textPrimary, fontWeight: FontWeight.bold),
           ),
           content: TextField(
@@ -202,7 +247,7 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
             autofocus: true,
             style: TextStyle(color: colors.textPrimary),
             decoration: InputDecoration(
-              hintText: 'Enter target number (e.g. 50)',
+              hintText: l10n?.tasbihTargetHint ?? 'Enter target number (e.g. 50)',
               hintStyle: TextStyle(color: colors.textTertiary),
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: colors.divider),
@@ -215,7 +260,7 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(color: colors.textSecondary)),
+              child: Text(l10n?.tasbihCancel ?? 'Cancel', style: TextStyle(color: colors.textSecondary)),
             ),
             FilledButton(
               style: FilledButton.styleFrom(backgroundColor: colors.primary),
@@ -227,7 +272,7 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
                   Navigator.pop(context);
                 }
               },
-              child: const Text('Set Target'),
+              child: Text(l10n?.tasbihSetTarget ?? 'Set Target'),
             ),
           ],
         );
@@ -247,6 +292,7 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
     final activeDhikr = TasbihScreen.dhikrs[_selectedDhikrIndex];
     final nextDhikrIndex = (_selectedDhikrIndex + 1) % TasbihScreen.dhikrs.length;
     final nextDhikr = TasbihScreen.dhikrs[nextDhikrIndex];
@@ -264,14 +310,18 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
                 children: [
                   TasbihIcon(color: colors.primary, size: 24, isSelected: true),
                   const SizedBox(width: 8),
-                  Text(
-                    'Digital Tasbih',
-                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 22,
-                          letterSpacing: -0.2,
-                        ),
+                  Expanded(
+                    child: Text(
+                      l10n?.tasbihTitle ?? 'Digital Tasbih',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                            color: colors.textPrimary,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 22,
+                            letterSpacing: -0.2,
+                          ),
+                    ),
                   ),
                 ],
               ),
@@ -296,20 +346,25 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
                       children: [
                         Icon(Icons.auto_awesome_rounded, size: 14, color: colors.primary),
                         const SizedBox(width: 6),
-                        Text(
-                          'HADITH ON TASBIH',
-                          style: TextStyle(
-                            color: colors.primary,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
+                        Expanded(
+                          child: Text(
+                            l10n?.tasbihHadithTitle ?? 'HADITH ON TASBIH',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: colors.primary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '“Glorify Allah, declare His oneness, and exalt His holiness, and count your remembrance on your fingertips—for indeed, your fingers will be questioned on the Day of Judgment and made to speak.”',
+                      l10n?.tasbihHadithText ??
+                          '“Glorify Allah, declare His oneness, and exalt His holiness, and count your remembrance on your fingertips—for indeed, your fingers will be questioned on the Day of Judgment and made to speak.”',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: colors.textPrimary,
                             height: 1.35,
@@ -322,7 +377,7 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
                     Align(
                       alignment: Alignment.centerRight,
                       child: Text(
-                        '— Sunan Abi Dawud 1496',
+                        l10n?.tasbihHadithReference ?? '— Sunan Abi Dawud 1496',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: colors.primaryText,
                               fontWeight: FontWeight.bold,
@@ -349,7 +404,7 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
                     final isSelected = index == _selectedDhikrIndex;
                     return _DhikrSelectorCard(
                       key: ValueKey('dhikr_chip_${dhikr.title}'),
-                      title: dhikr.title,
+                      title: dhikr.getLocalizedTitle(context),
                       arabic: dhikr.arabic,
                       target: dhikr.defaultTarget,
                       isSelected: isSelected,
@@ -408,7 +463,7 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            activeDhikr.translation,
+                            activeDhikr.getLocalizedTranslation(context),
                             style: AppTypography.quoteTranslationStyle(
                               fontSize: 12,
                               color: colors.textSecondary,
@@ -431,42 +486,47 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
                       ),
 
                       // Target Presets Segment Bar
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _TargetChip(
-                            label: '33',
-                            isSelected: _target == 33,
-                            onTap: () => setState(() {
-                              _target = 33;
-                              _count = 0;
-                            }),
-                          ),
-                          const SizedBox(width: 6),
-                          _TargetChip(
-                            label: '100',
-                            isSelected: _target == 100,
-                            onTap: () => setState(() {
-                              _target = 100;
-                              _count = 0;
-                            }),
-                          ),
-                          const SizedBox(width: 6),
-                          _TargetChip(
-                            label: _target != 33 && _target != 100 ? 'Custom ($_target)' : 'Custom',
-                            isSelected: _target != 33 && _target != 100,
-                            onTap: _showCustomTargetDialog,
-                          ),
-                          const SizedBox(width: 6),
-                          _AutoNextChip(
-                            key: const ValueKey('auto_next_chip'),
-                            isEnabled: _autoNext,
-                            onTap: () => setState(() {
-                              _autoNext = !_autoNext;
-                              _saveTasbihState();
-                            }),
-                          ),
-                        ],
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _TargetChip(
+                              label: '33',
+                              isSelected: _target == 33,
+                              onTap: () => setState(() {
+                                _target = 33;
+                                _count = 0;
+                              }),
+                            ),
+                            const SizedBox(width: 6),
+                            _TargetChip(
+                              label: '100',
+                              isSelected: _target == 100,
+                              onTap: () => setState(() {
+                                _target = 100;
+                                _count = 0;
+                              }),
+                            ),
+                            const SizedBox(width: 6),
+                            _TargetChip(
+                              label: _target != 33 && _target != 100
+                                  ? (l10n?.tasbihCustomTargetCount(_target.toString()) ?? 'Custom ($_target)')
+                                  : (l10n?.tasbihCustomTarget ?? 'Custom'),
+                              isSelected: _target != 33 && _target != 100,
+                              onTap: _showCustomTargetDialog,
+                            ),
+                            const SizedBox(width: 6),
+                            _AutoNextChip(
+                              key: const ValueKey('auto_next_chip'),
+                              isEnabled: _autoNext,
+                              onTap: () => setState(() {
+                                _autoNext = !_autoNext;
+                                _saveTasbihState();
+                              }),
+                            ),
+                          ],
+                        ),
                       ),
 
                       // ─── ACTION ROW (Reset on Left, Next Dhikr on Right) ─────────────
@@ -484,24 +544,31 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
                             flex: 3,
                             child: SizedBox(
                               height: 36,
-                              child: OutlinedButton.icon(
-                                onPressed: _nextDhikr,
-                                icon: Icon(Icons.arrow_forward_rounded, size: 14, color: colors.primary),
-                                label: Text(
-                                  'Next: ${nextDhikr.title}',
-                                  style: TextStyle(
-                                    color: colors.primaryText,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
+                              child: Semantics(
+                                button: true,
+                                label: 'Next Dhikr: ${nextDhikr.getLocalizedTitle(context)}',
+                                hint: 'Double tap to skip to ${nextDhikr.getLocalizedTitle(context)}',
+                                child: OutlinedButton.icon(
+                                  key: const ValueKey('next_dhikr_button'),
+                                  onPressed: _nextDhikr,
+                                  icon: Icon(Icons.arrow_forward_rounded, size: 14, color: colors.primaryText),
+                                  label: Text(
+                                    l10n?.tasbihNextDhikr(nextDhikr.getLocalizedTitle(context)) ??
+                                        'Next: ${nextDhikr.title}',
+                                    style: TextStyle(
+                                      color: colors.primaryText,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  backgroundColor: colors.primarySoft.withValues(alpha: 0.5),
-                                  side: BorderSide(color: colors.primary.withValues(alpha: 0.3), width: 1),
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                  style: OutlinedButton.styleFrom(
+                                    backgroundColor: colors.primarySoft.withValues(alpha: 0.5),
+                                    side: BorderSide(color: colors.primary.withValues(alpha: 0.3), width: 1),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -541,63 +608,69 @@ class _DhikrSelectorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: ShapeDecoration(
-          color: isSelected ? colors.primarySoft : colors.surface,
-          shape: ContinuousRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: isSelected ? colors.primary : colors.divider,
-              width: isSelected ? 1.5 : 1.0,
-            ),
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: isSelected ? colors.primaryText : colors.textPrimary,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                  decoration: BoxDecoration(
-                    color: isSelected ? colors.primary.withValues(alpha: 0.2) : colors.surfaceHover,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    '$target',
-                    style: TextStyle(
-                      color: isSelected ? colors.primaryText : colors.textTertiary,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 2),
-            Text(
-              arabic,
-              style: TextStyle(
-                color: isSelected ? colors.primary : colors.textSecondary,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: '$title, target $target',
+      hint: isSelected ? 'Currently selected' : 'Double tap to select $title',
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: ShapeDecoration(
+            color: isSelected ? colors.primarySoft : colors.surface,
+            shape: ContinuousRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: isSelected ? colors.primary : colors.divider,
+                width: isSelected ? 1.5 : 1.0,
               ),
             ),
-          ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: isSelected ? colors.primaryText : colors.textPrimary,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: isSelected ? colors.primary.withValues(alpha: 0.2) : colors.surfaceHover,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      '$target',
+                      style: TextStyle(
+                        color: isSelected ? colors.primaryText : colors.textTertiary,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(
+                arabic,
+                style: TextStyle(
+                  color: isSelected ? colors.primary : colors.textSecondary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -622,50 +695,59 @@ class _AppleResetButtonState extends State<_AppleResetButton> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onPressed();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.94 : 1.0,
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.easeOutCubic,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          height: 36,
-          decoration: ShapeDecoration(
-            color: _isPressed ? colors.primarySoft : colors.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: _isPressed ? colors.primary.withValues(alpha: 0.4) : colors.divider,
-                width: 1.0,
+    return Semantics(
+      button: true,
+      label: 'Reset counter',
+      hint: 'Double tap to reset current count to zero',
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) {
+          setState(() => _isPressed = false);
+          widget.onPressed();
+        },
+        onTapCancel: () => setState(() => _isPressed = false),
+        child: AnimatedScale(
+          scale: _isPressed ? 0.94 : 1.0,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOutCubic,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            height: 36,
+            decoration: ShapeDecoration(
+              color: _isPressed ? colors.primarySoft : colors.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: _isPressed ? colors.primary.withValues(alpha: 0.4) : colors.divider,
+                  width: 1.0,
+                ),
               ),
             ),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.refresh_rounded,
-                size: 14,
-                color: _isPressed ? colors.primary : colors.textSecondary,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                'Reset',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: _isPressed ? colors.primaryText : colors.textSecondary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                    ),
-              ),
-            ],
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.refresh_rounded,
+                  size: 14,
+                  color: _isPressed ? colors.primary : colors.textSecondary,
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    AppLocalizations.of(context)?.tasbihReset ?? 'Reset',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: _isPressed ? colors.primaryText : colors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -687,29 +769,35 @@ class _TargetChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        decoration: ShapeDecoration(
-          color: isSelected ? colors.primarySoft : colors.surface,
-          shape: ContinuousRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: isSelected ? colors.primary : colors.divider,
-              width: isSelected ? 1.5 : 1.0,
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: 'Set target to $label',
+      hint: isSelected ? 'Currently active target' : 'Double tap to set target to $label',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          decoration: ShapeDecoration(
+            color: isSelected ? colors.primarySoft : colors.surface,
+            shape: ContinuousRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: isSelected ? colors.primary : colors.divider,
+                width: isSelected ? 1.5 : 1.0,
+              ),
             ),
           ),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-        child: Text(
-          label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: isSelected ? colors.primaryText : colors.textSecondary,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                fontSize: 11,
-              ),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: isSelected ? colors.primaryText : colors.textSecondary,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  fontSize: 11,
+                ),
+          ),
         ),
       ),
     );
@@ -729,40 +817,46 @@ class _AutoNextChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        decoration: ShapeDecoration(
-          color: isEnabled ? colors.primarySoft : colors.surface,
-          shape: ContinuousRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: isEnabled ? colors.primary : colors.divider,
-              width: isEnabled ? 1.5 : 1.0,
+    return Semantics(
+      button: true,
+      toggled: isEnabled,
+      label: 'Auto advance to next Dhikr',
+      hint: isEnabled ? 'Auto advance is on' : 'Auto advance is off, double tap to toggle',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          decoration: ShapeDecoration(
+            color: isEnabled ? colors.primarySoft : colors.surface,
+            shape: ContinuousRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: isEnabled ? colors.primary : colors.divider,
+                width: isEnabled ? 1.5 : 1.0,
+              ),
             ),
           ),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isEnabled ? Icons.autorenew_rounded : Icons.sync_disabled_rounded,
-              size: 13,
-              color: isEnabled ? colors.primaryText : colors.textTertiary,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              'Auto Next',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: isEnabled ? colors.primaryText : colors.textSecondary,
-                    fontWeight: isEnabled ? FontWeight.bold : FontWeight.w500,
-                    fontSize: 11,
-                  ),
-            ),
-          ],
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isEnabled ? Icons.autorenew_rounded : Icons.sync_disabled_rounded,
+                size: 13,
+                color: isEnabled ? colors.primaryText : colors.textTertiary,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                AppLocalizations.of(context)?.tasbihAutoNext ?? 'Auto Next',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: isEnabled ? colors.primaryText : colors.textSecondary,
+                      fontWeight: isEnabled ? FontWeight.bold : FontWeight.w500,
+                      fontSize: 11,
+                    ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -811,19 +905,26 @@ class _Illustrated2DTasbihBeads extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: scaleAnimation,
-      child: GestureDetector(
-        key: const ValueKey('tasbih_counter_button'),
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: SizedBox(
-          height: 150,
-          width: double.infinity,
-          child: Stack(
-            alignment: Alignment.center,
-            clipBehavior: Clip.hardEdge,
-            children: [
+    return Semantics(
+      button: true,
+      enabled: true,
+      label: 'Tasbih counter',
+      value: '$count of $target${lapCount > 0 ? ', lap $lapCount' : ''}',
+      hint: 'Double tap to count',
+      excludeSemantics: true,
+      child: ScaleTransition(
+        scale: scaleAnimation,
+        child: GestureDetector(
+          key: const ValueKey('tasbih_counter_button'),
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: SizedBox(
+            height: 162,
+            width: double.infinity,
+            child: Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
               // ─── TASBIH STRING ──────────────────────────────────────
               Positioned(
                 left: 20,
@@ -856,20 +957,57 @@ class _Illustrated2DTasbihBeads extends StatelessWidget {
                     alignment: Alignment.center,
                     children: [
                       for (int i = 0; i < _slots.length - 1; i++)
-                        _buildBead(_slots[i], _slots[i + 1], t),
+                        _buildBead(context, _slots[i], _slots[i + 1], t),
                     ],
                   );
                 },
+              ),
+
+              // ─── FINGER COUNTING NOTE UNDER BEADS ─────────────────────
+              Positioned(
+                bottom: -16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: colors.primarySoft.withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: colors.primary.withValues(alpha: 0.15),
+                      width: 0.8,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.front_hand_rounded,
+                        size: 12,
+                        color: colors.primary,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        AppLocalizations.of(context)?.tasbihBestOnFingers ?? "It's best to count on fingers",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: colors.textSecondary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ─── SINGLE TRANSITIONING BEAD ───────────────────────────────────────────
   Widget _buildBead(
+    BuildContext context,
     (double, double, double) from,
     (double, double, double) to,
     double t,
@@ -883,15 +1021,15 @@ class _Illustrated2DTasbihBeads extends StatelessWidget {
     // invisible below 80dp, fully visible at 130dp
     final textOpacity = ((size - 80) / 50).clamp(0.0, 1.0);
 
-    // Color lerps for 2D spherical shading
+    // Color lerps for 2D spherical shading (solid 100% opaque to cover rope line completely)
     final highlight = Color.lerp(colors.primary, colors.surfaceHover, darkness)!;
     final body = Color.lerp(
-      colors.primary.withValues(alpha: 0.85),
+      colors.primary,
       colors.surface,
       darkness,
     )!;
     final rim = Color.lerp(
-      colors.primary.withValues(alpha: 0.6),
+      Color.lerp(colors.primary, Colors.black, 0.25)!,
       colors.elevatedBackground,
       darkness,
     )!;
@@ -926,7 +1064,7 @@ class _Illustrated2DTasbihBeads extends StatelessWidget {
           child: textOpacity > 0.01
               ? Opacity(
                   opacity: textOpacity,
-                  child: _counterContent(size),
+                  child: _counterContent(context, size),
                 )
               : const SizedBox.shrink(),
         ),
@@ -935,7 +1073,7 @@ class _Illustrated2DTasbihBeads extends StatelessWidget {
   }
 
   // ─── COUNTER CONTENT (progress ring + count + target + lap) ──────────────
-  Widget _counterContent(double beadSize) {
+  Widget _counterContent(BuildContext context, double beadSize) {
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -946,8 +1084,8 @@ class _Illustrated2DTasbihBeads extends StatelessWidget {
             child: CircularProgressIndicator(
               value: progress,
               strokeWidth: 6,
-              backgroundColor: colors.surfaceHover,
-              valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+              backgroundColor: Colors.white.withValues(alpha: 0.25),
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
             ),
           ),
         ),
@@ -960,14 +1098,14 @@ class _Illustrated2DTasbihBeads extends StatelessWidget {
               count.toString().padLeft(2, '0'),
               style: AppTypography.timerStyle(
                 fontSize: 34,
-                color: colors.textPrimary,
+                color: Colors.white,
                 fontWeight: FontWeight.w800,
               ),
             ),
             Text(
               '/ $target',
               style: TextStyle(
-                color: colors.textTertiary,
+                color: Colors.white.withValues(alpha: 0.85),
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
@@ -976,15 +1114,16 @@ class _Illustrated2DTasbihBeads extends StatelessWidget {
               const SizedBox(height: 2),
               Container(
                 decoration: BoxDecoration(
-                  color: colors.primarySoft,
+                  color: Colors.white.withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 child: Text(
-                  'Lap $lapCount',
-                  style: TextStyle(
-                    color: colors.primaryText,
+                  AppLocalizations.of(context)?.tasbihLap(lapCount.toString()) ??
+                      'Lap $lapCount',
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
                   ),

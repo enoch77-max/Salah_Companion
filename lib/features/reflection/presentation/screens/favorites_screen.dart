@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_theme.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../home/presentation/widgets/daily_reflection_card.dart';
 import '../../data/repositories/daily_content_repository.dart';
 import '../../domain/models/daily_content.dart';
@@ -118,9 +119,24 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     }
   }
 
+  String _getCategoryLabel(BuildContext context, SavedCategory cat) {
+    final l10n = AppLocalizations.of(context);
+    switch (cat) {
+      case SavedCategory.all:
+        return l10n?.categoryAll ?? 'All';
+      case SavedCategory.hadiths:
+        return l10n?.categoryHadith ?? 'Hadiths';
+      case SavedCategory.verses:
+        return l10n?.categoryAyah ?? 'Verses';
+      case SavedCategory.duas:
+        return l10n?.categoryDua ?? 'Duas';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -129,14 +145,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Saved',
+              l10n?.savedItems ?? 'Saved',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: colors.textPrimary,
                     fontWeight: FontWeight.bold,
                   ),
             ),
             Text(
-              'Hadiths, Verses & Duas',
+              l10n?.savedItemsSubtitle ?? 'Hadiths, Verses & Duas',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: colors.textSecondary,
                     fontSize: 11,
@@ -163,7 +179,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 final category = SavedCategory.values[index];
                 final isSelected = category == _selectedCategory;
                 return ChoiceChip(
-                  label: Text(category.label),
+                  label: Text(_getCategoryLabel(context, category)),
                   selected: isSelected,
                   onSelected: (selected) {
                     if (selected) {
@@ -199,6 +215,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   Widget _buildBody(BuildContext context) {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
 
     if (_isLoading) {
       return Center(
@@ -233,7 +250,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                'No saved items yet',
+                l10n?.noSavedItems ?? 'No saved items yet',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: colors.textPrimary,
                       fontWeight: FontWeight.bold,
@@ -242,7 +259,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Tap the bookmark icon on any content to save it here.',
+                l10n?.noSavedItemsSubtitle ?? 'Tap the bookmark icon on any content to save it here.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: colors.textSecondary,
                     ),

@@ -3,6 +3,27 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../core/database/app_database.dart';
+import '../../../../l10n/generated/app_localizations.dart';
+
+String _localizeTrackerPrayerName(BuildContext context, String rawName) {
+  final l10n = AppLocalizations.of(context);
+  switch (rawName.toLowerCase()) {
+    case 'fajr':
+      return l10n?.prayerFajr ?? 'Fajr';
+    case 'sunrise':
+      return l10n?.prayerSunrise ?? 'Sunrise';
+    case 'dhuhr':
+      return l10n?.prayerDhuhr ?? 'Dhuhr';
+    case 'asr':
+      return l10n?.prayerAsr ?? 'Asr';
+    case 'maghrib':
+      return l10n?.prayerMaghrib ?? 'Maghrib';
+    case 'isha':
+      return l10n?.prayerIsha ?? 'Isha';
+    default:
+      return rawName;
+  }
+}
 
 class TrackerScreen extends StatefulWidget {
   final AppDatabase? database;
@@ -127,8 +148,19 @@ class _TrackerScreenState extends State<TrackerScreen> {
       }
     }
 
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: colors.background,
+      appBar: AppBar(
+        backgroundColor: colors.background,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: colors.textPrimary),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+      ),
       body: SafeArea(
         child: _isLoading
             ? Center(
@@ -141,7 +173,7 @@ class _TrackerScreenState extends State<TrackerScreen> {
                   children: [
                     // Apple Display Title
                     Text(
-                      'Prayer Tracker',
+                      l10n?.prayerTracker ?? 'Prayer Tracker',
                       style: Theme.of(context).textTheme.displayMedium?.copyWith(
                             color: colors.textPrimary,
                             fontWeight: FontWeight.w800,
@@ -178,9 +210,9 @@ class _TrackerScreenState extends State<TrackerScreen> {
                             children: [
                               Expanded(
                                 child: _StatSummaryCard(
-                                  title: 'Weekly Rate',
+                                  title: l10n?.trackerWeeklyRate ?? 'Weekly Rate',
                                   value: '${(weeklyRate * 100).toInt()}%',
-                                  subtitle: '$weeklyPrayed / $weeklyTotal Prayers',
+                                  subtitle: l10n?.trackerPrayersRatio(weeklyPrayed.toString(), weeklyTotal.toString()) ?? '$weeklyPrayed / $weeklyTotal Prayers',
                                   progress: weeklyRate,
                                   color: colors.success,
                                 ),
@@ -188,9 +220,9 @@ class _TrackerScreenState extends State<TrackerScreen> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: _StatSummaryCard(
-                                  title: 'Monthly Rate',
+                                  title: l10n?.trackerMonthlyRate ?? 'Monthly Rate',
                                   value: '${(monthlyRate * 100).toInt()}%',
-                                  subtitle: '$monthlyPrayed / $monthlyTotal Prayers',
+                                  subtitle: l10n?.trackerPrayersRatio(monthlyPrayed.toString(), monthlyTotal.toString()) ?? '$monthlyPrayed / $monthlyTotal Prayers',
                                   progress: monthlyRate,
                                   color: colors.primary,
                                 ),
@@ -220,18 +252,24 @@ class _TrackerScreenState extends State<TrackerScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                'Weekly Performance',
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      color: colors.textPrimary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                              Expanded(
+                                child: Text(
+                                  'Weekly Performance',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
                               ),
+                              const SizedBox(width: 8),
                               Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  _LegendDot(color: colors.success, label: 'Prayed'),
+                                  _LegendDot(color: colors.success, label: l10n?.statusPrayed ?? 'Prayed'),
                                   const SizedBox(width: 12),
-                                  _LegendDot(color: colors.missed, label: 'Missed'),
+                                  _LegendDot(color: colors.missed, label: l10n?.statusMissed ?? 'Missed'),
                                 ],
                               ),
                             ],
@@ -266,14 +304,14 @@ class _TrackerScreenState extends State<TrackerScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '$weeklyPrayed Prayed',
+                                '$weeklyPrayed ${l10n?.statusPrayed ?? 'Prayed'}',
                                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                       color: colors.successText,
                                       fontWeight: FontWeight.bold,
                                     ),
                               ),
                               Text(
-                                '$weeklyMissed Missed',
+                                '$weeklyMissed ${l10n?.statusMissed ?? 'Missed'}',
                                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                       color: colors.missedText,
                                       fontWeight: FontWeight.bold,
@@ -347,13 +385,18 @@ class _TrackerScreenState extends State<TrackerScreen> {
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(
-                                                prayer,
-                                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                                      color: colors.textPrimary,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
+                                              Expanded(
+                                                child: Text(
+                                                  _localizeTrackerPrayerName(context, prayer),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                        color: colors.textPrimary,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                ),
                                               ),
+                                              const SizedBox(width: 8),
                                               Text(
                                                 '${(rate * 100).toInt()}% Completion',
                                                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -453,6 +496,8 @@ class _StatSummaryCard extends StatelessWidget {
         children: [
           Text(
             title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: colors.textSecondary,
                   fontWeight: FontWeight.w500,
@@ -470,6 +515,8 @@ class _StatSummaryCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: colors.textTertiary,
                 ),

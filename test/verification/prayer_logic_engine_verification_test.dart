@@ -20,15 +20,6 @@ void main() {
         calculationParameters: calcParams,
       );
 
-      print('\n=== TODAY CALCULATION TIMES ===');
-      print('Fajr: ${times.fajr}');
-      print('Sunrise: ${times.sunrise}');
-      print('Dhuhr: ${times.dhuhr}');
-      print('Asr: ${times.asr}');
-      print('Maghrib: ${times.maghrib}');
-      print('Isha: ${times.isha}');
-      print('================================\n');
-
       // Helper to evaluate statuses for a simulated `now` time
       List<PrayerItem> evaluateForTime(DateTime now, Map<String, PrayerStatus> userDbLogs) {
         final ishaEnd = times.fajr.add(const Duration(days: 1));
@@ -107,8 +98,6 @@ void main() {
       final listAsrActive = evaluateForTime(simAsrActive, dbLogs);
       expect(listAsrActive.firstWhere((p) => p.name == 'Dhuhr').status, PrayerStatus.prayed);
       expect(listAsrActive.firstWhere((p) => p.name == 'Asr').status, PrayerStatus.pending);
-
-      print('SUCCESS: All 24-hour timeline steps verified perfectly!');
     });
   });
 }

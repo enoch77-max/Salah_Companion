@@ -28,6 +28,8 @@ class DailyContentItem {
   final String translationSource;
   final String? occasion;
   final List<String> tags;
+  final Map<String, String>? translations;
+  final Map<String, String>? translationSources;
 
   const DailyContentItem({
     required this.id,
@@ -41,7 +43,28 @@ class DailyContentItem {
     required this.translationSource,
     this.occasion,
     this.tags = const [],
+    this.translations,
+    this.translationSources,
   });
+
+  /// Resolves the authentic scholarly translation for the given language code,
+  /// falling back to the default English translation.
+  String getLocalizedTranslation(String? languageCode) {
+    if (languageCode != null && translations != null && translations!.containsKey(languageCode)) {
+      final val = translations![languageCode];
+      if (val != null && val.trim().isNotEmpty) return val;
+    }
+    return translationText;
+  }
+
+  /// Resolves the authentic scholarly citation source for the given language code.
+  String getLocalizedSource(String? languageCode) {
+    if (languageCode != null && translationSources != null && translationSources!.containsKey(languageCode)) {
+      final val = translationSources![languageCode];
+      if (val != null && val.trim().isNotEmpty) return val;
+    }
+    return reference;
+  }
 
   factory DailyContentItem.fromJson(Map<String, dynamic> json) {
     final id = json['id'] as String?;
@@ -84,6 +107,12 @@ class DailyContentItem {
             .toList() ??
         const <String>[];
 
+    final translationsRaw = json['translations'] as Map<String, dynamic>?;
+    final translations = translationsRaw?.map((k, v) => MapEntry(k, v.toString()));
+
+    final translationSourcesRaw = json['translation_sources'] as Map<String, dynamic>?;
+    final translationSources = translationSourcesRaw?.map((k, v) => MapEntry(k, v.toString()));
+
     if (type == DailyContentType.hadith) {
       if (grade != 'Sahih') {
         throw FormatException(
@@ -107,6 +136,8 @@ class DailyContentItem {
       translationSource: translationSource,
       occasion: occasion,
       tags: tagsList,
+      translations: translations,
+      translationSources: translationSources,
     );
   }
 
@@ -123,6 +154,8 @@ class DailyContentItem {
       'translation_source': translationSource,
       if (occasion != null) 'occasion': occasion,
       'tags': tags,
+      if (translations != null) 'translations': translations,
+      if (translationSources != null) 'translation_sources': translationSources,
     };
   }
 

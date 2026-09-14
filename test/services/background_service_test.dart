@@ -91,6 +91,9 @@ void main() {
       when(() => mockNotif.schedulePrayerNotifications(
             prayerTimes: any(named: 'prayerTimes'),
             enabledPrayers: any(named: 'enabledPrayers'),
+            playAdhanSound: any(named: 'playAdhanSound'),
+            adhanVoice: any(named: 'adhanVoice'),
+            localizations: any(named: 'localizations'),
           )).thenAnswer((_) async {});
 
       when(() => mockNotif.scheduleDailyReflectionNotification(
@@ -118,6 +121,9 @@ void main() {
       verify(() => mockNotif.schedulePrayerNotifications(
             prayerTimes: any(named: 'prayerTimes'),
             enabledPrayers: any(named: 'enabledPrayers'),
+            playAdhanSound: any(named: 'playAdhanSound'),
+            adhanVoice: any(named: 'adhanVoice'),
+            localizations: any(named: 'localizations'),
           )).called(1);
 
       verify(() => mockNotif.scheduleDailyReflectionNotification(
@@ -155,6 +161,9 @@ void main() {
       when(() => mockNotif.schedulePrayerNotifications(
             prayerTimes: any(named: 'prayerTimes'),
             enabledPrayers: any(named: 'enabledPrayers'),
+            playAdhanSound: any(named: 'playAdhanSound'),
+            adhanVoice: any(named: 'adhanVoice'),
+            localizations: any(named: 'localizations'),
           )).thenAnswer((_) async {});
 
       when(() => mockNotif.scheduleDailyReflectionNotification(
@@ -219,6 +228,9 @@ void main() {
       when(() => mockNotif.schedulePrayerNotifications(
             prayerTimes: any(named: 'prayerTimes'),
             enabledPrayers: any(named: 'enabledPrayers'),
+            playAdhanSound: any(named: 'playAdhanSound'),
+            adhanVoice: any(named: 'adhanVoice'),
+            localizations: any(named: 'localizations'),
           )).thenAnswer((_) async {});
 
       when(() => mockNotif.scheduleDailyReflectionNotification(
