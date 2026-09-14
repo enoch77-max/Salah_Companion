@@ -58,3 +58,18 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
+# Non-build documentation & specifications
+/AGENTS.md
+/Main-Salah-Guide.md
+/The-Salah-Guide.md
+/The-Salah-Guide-with-Reference.md
+/salah-companion-master-prd.md
+/TESTING_GUIDE.md
+/docs/superpowers/
+
+# Raw root asset (compiled icons reside in platform dirs)
+/icon.png
+
+# Test suite (non-build)
+/test/
+
