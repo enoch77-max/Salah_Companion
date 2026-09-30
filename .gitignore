@@ -66,10 +66,21 @@ app.*.map.json
 /salah-companion-master-prd.md
 /TESTING_GUIDE.md
 /docs/superpowers/
+.agents/
+
+# Non-build store assets, scripts, and demos
+/play_store_assets/
+/store_assets/
+*.html
+*.bat
+*.ps1
+*.zip
+*.pem
 
 # Raw root asset (compiled icons reside in platform dirs)
 /icon.png
 
 # Test suite (non-build)
 /test/
+
 
