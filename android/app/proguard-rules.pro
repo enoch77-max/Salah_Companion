@@ -13,4 +13,4 @@
 -keep class androidx.work.impl.background.systemalarm.ConstraintProxy* { *; }
 
 # Native App & Method Channel Rules
--keep class com.salahcompanion.salah_companion.** { *; }
+-keep class com.rymthos.salahcompanion.** { *; }

@@ -81,6 +81,7 @@ class DailyReflectionCard extends StatelessWidget {
     final shareCallback = onShare ?? () => shareContent(content, langCode);
 
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
         color: colors.paperBackground,
         shape: ContinuousRectangleBorder(
@@ -91,26 +92,32 @@ class DailyReflectionCard extends StatelessWidget {
           ),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14.0, 6.0, 14.0, 8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header Row: Single Quote Icon (Left) + Action Buttons (Right)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Stack(
+        children: [
+          // Background Watermark Quotation Mark
+          Positioned(
+            top: 4,
+            left: 8,
+            child: IgnorePointer(
+              child: Icon(
+                Icons.format_quote_rounded,
+                size: 74,
+                color: accentGold.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14.0, 6.0, 14.0, 8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(
-                  Icons.format_quote_rounded,
-                  size: 20,
-                  color: accentGold,
-                ),
+                // Header Row: Action Buttons Aligned to the Right
                 Row(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (onRefresh != null)
-                      _AnimatedRefreshButton(
+                      AnimatedRefreshButton(
                         onRefresh: onRefresh!,
                       ),
                     IconButton(
@@ -127,7 +134,7 @@ class DailyReflectionCard extends StatelessWidget {
                         minHeight: 32,
                       ),
                     ),
-                    _AnimatedFavoriteButton(
+                    AnimatedFavoriteButton(
                       isFavorited: isFavorited,
                       onToggle: () {
                         AppHaptics.selection();
@@ -136,8 +143,6 @@ class DailyReflectionCard extends StatelessWidget {
                     ),
                   ],
                 ),
-              ],
-            ),
             const SizedBox(height: 2),
 
             // Arabic Text (RTL)
@@ -230,24 +235,27 @@ class DailyReflectionCard extends StatelessWidget {
           ],
         ),
       ),
+        ],
+      ),
     );
   }
 }
 
-class _AnimatedFavoriteButton extends StatefulWidget {
+class AnimatedFavoriteButton extends StatefulWidget {
   final bool isFavorited;
   final VoidCallback onToggle;
 
-  const _AnimatedFavoriteButton({
+  const AnimatedFavoriteButton({
+    super.key,
     required this.isFavorited,
     required this.onToggle,
   });
 
   @override
-  State<_AnimatedFavoriteButton> createState() => _AnimatedFavoriteButtonState();
+  State<AnimatedFavoriteButton> createState() => _AnimatedFavoriteButtonState();
 }
 
-class _AnimatedFavoriteButtonState extends State<_AnimatedFavoriteButton>
+class _AnimatedFavoriteButtonState extends State<AnimatedFavoriteButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
@@ -328,18 +336,19 @@ class _AnimatedFavoriteButtonState extends State<_AnimatedFavoriteButton>
   }
 }
 
-class _AnimatedRefreshButton extends StatefulWidget {
+class AnimatedRefreshButton extends StatefulWidget {
   final VoidCallback onRefresh;
 
-  const _AnimatedRefreshButton({
+  const AnimatedRefreshButton({
+    super.key,
     required this.onRefresh,
   });
 
   @override
-  State<_AnimatedRefreshButton> createState() => _AnimatedRefreshButtonState();
+  State<AnimatedRefreshButton> createState() => _AnimatedRefreshButtonState();
 }
 
-class _AnimatedRefreshButtonState extends State<_AnimatedRefreshButton>
+class _AnimatedRefreshButtonState extends State<AnimatedRefreshButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 

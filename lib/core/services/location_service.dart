@@ -168,7 +168,33 @@ class LocationService {
   }
 
   /// Gets the current location using a robust 5-tier VPN-proof fallback cascade.
+  /// Deduplicates concurrent requests to prevent native Android race conditions.
   Future<LocationData> getCurrentLocation({
+    PositionFetcher? positionFetcher,
+    PlacemarkFetcher? placemarkFetcher,
+  }) async {
+    if (positionFetcher != null || placemarkFetcher != null) {
+      return _executeGetCurrentLocation(
+        positionFetcher: positionFetcher,
+        placemarkFetcher: placemarkFetcher,
+      );
+    }
+
+    if (_inFlightLocationFuture != null) {
+      return _inFlightLocationFuture!;
+    }
+
+    final future = _executeGetCurrentLocation();
+    _inFlightLocationFuture = future;
+    try {
+      final result = await future;
+      return result;
+    } finally {
+      _inFlightLocationFuture = null;
+    }
+  }
+
+  Future<LocationData> _executeGetCurrentLocation({
     PositionFetcher? positionFetcher,
     PlacemarkFetcher? placemarkFetcher,
   }) async {
@@ -180,11 +206,14 @@ class LocationService {
       if (positionFetcher != null) {
         position = await positionFetcher();
       } else {
-        final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-        var permission = await Geolocator.checkPermission();
+        final serviceEnabled = await Geolocator.isLocationServiceEnabled()
+            .timeout(const Duration(seconds: 2), onTimeout: () => false);
+        var permission = await Geolocator.checkPermission()
+            .timeout(const Duration(seconds: 2), onTimeout: () => LocationPermission.denied);
 
         if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
+          permission = await Geolocator.requestPermission()
+              .timeout(const Duration(seconds: 15), onTimeout: () => LocationPermission.denied);
         }
 
         final hasPermission = permission == LocationPermission.whileInUse ||
@@ -223,7 +252,8 @@ class LocationService {
 
         // Tier 2: Try OS Last Known Position (0ms instant, VPN-proof!)
         try {
-          position = await Geolocator.getLastKnownPosition();
+          position = await Geolocator.getLastKnownPosition()
+              .timeout(const Duration(seconds: 2), onTimeout: () => null);
         } catch (_) {}
 
         // Tier 3: Try Fast Fix (3.5s timeout)
@@ -234,7 +264,7 @@ class LocationService {
                 accuracy: LocationAccuracy.medium,
                 timeLimit: Duration(milliseconds: 3500),
               ),
-            );
+            ).timeout(const Duration(milliseconds: 4000));
           } catch (_) {}
         }
 
@@ -246,7 +276,7 @@ class LocationService {
                 accuracy: LocationAccuracy.high,
                 timeLimit: Duration(milliseconds: 3500),
               ),
-            );
+            ).timeout(const Duration(milliseconds: 4000));
           } catch (_) {}
         }
       }
@@ -331,6 +361,7 @@ class LocationService {
     }
   }
 
+  static Future<LocationData>? _inFlightLocationFuture;
   static LocationData? savedLocation;
 
   static LocationData? cachedLocationSync(SharedPreferences prefs) {

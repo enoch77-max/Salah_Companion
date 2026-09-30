@@ -20,6 +20,7 @@ import '../../../settings/presentation/screens/settings_screen.dart';
 import '../../../tasbih/presentation/screens/tasbih_screen.dart';
 import '../../domain/prayer_times_calculator.dart';
 import '../widgets/daily_reflection_card.dart';
+import '../widgets/daily_reflection_popup.dart';
 import '../widgets/hijri_strip.dart';
 import '../widgets/prayer_countdown_hero.dart';
 import '../widgets/prayer_list_card.dart';
@@ -91,6 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
   StreamSubscription<LocationData>? _locationSubscription;
   bool _isLocationFallback = false;
   String? _locationStatusMessage;
+  LocationData? _currentLocationData;
+  bool _isTimezoneMismatched = false;
 
   // Dynamic Hero State
   String _heroHeaderLabel = 'UPCOMING PRAYER';
@@ -101,6 +104,8 @@ class _HomeScreenState extends State<HomeScreen> {
   DateTime? _nextPrayerTime;
   DateTime? _heroPeriodStartTime;
   DateTime? _heroPeriodEndTime;
+  String? _heroStartTimeStr;
+  String? _heroEndTimeStr;
   Duration? _remainingDuration;
   double _countdownProgress = 0.75;
   bool _isDrain = false;
@@ -242,6 +247,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _applyLocationAndCalculateSync(LocationData loc) {
+    _currentLocationData = loc;
+    final deviceOffsetHours = DateTime.now().timeZoneOffset.inMinutes / 60.0;
+    final geoOffsetHours = loc.longitude / 15.0;
+    _isTimezoneMismatched = !loc.isFallback && (deviceOffsetHours - geoOffsetHours).abs() >= 2.5;
     final calcParams = CalculationMethodMapper.getMethodForCountry(loc.countryCode);
     final calc = const PrayerTimesCalculator();
     final coords = Coordinates(loc.latitude, loc.longitude);
@@ -586,9 +595,39 @@ class _HomeScreenState extends State<HomeScreen> {
       orElse: () => const PrayerItem(name: 'Sunrise', time: '06:05 AM', isSunrise: true),
     );
 
+    String heroStartStr = fajrStr;
+    String heroEndStr = sunriseStr;
+    switch (heroPrayerName) {
+      case 'Fajr':
+        heroStartStr = fajrStr;
+        heroEndStr = sunriseStr;
+        break;
+      case 'Dhuhr':
+        heroStartStr = dhuhrStr;
+        heroEndStr = asrStr;
+        break;
+      case 'Asr':
+        heroStartStr = asrStr;
+        heroEndStr = maghribStr;
+        break;
+      case 'Maghrib':
+        heroStartStr = maghribStr;
+        heroEndStr = ishaStr;
+        break;
+      case 'Isha':
+        heroStartStr = ishaStr;
+        heroEndStr = tomorrowFajrStr;
+        break;
+      default:
+        heroStartStr = fajrStr;
+        heroEndStr = sunriseStr;
+    }
+
     _heroHeaderLabel = headerLabel;
     _nextPrayerName = heroPrayerName;
     _heroPeriodText = periodText;
+    _heroStartTimeStr = heroStartStr;
+    _heroEndTimeStr = heroEndStr;
     _sunriseTimeStr = sunriseItem.time;
     _sunsetTimeStr = _formatTime12h(maghrib);
     _nextPrayerTime = targetTime;
@@ -679,8 +718,14 @@ class _HomeScreenState extends State<HomeScreen> {
       PrayerItem(name: 'Isha', time: ishaStr, endTime: tomorrowFajrStr, status: mergedLogs['Isha']!),
     ];
 
+    final deviceOffsetHours = DateTime.now().timeZoneOffset.inMinutes / 60.0;
+    final geoOffsetHours = loc.longitude / 15.0;
+    final isMismatched = !loc.isFallback && (deviceOffsetHours - geoOffsetHours).abs() >= 2.5;
+
     if (!mounted) return;
     setState(() {
+      _currentLocationData = loc;
+      _isTimezoneMismatched = isMismatched;
       _isDatabaseHydrated = true;
       _currentLocationName = cityName;
       _isLocationFallback = loc.isFallback;
@@ -756,6 +801,25 @@ class _HomeScreenState extends State<HomeScreen> {
           _reflectionItem = todayReflection;
           _isReflectionFavorited = isFav;
         });
+
+        // Trigger First-Launch Daily Reflection Pop-up once per daily refresh
+        final now = DateTime.now();
+        final todayDateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+        final lastShownPopupDate = prefs.getString('last_shown_daily_reflection_popup_date');
+        if (lastShownPopupDate != todayDateStr) {
+          await prefs.setString('last_shown_daily_reflection_popup_date', todayDateStr);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && _reflectionItem != null) {
+              DailyReflectionPopup.show(
+                context,
+                content: _reflectionItem!,
+                isFavorited: _isReflectionFavorited,
+                onToggleFavorite: _handleToggleFavorite,
+                onRefresh: _handleRefreshReflection,
+              );
+            }
+          });
+        }
       }
     } catch (_) {}
 
@@ -933,7 +997,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: HijriStrip(
                     locationName: _currentLocationName,
                     hijriOffset: _hijriOffset,
-                    isTimezoneMismatched: widget.isTimezoneMismatched,
+                    isTimezoneMismatched: _isTimezoneMismatched,
                     isLocationFallback: _isLocationFallback,
                     locationStatusMessage: _locationStatusMessage,
                     onLocationBannerTap: () async {
@@ -944,18 +1008,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // 2. Daily Reflection Card
-                RepaintBoundary(
-                  child: DailyReflectionCard(
-                    content: reflection,
-                    isFavorited: _isReflectionFavorited,
-                    onToggleFavorite: _handleToggleFavorite,
-                    onRefresh: _handleRefreshReflection,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 3. Countdown Hero Card
+                // 2. Countdown Hero Card
                 RepaintBoundary(
                   child: PrayerCountdownHero(
                     headerLabel: _heroHeaderLabel,
@@ -966,6 +1019,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     nextPrayerTime: _nextPrayerTime,
                     periodStartTime: _heroPeriodStartTime,
                     periodEndTime: _heroPeriodEndTime,
+                    startTimeStr: _heroStartTimeStr,
+                    endTimeStr: _heroEndTimeStr,
                     remainingDuration: _nextPrayerTime == null ? _remainingDuration : null,
                     progress: _countdownProgress,
                     isDrain: _isDrain,
@@ -975,7 +1030,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // 4. Prayer List Card
+                // 3. Prayer List Card
                 RepaintBoundary(
                   child: PrayerListCard(
                     prayers: _prayers.isNotEmpty ? _prayers : widget.prayers,
@@ -983,6 +1038,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     sunriseDateTime: _calculatedTimesMap['Sunrise'],
                     dhuhrDateTime: _calculatedTimesMap['Dhuhr'],
                     maghribDateTime: _calculatedTimesMap['Maghrib'],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 4. Daily Reflection Card (Repositioned to the bottom)
+                RepaintBoundary(
+                  child: DailyReflectionCard(
+                    content: reflection,
+                    isFavorited: _isReflectionFavorited,
+                    onToggleFavorite: _handleToggleFavorite,
+                    onRefresh: _handleRefreshReflection,
                   ),
                 ),
               ],
@@ -1007,6 +1073,7 @@ class _HomeScreenState extends State<HomeScreen> {
           enabled: _selectedNavIndex == 3,
           child: QiblaScreen(
             isActive: _selectedNavIndex == 3,
+            initialLocation: _currentLocationData ?? LocationService.savedLocation,
           ),
         ),
 

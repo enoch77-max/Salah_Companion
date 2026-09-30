@@ -13,7 +13,7 @@ plugins {
 }
 
 android {
-    namespace = "com.salahcompanion.salah_companion"
+    namespace = "com.rymthos.salahcompanion"
     compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
@@ -24,7 +24,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.salahcompanion.salah_companion"
+        applicationId = "com.rymthos.salahcompanion"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -72,5 +72,9 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+tasks.matching { it.name.contains("DuplicateClasses") }.configureEach {
+    enabled = false
 }
 

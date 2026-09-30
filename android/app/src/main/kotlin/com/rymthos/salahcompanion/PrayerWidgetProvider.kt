@@ -1,4 +1,4 @@
-package com.salahcompanion.salah_companion
+package com.rymthos.salahcompanion
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager

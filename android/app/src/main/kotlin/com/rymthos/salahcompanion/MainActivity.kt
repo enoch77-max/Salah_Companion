@@ -1,4 +1,4 @@
-package com.salahcompanion.salah_companion
+package com.rymthos.salahcompanion
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -58,8 +58,8 @@ class MainActivity : FlutterActivity() {
                     result.success(Build.MANUFACTURER ?: "Unknown")
                 }
                 "openBatteryOptimizationSettings", "requestIgnoreBatteryOptimizations" -> {
-                    openBatteryOptimizationSettings()
-                    result.success(true)
+                    val launched = openBatteryOptimizationSettings()
+                    result.success(launched)
                 }
                 else -> {
                     result.notImplemented()
@@ -220,78 +220,143 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    private fun openBatteryOptimizationSettings() {
+    private fun safeStartIntent(intent: Intent): Boolean {
+        return try {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private fun openBatteryOptimizationSettings(): Boolean {
         val manufacturer = (Build.MANUFACTURER ?: "").lowercase()
 
-        // 1. Standard Android Direct Request Intent (API 23+)
+        // 1. Standard Android Direct 1-Tap Exemption Request (API 23+)
+        // When REQUEST_IGNORE_BATTERY_OPTIMIZATIONS is declared in manifest,
+        // this displays the system's native whitelist dialog directly inside the app.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            try {
-                val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+            val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
+            val isAlreadyIgnored = powerManager?.isIgnoringBatteryOptimizations(packageName) ?: false
+            if (!isAlreadyIgnored) {
+                val directIntent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
                     data = Uri.parse("package:$packageName")
                 }
-                startActivity(intent)
-                return
-            } catch (_: Exception) {
-                // Fallback if ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS fails
+                if (safeStartIntent(directIntent)) {
+                    return true
+                }
             }
         }
 
-        // 2. OEM Specific Settings Intents
+        // 2. OEM-Specific Background & Autostart Management
         var launched = false
-        try {
-            when {
-                manufacturer.contains("xiaomi") || manufacturer.contains("redmi") || manufacturer.contains("poco") -> {
-                    val intent = Intent().apply {
-                        setClassName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity")
-                    }
-                    startActivity(intent)
-                    launched = true
+        when {
+            manufacturer.contains("xiaomi") || manufacturer.contains("redmi") || manufacturer.contains("poco") -> {
+                // Try Xiaomi Powerkeeper (Battery Saver -> No restrictions)
+                val powerKeeperIntent = Intent().apply {
+                    component = ComponentName("com.miui.powerkeeper", "com.miui.powerkeeper.ui.HiddenAppsConfigActivity")
+                    putExtra("package_name", packageName)
+                    putExtra("package_label", "Salah Companion")
                 }
-                manufacturer.contains("huawei") || manufacturer.contains("honor") -> {
-                    val intent = Intent().apply {
-                        setClassName("com.huawei.systemmanager", "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity")
+                launched = safeStartIntent(powerKeeperIntent)
+
+                // Try Xiaomi Autostart
+                if (!launched) {
+                    val autostartIntent = Intent().apply {
+                        component = ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity")
+                        putExtra("extra_pkgname", packageName)
                     }
-                    startActivity(intent)
-                    launched = true
+                    launched = safeStartIntent(autostartIntent)
                 }
-                manufacturer.contains("oppo") || manufacturer.contains("realme") -> {
-                    val intent = Intent().apply {
-                        setClassName("com.coloros.safecenter", "com.coloros.safecenter.permission.startup.StartupAppListActivity")
+
+                // Try Xiaomi App Permissions Editor
+                if (!launched) {
+                    val permIntent = Intent("miui.intent.action.APP_PERM_EDITOR").apply {
+                        setClassName("com.miui.securitycenter", "com.miui.permcenter.permissions.PermissionsEditorActivity")
+                        putExtra("extra_pkgname", packageName)
                     }
-                    startActivity(intent)
-                    launched = true
-                }
-                manufacturer.contains("vivo") || manufacturer.contains("iqoo") -> {
-                    val intent = Intent().apply {
-                        setClassName("com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity")
-                    }
-                    startActivity(intent)
-                    launched = true
+                    launched = safeStartIntent(permIntent)
                 }
             }
-        } catch (_: Exception) {
-            launched = false
+            manufacturer.contains("samsung") -> {
+                // Try Samsung Device Care Battery
+                val samsungIntent1 = Intent().apply {
+                    component = ComponentName("com.samsung.android.lool", "com.samsung.android.sm.battery.ui.BatteryActivity")
+                }
+                launched = safeStartIntent(samsungIntent1)
+
+                if (!launched) {
+                    val samsungIntent2 = Intent().apply {
+                        component = ComponentName("com.samsung.android.sm", "com.samsung.android.sm.battery.ui.BatteryActivity")
+                    }
+                    launched = safeStartIntent(samsungIntent2)
+                }
+            }
+            manufacturer.contains("huawei") || manufacturer.contains("honor") -> {
+                val huaweiIntent1 = Intent().apply {
+                    component = ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity")
+                }
+                launched = safeStartIntent(huaweiIntent1)
+
+                if (!launched) {
+                    val huaweiIntent2 = Intent().apply {
+                        component = ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.appcontrol.activity.StartupAppListActivity")
+                    }
+                    launched = safeStartIntent(huaweiIntent2)
+                }
+            }
+            manufacturer.contains("oppo") || manufacturer.contains("realme") || manufacturer.contains("oneplus") -> {
+                val oppoIntent1 = Intent().apply {
+                    component = ComponentName("com.coloros.safecenter", "com.coloros.safecenter.permission.startup.StartupAppListActivity")
+                }
+                launched = safeStartIntent(oppoIntent1)
+
+                if (!launched) {
+                    val oppoIntent2 = Intent().apply {
+                        component = ComponentName("com.oplus.battery", "com.oplus.battery.AppListActivity")
+                    }
+                    launched = safeStartIntent(oppoIntent2)
+                }
+            }
+            manufacturer.contains("vivo") || manufacturer.contains("iqoo") -> {
+                val vivoIntent1 = Intent().apply {
+                    component = ComponentName("com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity")
+                }
+                launched = safeStartIntent(vivoIntent1)
+
+                if (!launched) {
+                    val vivoIntent2 = Intent().apply {
+                        component = ComponentName("com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.PurviewTabActivity")
+                    }
+                    launched = safeStartIntent(vivoIntent2)
+                }
+            }
+            manufacturer.contains("transsion") || manufacturer.contains("infinix") || manufacturer.contains("tecno") || manufacturer.contains("itel") -> {
+                val transsionIntent = Intent().apply {
+                    component = ComponentName("com.transsion.phonemaster", "com.transsion.phonemaster.AutoStartActivity")
+                }
+                launched = safeStartIntent(transsionIntent)
+            }
         }
 
-        // 3. Fallback to Ignore Battery Optimization Settings or App Details Settings
-        if (!launched) {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-                    startActivity(intent)
-                } else {
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.parse("package:$packageName")
-                    }
-                    startActivity(intent)
-                }
-            } catch (_: Exception) {
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                    data = Uri.parse("package:$packageName")
-                }
-                startActivity(intent)
+        if (launched) {
+            return true
+        }
+
+        // 3. Fallback to System Battery Optimization Settings
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val optIntent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+            if (safeStartIntent(optIntent)) {
+                return true
             }
         }
+
+        // 4. Universal Fallback: App Details Settings (Guaranteed to work on 100% of Android devices)
+        val detailsIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.parse("package:$packageName")
+        }
+        return safeStartIntent(detailsIntent)
     }
 
     private fun enableHighRefreshRate() {

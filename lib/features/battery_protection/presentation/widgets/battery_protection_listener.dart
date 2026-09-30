@@ -32,6 +32,7 @@ class _BatteryProtectionListenerState extends State<BatteryProtectionListener>
     with WidgetsBindingObserver {
   bool _isShowingPrompt = false;
   bool _isChecking = false;
+  bool _hasPromptedThisSession = false;
 
   @override
   void initState() {
@@ -53,8 +54,24 @@ class _BatteryProtectionListenerState extends State<BatteryProtectionListener>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _checkAndShowPrompt();
+      _handleAppResumed();
     }
+  }
+
+  Future<void> _handleAppResumed() async {
+    final currentPlatform = widget.platform ?? defaultTargetPlatform;
+    if (currentPlatform != TargetPlatform.android) return;
+
+    try {
+      final service = widget.batteryService ?? BatteryService(db: AppDatabase.instance());
+      // Silently refresh exemption status in DB
+      await service.checkBatteryOptimizationStatus();
+
+      // Only check and show prompt if not already prompted this session
+      if (!_hasPromptedThisSession) {
+        await _checkAndShowPrompt();
+      }
+    } catch (_) {}
   }
 
   Future<void> _checkAndShowPrompt() async {
@@ -63,21 +80,32 @@ class _BatteryProtectionListenerState extends State<BatteryProtectionListener>
       return;
     }
 
-    if (_isShowingPrompt || _isChecking) {
+    if (_isShowingPrompt || _isChecking || _hasPromptedThisSession) {
       return;
     }
 
     _isChecking = true;
     try {
       final service = widget.batteryService ?? BatteryService(db: AppDatabase.instance());
-      await service.checkBatteryOptimizationStatus();
+      final isExempt = await service.checkBatteryOptimizationStatus();
+      if (isExempt) return;
+
       final shouldShow = await service.shouldShowPrompt();
 
       if (shouldShow && mounted && !_isShowingPrompt) {
         _isShowingPrompt = true;
+        _hasPromptedThisSession = true;
+
+        // Record prompt shown immediately so 24h cooldown is active across app resumes
+        await service.recordPromptShown();
+
+        final mfg = widget.manufacturer ?? await service.getManufacturer();
+
+        if (!mounted) return;
+
         await BatteryOptimizationSheet.show(
           context,
-          manufacturer: widget.manufacturer,
+          manufacturer: mfg,
           batteryService: service,
           onFixPressed: () async {
             if (widget.onRequestExemption != null) {

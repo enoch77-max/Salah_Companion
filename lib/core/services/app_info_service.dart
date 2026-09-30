@@ -5,8 +5,8 @@ class AppInfoService {
   static PackageInfo? _packageInfo;
 
   /// Fallback static version if platform channel is uninitialized (e.g. unit testing environment).
-  static const String fallbackVersion = '1.0.17';
-  static const String fallbackBuildNumber = '17';
+  static const String fallbackVersion = '1.0.22';
+  static const String fallbackBuildNumber = '22';
 
   /// Initializes package info from platform channel.
   static Future<void> init() async {

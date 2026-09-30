@@ -112,6 +112,10 @@ class _QiblaScreenState extends State<QiblaScreen>
         _stopCompassStream();
       }
     }
+    if (widget.initialLocation != null &&
+        (widget.initialLocation != oldWidget.initialLocation || _locationData == null)) {
+      _applyLocationData(widget.initialLocation!, initialQiblaBearing: widget.initialQiblaBearing);
+    }
   }
 
   @override
@@ -157,15 +161,35 @@ class _QiblaScreenState extends State<QiblaScreen>
 
   Future<void> _fetchLocation() async {
     // 1. Instant Cached Location Check (0ms startup, zero delay, works offline)
-    final cached = LocationService.savedLocation ?? await _locationService.getCachedLocation();
+    final cached = widget.initialLocation ??
+        LocationService.savedLocation ??
+        await _locationService.getCachedLocation();
 
     if (cached != null && mounted) {
       _applyLocationData(cached);
+    } else {
+      // 2. Safety Watchdog Timer:
+      // If fresh install and no cached location exists, NEVER leave the user stranded on a blank spinner.
+      // After 2.5 seconds, unblock the UI with the default fallback location so the compass dial
+      // and calibration guides are immediately accessible.
+      Timer(const Duration(milliseconds: 2500), () {
+        if (mounted && _isLoadingLocation && _locationData == null) {
+          final fallback = LocationService.savedLocation ?? LocationService.defaultFallbackLocation;
+          _applyLocationData(fallback);
+        }
+      });
     }
 
-    // 2. Fetch fresh position in background without blocking UI
+    // 3. Fetch fresh position in background without blocking UI
     try {
-      final loc = await _locationService.getCurrentLocation();
+      final loc = await _locationService.getCurrentLocation().timeout(
+        const Duration(seconds: 6),
+        onTimeout: () {
+          return LocationService.savedLocation ??
+              _locationData ??
+              LocationService.defaultFallbackLocation;
+        },
+      );
       if (!mounted) return;
       _applyLocationData(loc);
     } catch (e) {
@@ -176,10 +200,8 @@ class _QiblaScreenState extends State<QiblaScreen>
         });
         return;
       }
-      setState(() {
-        _locationError = e.toString().replaceAll('LocationException: ', '');
-        _isLoadingLocation = false;
-      });
+      final fallback = LocationService.savedLocation ?? LocationService.defaultFallbackLocation;
+      _applyLocationData(fallback);
     }
   }
 
@@ -187,7 +209,16 @@ class _QiblaScreenState extends State<QiblaScreen>
     if (_compassSubscription != null) return;
     final stream = widget.compassEvents ?? FlutterCompass.events;
     if (stream != null) {
-      _compassSubscription = stream.listen(_onCompassEvent);
+      _compassSubscription = stream.listen(
+        _onCompassEvent,
+        onError: (e) {
+          if (mounted) {
+            setState(() {
+              _trueHeading = null;
+            });
+          }
+        },
+      );
     }
   }
 

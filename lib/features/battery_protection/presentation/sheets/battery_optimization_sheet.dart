@@ -27,11 +27,13 @@ class BatteryOptimizationSheet extends StatelessWidget {
     String? oemGuidance,
     String? manufacturer,
     BatteryService? batteryService,
-  }) {
-    final effectiveGuidance = oemGuidance ??
-        (manufacturer != null && batteryService != null
-            ? batteryService.getOemGuidance(manufacturer)
-            : null);
+  }) async {
+    String? effectiveGuidance = oemGuidance;
+    if (effectiveGuidance == null && batteryService != null) {
+      final mfg = manufacturer ?? await batteryService.getManufacturer();
+      effectiveGuidance = batteryService.getOemGuidance(mfg);
+    }
+    if (!context.mounted) return null;
 
     return showModalBottomSheet<T>(
       context: context,

@@ -50,6 +50,9 @@ class PrayerTimesCalculator {
     if (madhab != null) {
       params.madhab = madhab;
     }
+    if (coordinates.latitude.abs() > 48.0 && params.highLatitudeRule == null) {
+      params.highLatitudeRule = HighLatitudeRule.seventhOfTheNight;
+    }
     final localDate = DateTime.utc(date.year, date.month, date.day, 12, 0, 0);
 
     return LocalizedPrayerTimes(

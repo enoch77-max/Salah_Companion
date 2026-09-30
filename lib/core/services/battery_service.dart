@@ -38,14 +38,18 @@ class BatteryService {
   }
 
   /// Directs the device OS to open battery optimization exemption settings.
-  Future<void> openBatteryOptimizationSettings() async {
-    if (_platform != TargetPlatform.android) return;
+  Future<bool> openBatteryOptimizationSettings() async {
+    if (_platform != TargetPlatform.android) return false;
     try {
-      await channel.invokeMethod('openBatteryOptimizationSettings');
+      final res = await channel.invokeMethod<bool>('openBatteryOptimizationSettings');
+      return res ?? true;
     } catch (_) {
       try {
-        await channel.invokeMethod('requestIgnoreBatteryOptimizations');
-      } catch (_) {}
+        final res = await channel.invokeMethod<bool>('requestIgnoreBatteryOptimizations');
+        return res ?? true;
+      } catch (_) {
+        return false;
+      }
     }
   }
 
@@ -166,10 +170,14 @@ class BatteryService {
       return "Go to Settings > Apps > Manage apps > Salah Companion > Enable 'Autostart'. Set Battery saver to 'No restrictions'.";
     } else if (m.contains('huawei') || m.contains('honor')) {
       return "Go to Settings > Apps > Apps > Salah Companion > Power usage details > App launch > Set to 'Manage manually' and enable Auto-launch, Secondary launch, and Run in background.";
-    } else if (m.contains('oppo') || m.contains('realme')) {
-      return "Go to Settings > App management > Salah Companion > Allow auto-startup. Under Battery usage, enable 'Allow background activity'.";
+    } else if (m.contains('oppo') || m.contains('realme') || m.contains('oneplus')) {
+      return "Go to Settings > Apps > App management > Salah Companion > Battery usage > Enable 'Allow background activity' and allow auto-launch.";
     } else if (m.contains('vivo') || m.contains('iqoo')) {
       return "Go to Settings > Battery > High background power consumption > Enable Salah Companion. Also check App manager > Autostart.";
+    } else if (m.contains('transsion') || m.contains('infinix') || m.contains('tecno') || m.contains('itel')) {
+      return "Go to Settings > Apps > Salah Companion > Battery > Select 'Unrestricted'. Also check Phone Master > Auto-start management.";
+    } else if (m.contains('google') || m.contains('pixel') || m.contains('motorola') || m.contains('moto') || m.contains('nothing')) {
+      return "Go to Settings > Apps > Salah Companion > App battery usage > Select 'Unrestricted'.";
     } else {
       return "Go to Settings > Apps > Salah Companion > Battery > Select 'Unrestricted' or disable Battery Optimization.";
     }
