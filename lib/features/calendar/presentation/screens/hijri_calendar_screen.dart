@@ -339,6 +339,9 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
       }
     }
 
+    final bottomPadding = MediaQuery.paddingOf(context).bottom;
+    final navBarInset = 58.0 + (bottomPadding > 0 ? 8.0 + bottomPadding : 12.0) + 16.0;
+
     return Scaffold(
       backgroundColor: colors.background,
       body: SafeArea(
@@ -879,8 +882,9 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                               if (!isLast)
                                 Divider(
                                   height: 1,
-                                  thickness: 0.8,
-                                  indent: 68,
+                                  thickness: 1.0,
+                                  indent: 0,
+                                  endIndent: 0,
                                   color: colors.divider,
                                 ),
                             ],
@@ -889,7 +893,7 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                       ),
                     ),
 
-              const SizedBox(height: 76),
+              SizedBox(height: navBarInset),
             ],
           ),
         ),

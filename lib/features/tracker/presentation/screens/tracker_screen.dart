@@ -445,8 +445,9 @@ class _TrackerScreenState extends State<TrackerScreen> {
                               if (!isLast)
                                 Divider(
                                   height: 1,
-                                  thickness: 0.8,
-                                  indent: 66,
+                                  thickness: 1.0,
+                                  indent: 0,
+                                  endIndent: 0,
                                   color: colors.divider,
                                 ),
                             ],

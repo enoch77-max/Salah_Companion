@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -47,6 +48,21 @@ class NotificationService {
   static const String reflectionChannelName = 'Daily Reflection';
   static const String reflectionChannelDesc = 'Daily Hadith and Ayah reflections';
 
+  static const String forbiddenChannelId = 'forbidden_times_channel';
+  static const String forbiddenChannelName = 'Forbidden Nafl Times';
+  static const String forbiddenChannelDesc =
+      'Alerts when voluntary (Nafl) prayers are prohibited';
+
+  static const int forbiddenSunriseNotificationId = 3001;
+  static const int forbiddenZawalNotificationId = 3002;
+  static const int forbiddenSunsetNotificationId = 3003;
+
+  static const List<int> forbiddenNotificationIds = [
+    forbiddenSunriseNotificationId,
+    forbiddenZawalNotificationId,
+    forbiddenSunsetNotificationId,
+  ];
+
   /// Maps user-facing voice names to Android raw resource file names (without extension).
   static const Map<String, String> adhanVoiceResources = {
     'Makkah (Ali Mulla)': 'adhan_makkah',
@@ -68,6 +84,16 @@ class NotificationService {
 
   static const String adhanChannelDesc = 'Notifications for daily prayer times with adhan audio';
 
+  static const String prayerStandardChannelId = 'prayer_standard_channel_v2';
+  static const String prayerStandardChannelName = 'Prayer Notifications';
+  static const String prayerStandardChannelDesc =
+      'Notifications for daily prayer times with standard device notification sound';
+
+  // Backwards-compatible aliases
+  static const String prayerSilentChannelId = prayerStandardChannelId;
+  static const String prayerSilentChannelName = prayerStandardChannelName;
+  static const String prayerSilentChannelDesc = prayerStandardChannelDesc;
+
   static const Map<String, int> defaultPrayerIds = {
     'Fajr': 101,
     'Sunrise': 102,
@@ -82,9 +108,43 @@ class NotificationService {
   }) : notificationsPlugin =
             notificationsPlugin ?? FlutterLocalNotificationsPlugin();
 
+  /// Configures [tz.local] by matching the device's local timezone offset
+  /// against available locations in [tz.timeZoneDatabase.locations].
+  /// Ensures [tz.local] is never left as Etc/UTC on non-UTC devices.
+  static void configureLocalTimeZone({DateTime? now}) {
+    try {
+      if (tz.timeZoneDatabase.locations.isEmpty) {
+        tz.initializeTimeZones();
+      }
+      final current = now ?? DateTime.now();
+      final offset = current.timeZoneOffset;
+
+      if (offset == Duration.zero) {
+        tz.setLocalLocation(tz.getLocation('Etc/UTC'));
+        return;
+      }
+
+      tz.Location? fallbackMatch;
+      for (final loc in tz.timeZoneDatabase.locations.values) {
+        if (loc.currentTimeZone.offset == offset) {
+          if (!loc.name.startsWith('Etc/')) {
+            tz.setLocalLocation(loc);
+            return;
+          }
+          fallbackMatch ??= loc;
+        }
+      }
+
+      if (fallbackMatch != null) {
+        tz.setLocalLocation(fallbackMatch);
+      }
+    } catch (_) {}
+  }
+
   /// Initializes timezone data and configures notification settings & channels.
   Future<void> initialize() async {
     tz.initializeTimeZones();
+    configureLocalTimeZone();
 
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -123,10 +183,30 @@ class NotificationService {
       }
       await androidImpl.createNotificationChannel(
         const AndroidNotificationChannel(
+          prayerStandardChannelId,
+          prayerStandardChannelName,
+          description: prayerStandardChannelDesc,
+          importance: Importance.high,
+          playSound: true,
+          enableVibration: true,
+        ),
+      );
+      await androidImpl.createNotificationChannel(
+        const AndroidNotificationChannel(
           reflectionChannelId,
           reflectionChannelName,
           description: reflectionChannelDesc,
           importance: Importance.high,
+        ),
+      );
+      await androidImpl.createNotificationChannel(
+        const AndroidNotificationChannel(
+          forbiddenChannelId,
+          forbiddenChannelName,
+          description: forbiddenChannelDesc,
+          importance: Importance.max,
+          enableLights: true,
+          ledColor: Color(0xFFEF4444),
         ),
       );
     }
@@ -215,6 +295,21 @@ class NotificationService {
     await notificationsPlugin.cancel(id: baseId + 2000);
   }
 
+  /// Cancels all scheduled start alarms and follow-up reminders for all daily prayers.
+  Future<void> cancelAllPrayerNotifications({
+    Map<String, int>? customNotificationIds,
+  }) async {
+    for (final entry in defaultPrayerIds.entries) {
+      final baseId = (customNotificationIds != null &&
+              customNotificationIds.containsKey(entry.key))
+          ? customNotificationIds[entry.key]!
+          : entry.value;
+      await notificationsPlugin.cancel(id: baseId);
+      await notificationsPlugin.cancel(id: baseId + 1000);
+      await notificationsPlugin.cancel(id: baseId + 2000);
+    }
+  }
+
   /// Schedules exact alarms and multi-stage reminders for all enabled daily prayers.
   Future<void> schedulePrayerNotifications({
     required Map<String, DateTime> prayerTimes,
@@ -228,6 +323,9 @@ class NotificationService {
     AppLocalizations? localizations,
   }) async {
     final now = nowOverride ?? DateTime.now();
+    if (tz.local.name == 'Etc/UTC' && DateTime.now().timeZoneOffset != Duration.zero) {
+      configureLocalTimeZone();
+    }
     final models = buildPrayerNotificationModels(
       prayerTimes: prayerTimes,
       enabledPrayers: enabledPrayers,
@@ -240,7 +338,12 @@ class NotificationService {
     final channelName = adhanChannelNameForVoice(adhanVoice);
 
     for (final model in models) {
-      if (!model.isEnabled) continue;
+      if (!model.isEnabled) {
+        await notificationsPlugin.cancel(id: model.notificationId);
+        await notificationsPlugin.cancel(id: model.notificationId + 1000);
+        await notificationsPlugin.cancel(id: model.notificationId + 2000);
+        continue;
+      }
 
       final isCompleted = completedPrayers?.contains(model.prayerName) ?? false;
       if (isCompleted) {
@@ -259,17 +362,32 @@ class NotificationService {
         tz.local,
       );
 
+      // Cancel previous start alarm before rescheduling
+      await notificationsPlugin.cancel(id: model.notificationId);
+
+      final effectiveChannelId =
+          playAdhanSound ? channelId : prayerStandardChannelId;
+      final effectiveChannelName =
+          playAdhanSound ? channelName : prayerStandardChannelName;
+      final effectiveChannelDesc =
+          playAdhanSound ? adhanChannelDesc : prayerStandardChannelDesc;
+
       final androidDetails = AndroidNotificationDetails(
-        channelId,
-        channelName,
-        channelDescription: adhanChannelDesc,
-        importance: Importance.max,
+        effectiveChannelId,
+        effectiveChannelName,
+        channelDescription: effectiveChannelDesc,
+        importance: playAdhanSound ? Importance.max : Importance.high,
         priority: Priority.high,
-        sound: playAdhanSound ? RawResourceAndroidNotificationSound(resourceName) : null,
-        playSound: playAdhanSound,
-        audioAttributesUsage: AudioAttributesUsage.alarm,
+        sound: playAdhanSound
+            ? RawResourceAndroidNotificationSound(resourceName)
+            : null,
+        playSound: true,
+        audioAttributesUsage:
+            playAdhanSound ? AudioAttributesUsage.alarm : AudioAttributesUsage.notification,
       );
-      const iosDetails = DarwinNotificationDetails();
+      final iosDetails = const DarwinNotificationDetails(
+        presentSound: true,
+      );
       final notificationDetails = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
@@ -373,6 +491,9 @@ class NotificationService {
 
     var targetTime = scheduledTime;
     final now = nowOverride ?? DateTime.now();
+    if (tz.local.name == 'Etc/UTC' && DateTime.now().timeZoneOffset != Duration.zero) {
+      configureLocalTimeZone();
+    }
     if (!targetTime.isAfter(now)) {
       targetTime = targetTime.add(const Duration(days: 1));
     }
@@ -402,6 +523,177 @@ class NotificationService {
       notificationDetails: notificationDetails,
       payload: payload,
     );
+  }
+
+  /// Formats time in 12-hour AM/PM format (e.g., "05:45 AM").
+  static String _formatTime(DateTime dt) {
+    final hour = dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+    return '${hour.toString().padLeft(2, '0')}:$minute $ampm';
+  }
+
+  /// Cancels all scheduled forbidden times notifications.
+  Future<void> cancelForbiddenTimesNotifications() async {
+    for (final id in forbiddenNotificationIds) {
+      try {
+        await notificationsPlugin.cancel(id: id);
+      } catch (_) {}
+    }
+  }
+
+  /// Schedules local notifications for the 3 daily forbidden (Makruh/Haram) voluntary prayer windows:
+  /// 1. Sunrise (Shuruq): from [sunrise] to [sunrise] + 20 minutes
+  /// 2. Solar Zenith (Zawal): from [dhuhr] - 10 minutes to [dhuhr]
+  /// 3. Sunset (Pre-Maghrib): from [maghrib] - 20 minutes to [maghrib]
+  ///
+  /// Features live glowing warning attributes (max importance heads-up alert, red accent LED and badge `#EF4444`)
+  /// and native Android [timeoutAfter] auto-dismissal configured to the remaining window duration
+  /// so the OS automatically dismisses the notification once the forbidden time has passed.
+  Future<void> scheduleForbiddenTimesNotifications({
+    required DateTime sunrise,
+    required DateTime dhuhr,
+    required DateTime maghrib,
+    bool enabled = true,
+    DateTime? nowOverride,
+    AppLocalizations? localizations,
+  }) async {
+    await cancelForbiddenTimesNotifications();
+
+    if (!enabled) return;
+
+    final now = nowOverride ?? DateTime.now();
+    if (tz.local.name == 'Etc/UTC' && DateTime.now().timeZoneOffset != Duration.zero) {
+      configureLocalTimeZone();
+    }
+
+    final sunriseStart = sunrise;
+    final sunriseEnd = sunrise.add(const Duration(minutes: 20));
+
+    final zawalStart = dhuhr.subtract(const Duration(minutes: 10));
+    final zawalEnd = dhuhr;
+
+    final sunsetStart = maghrib.subtract(const Duration(minutes: 20));
+    final sunsetEnd = maghrib;
+
+    final windows = [
+      (
+        id: forbiddenSunriseNotificationId,
+        start: sunriseStart,
+        end: sunriseEnd,
+        title: localizations?.forbiddenNaflSunriseHeader ??
+            'FORBIDDEN NAFL TIME • SUNRISE',
+        generateBody: (DateTime s, DateTime e) =>
+            localizations?.forbiddenNaflSunriseBody(
+              _formatTime(s),
+              _formatTime(e),
+            ) ??
+            'Sun is rising (${_formatTime(s)} – ${_formatTime(e)}). Voluntary (Nafl) prayers are prohibited until the sun is fully risen. (Sahih Muslim 831)',
+      ),
+      (
+        id: forbiddenZawalNotificationId,
+        start: zawalStart,
+        end: zawalEnd,
+        title: localizations?.forbiddenNaflZawalHeader ??
+            'FORBIDDEN NAFL TIME • ZENITH (ZAWAL)',
+        generateBody: (DateTime s, DateTime e) =>
+            localizations?.forbiddenNaflZawalBody(
+              _formatTime(s),
+              _formatTime(e),
+            ) ??
+            'Sun is at its zenith (${_formatTime(s)} – ${_formatTime(e)}). Nafl prayers are prohibited during this midday peak. (Sahih Muslim 831)',
+      ),
+      (
+        id: forbiddenSunsetNotificationId,
+        start: sunsetStart,
+        end: sunsetEnd,
+        title: localizations?.forbiddenNaflSunsetHeader ??
+            'FORBIDDEN NAFL TIME • SUNSET',
+        generateBody: (DateTime s, DateTime e) =>
+            localizations?.forbiddenNaflSunsetBody(
+              _formatTime(s),
+              _formatTime(e),
+            ) ??
+            'Sun is setting (${_formatTime(s)} – ${_formatTime(e)}). Nafl prayers are prohibited until sunset is complete. (Sahih Muslim 831)',
+      ),
+    ];
+
+    for (final window in windows) {
+      var targetStart = window.start;
+      var targetEnd = window.end;
+
+      if (!targetEnd.isAfter(now)) {
+        // Forbidden window has passed today; schedule for tomorrow
+        targetStart = targetStart.add(const Duration(days: 1));
+        targetEnd = targetEnd.add(const Duration(days: 1));
+      }
+
+      final body = window.generateBody(targetStart, targetEnd);
+
+      if (!now.isBefore(targetStart) && now.isBefore(targetEnd)) {
+        // Currently inside the forbidden window: display immediate notification
+        // with timeoutAfter matching the remaining window duration.
+        final remainingMs = targetEnd.difference(now).inMilliseconds;
+        if (remainingMs > 0) {
+          final androidDetails = AndroidNotificationDetails(
+            forbiddenChannelId,
+            forbiddenChannelName,
+            channelDescription: forbiddenChannelDesc,
+            importance: Importance.max,
+            priority: Priority.high,
+            visibility: NotificationVisibility.public,
+            enableLights: true,
+            ledColor: const Color(0xFFEF4444),
+            color: const Color(0xFFEF4444),
+            timeoutAfter: remainingMs,
+          );
+          const iosDetails = DarwinNotificationDetails();
+          final notificationDetails = NotificationDetails(
+            android: androidDetails,
+            iOS: iosDetails,
+          );
+
+          try {
+            await notificationsPlugin.show(
+              id: window.id,
+              title: window.title,
+              body: body,
+              notificationDetails: notificationDetails,
+            );
+          } catch (_) {}
+        }
+      } else if (targetStart.isAfter(now)) {
+        // Future forbidden window: schedule exact alarm with timeoutAfter set to full window duration.
+        final timeoutAfterMs = targetEnd.difference(targetStart).inMilliseconds;
+        final tzScheduledDate = tz.TZDateTime.from(targetStart, tz.local);
+
+        final androidDetails = AndroidNotificationDetails(
+          forbiddenChannelId,
+          forbiddenChannelName,
+          channelDescription: forbiddenChannelDesc,
+          importance: Importance.max,
+          priority: Priority.high,
+          visibility: NotificationVisibility.public,
+          enableLights: true,
+          ledColor: const Color(0xFFEF4444),
+          color: const Color(0xFFEF4444),
+          timeoutAfter: timeoutAfterMs,
+        );
+        const iosDetails = DarwinNotificationDetails();
+        final notificationDetails = NotificationDetails(
+          android: androidDetails,
+          iOS: iosDetails,
+        );
+
+        await _safeZonedSchedule(
+          id: window.id,
+          title: window.title,
+          body: body,
+          scheduledDate: tzScheduledDate,
+          notificationDetails: notificationDetails,
+        );
+      }
+    }
   }
 
   /// Helper to safely schedule notifications with exact alarm permissions,
@@ -444,24 +736,37 @@ class NotificationService {
     String title = 'Salah Companion Alert',
     String body = 'Notifications and Adhan audio are configured properly.',
     String adhanVoice = 'Makkah (Ali Mulla)',
+    bool playAdhanSound = true,
   }) async {
     final resourceName = adhanVoiceResources[adhanVoice] ?? 'adhan_makkah';
     final channelId = adhanChannelIdForVoice(adhanVoice);
     final channelName = adhanChannelNameForVoice(adhanVoice);
 
+    final effectiveChannelId =
+        playAdhanSound ? channelId : prayerStandardChannelId;
+    final effectiveChannelName =
+        playAdhanSound ? channelName : prayerStandardChannelName;
+    final effectiveChannelDesc =
+        playAdhanSound ? adhanChannelDesc : prayerStandardChannelDesc;
+
     final androidDetails = AndroidNotificationDetails(
-      channelId,
-      channelName,
-      channelDescription: adhanChannelDesc,
-      importance: Importance.max,
+      effectiveChannelId,
+      effectiveChannelName,
+      channelDescription: effectiveChannelDesc,
+      importance: playAdhanSound ? Importance.max : Importance.high,
       priority: Priority.high,
-      sound: RawResourceAndroidNotificationSound(resourceName),
+      sound: playAdhanSound
+          ? RawResourceAndroidNotificationSound(resourceName)
+          : null,
       playSound: true,
-      audioAttributesUsage: AudioAttributesUsage.alarm,
+      audioAttributesUsage:
+          playAdhanSound ? AudioAttributesUsage.alarm : AudioAttributesUsage.notification,
     );
     final notificationDetails = NotificationDetails(
       android: androidDetails,
-      iOS: const DarwinNotificationDetails(),
+      iOS: const DarwinNotificationDetails(
+        presentSound: true,
+      ),
     );
 
     await notificationsPlugin.show(

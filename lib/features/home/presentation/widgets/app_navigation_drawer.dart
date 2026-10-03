@@ -187,7 +187,7 @@ class AppNavigationDrawer extends StatelessWidget {
                                     );
                                   },
                                 ),
-                                Divider(height: 1, thickness: 1, color: colors.divider, indent: 64),
+                                Divider(height: 1, thickness: 1, color: colors.divider, indent: 0, endIndent: 0),
                                 // 2. Home Screen Widgets Option
                                 DrawerGroupedTile(
                                   tileKey: const ValueKey('drawer_widgets_item'),

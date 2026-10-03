@@ -40,16 +40,32 @@ class _FrostedGlassBottomNavBarState extends State<FrostedGlassBottomNavBar> {
     ];
 
     return RepaintBoundary(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 0, 16, bottomPadding > 0 ? bottomPadding + 4 : 12),
-        child: Container(
-          decoration: BoxDecoration(
-            color: colors.surface.withValues(alpha: 0.88),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(
-              color: colors.dividerStrong,
-              width: 1.0,
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              colors.background.withValues(alpha: 0.0),
+              colors.background.withValues(alpha: 0.72),
+              colors.background,
+            ],
+            stops: const [0.0, 0.45, 1.0],
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: colors.surface.withValues(alpha: 0.88),
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: colors.dividerStrong,
+                    width: 1.0,
+                  ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.14),
@@ -194,7 +210,17 @@ class _FrostedGlassBottomNavBarState extends State<FrostedGlassBottomNavBar> {
           ),
         ),
       ),
-    );
+      SizedBox(height: bottomPadding > 0 ? 8.0 : 12.0),
+      if (bottomPadding > 0)
+        Container(
+          height: bottomPadding,
+          width: double.infinity,
+          color: colors.background,
+        ),
+    ],
+  ),
+),
+);
   }
 }
 

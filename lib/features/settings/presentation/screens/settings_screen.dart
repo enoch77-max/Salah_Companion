@@ -24,6 +24,7 @@ import '../../../reflection/data/repositories/daily_content_repository.dart';
 
 class SettingsScreen extends StatefulWidget {
   final BatteryService? batteryService;
+  final NotificationService? notificationService;
   final String? detectedCountry;
   final String? initialCalculationMethod;
   final String? initialMadhab;
@@ -36,6 +37,7 @@ class SettingsScreen extends StatefulWidget {
   final bool? initialWarnBatteryOpt;
   final bool? initialDailyReflectionEnabled;
   final TimeOfDay? initialDailyReflectionTime;
+  final bool? initialForbiddenTimesNotifications;
   final Map<String, bool>? initialPrayerNotifications;
   final Function(String method)? onCalculationMethodChanged;
   final Function(String madhab)? onMadhabChanged;
@@ -46,6 +48,7 @@ class SettingsScreen extends StatefulWidget {
   final Function(bool enabled)? onHapticFeedbackToggled;
   final Function(bool enabled)? onDailyReflectionToggled;
   final Function(TimeOfDay time)? onDailyReflectionTimeChanged;
+  final Function(bool enabled)? onForbiddenTimesNotificationsToggled;
   final Function(String prayer, bool enabled)? onPrayerNotificationToggled;
   final Function(Locale locale)? onLocaleChanged;
   final Locale? currentLocale;
@@ -56,6 +59,7 @@ class SettingsScreen extends StatefulWidget {
   const SettingsScreen({
     super.key,
     this.batteryService,
+    this.notificationService,
     this.detectedCountry,
     this.initialCalculationMethod,
     this.initialMadhab,
@@ -68,6 +72,7 @@ class SettingsScreen extends StatefulWidget {
     this.initialWarnBatteryOpt,
     this.initialDailyReflectionEnabled,
     this.initialDailyReflectionTime,
+    this.initialForbiddenTimesNotifications,
     this.initialPrayerNotifications,
     this.onCalculationMethodChanged,
     this.onMadhabChanged,
@@ -78,6 +83,7 @@ class SettingsScreen extends StatefulWidget {
     this.onHapticFeedbackToggled,
     this.onDailyReflectionToggled,
     this.onDailyReflectionTimeChanged,
+    this.onForbiddenTimesNotificationsToggled,
     this.onPrayerNotificationToggled,
     this.onLocaleChanged,
     this.currentLocale,
@@ -99,6 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   late bool _adhanAudioEnabled;
   late bool _preAdhanReminder;
   late bool _hapticFeedback;
+  late bool _forbiddenTimesNotificationsEnabled;
 
   bool _isCheckingBattery = false;
   bool _isBatteryExempt = false;
@@ -144,6 +151,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     _adhanAudioEnabled = widget.initialAdhanAudioEnabled ?? true;
     _preAdhanReminder = widget.initialPreAdhanReminder ?? true;
     _hapticFeedback = widget.initialHapticFeedback ?? true;
+    _forbiddenTimesNotificationsEnabled = widget.initialForbiddenTimesNotifications ?? true;
 
     _isBatteryExempt = widget.initialBatteryExempt ?? false;
     _warnBatteryOpt = widget.initialWarnBatteryOpt ?? true;
@@ -212,6 +220,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
       _hapticFeedback = prefs.getBool('haptic_feedback_enabled') ?? _hapticFeedback;
 
       _dailyReflectionEnabled = prefs.getBool('notif_enabled_daily_reflection') ?? _dailyReflectionEnabled;
+      _forbiddenTimesNotificationsEnabled = prefs.getBool('notif_enabled_forbidden_times') ?? _forbiddenTimesNotificationsEnabled;
 
       final hour = prefs.getInt('daily_reflection_hour');
       final minute = prefs.getInt('daily_reflection_minute');
@@ -679,7 +688,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                         itemCount: filtered.length,
                         separatorBuilder: (context, index) => Divider(
                           height: 1,
-                          indent: 56,
+                          thickness: 1.0,
+                          indent: 0,
+                          endIndent: 0,
                           color: colors.divider.withValues(alpha: 0.5),
                         ),
                         itemBuilder: (context, index) {
@@ -859,17 +870,21 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   Future<void> _updatePrayerNotificationsMaster(bool val) async {
     if (_hapticFeedback) HapticFeedback.selectionClick();
     setState(() => _prayerNotificationsEnabled = val);
-    widget.onPrayerNotificationsToggled?.call(val);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('notif_enabled_prayer', val);
+    widget.onPrayerNotificationsToggled?.call(val);
+    if (!val) {
+      final notifService = widget.notificationService ?? NotificationService();
+      await notifService.cancelAllPrayerNotifications();
+    }
   }
 
   Future<void> _updateAdhanAudioMaster(bool val) async {
     if (_hapticFeedback) HapticFeedback.selectionClick();
     setState(() => _adhanAudioEnabled = val);
-    widget.onAdhanAudioToggled?.call(val);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('notif_enabled_adhan', val);
+    widget.onAdhanAudioToggled?.call(val);
   }
 
   @override
@@ -944,6 +959,33 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   ),
                   const _IOSDivider(),
                   _IOSGroupedTile(
+                    key: const ValueKey('forbidden_times_notification_tile'),
+                    icon: Icons.do_not_disturb_on_rounded,
+                    iconColor: const Color(0xFFEF4444), // Crimson Warning Red (Forbidden Nafl)
+                    title: l10n?.forbiddenTimesNotificationTitle ?? 'Forbidden Time Notifications',
+                    subtitle: l10n?.forbiddenTimesNotificationSubtitle ?? 'Alerts for Sunrise, Zenith & Sunset prohibited windows',
+                    trailing: Switch.adaptive(
+                      key: const ValueKey('forbidden_times_notification_switch'),
+                      value: _forbiddenTimesNotificationsEnabled,
+                      activeTrackColor: colors.primary,
+                      activeThumbColor: Colors.white,
+                      inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
+                      inactiveThumbColor: colors.textSecondary,
+                      onChanged: (val) async {
+                        if (_hapticFeedback) HapticFeedback.selectionClick();
+                        setState(() => _forbiddenTimesNotificationsEnabled = val);
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setBool('notif_enabled_forbidden_times', val);
+                        widget.onForbiddenTimesNotificationsToggled?.call(val);
+                        if (!val) {
+                          final notifService = widget.notificationService ?? NotificationService();
+                          await notifService.cancelForbiddenTimesNotifications();
+                        }
+                      },
+                    ),
+                  ),
+                  const _IOSDivider(),
+                  _IOSGroupedTile(
                     key: const ValueKey('daily_reflection_tile'),
                     icon: Icons.auto_stories_rounded,
                     iconColor: const Color(0xFF9333EA), // Rich Amethyst (Spiritual Reflection)
@@ -1011,9 +1053,6 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                     icon: Icons.balance_rounded,
                     iconColor: const Color(0xFF059669), // Fiqh Forest Emerald (Jurisprudence)
                     title: l10n?.settingsFiqhAsr ?? 'Fiqh (Asr Timing)',
-                    subtitle: _madhab.contains('Shafi')
-                        ? (l10n?.settingsFiqhStandardDesc ?? 'Shafi, Maliki & Hanbali (1x Shadow)')
-                        : (l10n?.settingsFiqhHanafiDesc ?? 'Hanafi School (2x Shadow)'),
                     valueText: _madhab.contains('Shafi')
                         ? (l10n?.madhabShafi ?? 'Shafi')
                         : (l10n?.madhabHanafi ?? 'Hanafi'),
@@ -1094,7 +1133,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                             ],
                           ),
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 6),
                         Icon(
                           Icons.chevron_right_rounded,
                           color: colors.textTertiary,
@@ -1532,9 +1571,12 @@ class _IOSGroupedTile extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
+      splashColor: colors.primary.withValues(alpha: 0.08),
+      highlightColor: colors.primary.withValues(alpha: 0.04),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Rounded Squircle Icon Badge or Custom Icon Widget
             if (iconWidget != null)
@@ -1553,29 +1595,32 @@ class _IOSGroupedTile extends StatelessWidget {
                   size: 18,
                 ),
               ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 12),
 
             // Title & Optional Subtitle
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: colors.textPrimary,
                           fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                          fontSize: 15,
+                          letterSpacing: -0.2,
                         ),
                   ),
                   if (subtitle != null) ...[
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     Text(
                       subtitle!,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: colors.textSecondary,
-                            fontSize: 12,
+                            fontSize: 13,
+                            height: 1.25,
                           ),
                     ),
                   ],
@@ -1583,31 +1628,43 @@ class _IOSGroupedTile extends StatelessWidget {
               ),
             ),
 
-            // Trailing Value or Switch
-            if (valueText != null) ...[
+            // Trailing Option Controls (Values, Toggles, Chevrons)
+            if (valueText != null || trailing != null || onTap != null) ...[
               const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  valueText!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.end,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colors.textSecondary,
-                        fontSize: 14,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (valueText != null)
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: (MediaQuery.sizeOf(context).width - 190)
+                            .clamp(110.0, MediaQuery.sizeOf(context).width * 0.44),
                       ),
-                ),
-              ),
-              const SizedBox(width: 4),
-            ],
-
-            if (trailing case final Widget t) t,
-
-            if (onTap != null && trailing == null) ...[
-              Icon(
-                Icons.chevron_right_rounded,
-                color: colors.textTertiary,
-                size: 20,
+                      child: Text(
+                        valueText!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: colors.textSecondary,
+                              fontSize: 13.5,
+                              height: 1.25,
+                              letterSpacing: -0.1,
+                            ),
+                      ),
+                    ),
+                  if (trailing case final Widget t) t,
+                  if (onTap != null && trailing == null) ...[
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: colors.textTertiary,
+                      size: 20,
+                    ),
+                  ],
+                ],
               ),
             ],
           ],
@@ -1625,8 +1682,8 @@ class _IOSDivider extends StatelessWidget {
     final colors = context.appColors;
     return Divider(
       height: 1,
-      thickness: 0.8,
-      indent: 64,
+      thickness: 1.0,
+      indent: 0,
       endIndent: 0,
       color: colors.divider,
     );

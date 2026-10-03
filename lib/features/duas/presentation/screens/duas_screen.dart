@@ -812,7 +812,12 @@ class _DuasScreenState extends State<DuasScreen> {
                       ),
                     )
                   : ListView.separated(
-                      padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 100),
+                      padding: EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        top: 4,
+                        bottom: 58.0 + (MediaQuery.paddingOf(context).bottom > 0 ? 8.0 + MediaQuery.paddingOf(context).bottom : 12.0) + 16.0,
+                      ),
                       itemCount: filteredDuas.length,
                       separatorBuilder: (context, index) => const SizedBox(height: 16),
                       itemBuilder: (context, index) {

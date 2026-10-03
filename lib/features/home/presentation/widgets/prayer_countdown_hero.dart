@@ -337,7 +337,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
       fontSize: isBig ? 28.0 : 13.5,
       fontWeight: isBig ? FontWeight.w800 : FontWeight.w700,
       letterSpacing: isBig ? -0.4 : 0.0,
-      color: isBig ? Colors.white : const Color(0xFFE2E8F0),
+      color: isBig ? (colors.textPrimary as Color) : (colors.textSecondary as Color),
       fontFeatures: const [FontFeature.tabularFigures()],
       height: 1.1,
     );
@@ -349,47 +349,47 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
       height: 1.1,
     );
 
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: Alignment.centerLeft,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        AnimatedDefaultTextStyle(
+          duration: duration,
+          curve: curve,
+          style: tagStyle,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: Text(
+              tag,
+              key: tagKey,
+            ),
+          ),
+        ),
+        AnimatedContainer(
+          duration: duration,
+          curve: curve,
+          width: isBig ? 6.0 : 5.0,
+        ),
+        AnimatedDefaultTextStyle(
+          duration: duration,
+          curve: curve,
+          style: digitsStyle,
+          child: Text(digits),
+        ),
+        if (ampm.isNotEmpty) ...[
+          const SizedBox(width: 3.0),
           AnimatedDefaultTextStyle(
             duration: duration,
             curve: curve,
-            style: tagStyle,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              child: Text(
-                tag,
-                key: tagKey,
-              ),
-            ),
+            style: ampmStyle,
+            child: Text(ampm),
           ),
-          SizedBox(width: isBig ? 6.0 : 5.0),
-          AnimatedDefaultTextStyle(
-            duration: duration,
-            curve: curve,
-            style: digitsStyle,
-            child: Text(digits),
-          ),
-          if (ampm.isNotEmpty) ...[
-            const SizedBox(width: 3.0),
-            AnimatedDefaultTextStyle(
-              duration: duration,
-              curve: curve,
-              style: ampmStyle,
-              child: Text(ampm),
-            ),
-          ],
         ],
-      ),
+      ],
     );
   }
 
-  void _showSolarModal(BuildContext context, dynamic colors) {
+  void _showSolarModal(BuildContext context, dynamic colors, bool isDark) {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -399,19 +399,23 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFF1C1E28), Color(0xFF10121A)],
+              colors: isDark
+                  ? const [Color(0xFF1C1E28), Color(0xFF10121A)]
+                  : [colors.surface as Color, colors.elevatedBackground as Color],
             ),
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.16),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.16)
+                  : (colors.dividerStrong as Color),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.6),
+                color: Colors.black.withValues(alpha: isDark ? 0.6 : 0.15),
                 blurRadius: 30,
                 offset: const Offset(0, 10),
               ),
@@ -434,7 +438,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                       Text(
                         'Solar Timings',
                         style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                              color: Colors.white,
+                              color: colors.textPrimary as Color,
                               fontWeight: FontWeight.w700,
                             ),
                       ),
@@ -446,13 +450,15 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.08)
+                            : (colors.surfaceHover as Color),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.close_rounded,
                         size: 16,
-                        color: Colors.white70,
+                        color: colors.textSecondary as Color,
                       ),
                     ),
                   ),
@@ -465,10 +471,14 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.04),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.04)
+                            : (colors.surface as Color),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.08),
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : (colors.dividerStrong as Color),
                         ),
                       ),
                       child: Column(
@@ -484,7 +494,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                               Text(
                                 'Sunrise',
                                 style: Theme.of(ctx).textTheme.labelSmall?.copyWith(
-                                      color: colors.textSecondary,
+                                      color: colors.textSecondary as Color,
                                       fontWeight: FontWeight.w600,
                                       fontSize: 10,
                                       letterSpacing: 0.5,
@@ -496,7 +506,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                           Text(
                             widget.sunriseTime ?? '06:12 AM',
                             style: AppTypography.timerStyle(
-                              color: Colors.white,
+                              color: colors.textPrimary as Color,
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
                             ),
@@ -510,10 +520,14 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.04),
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.04)
+                            : (colors.surface as Color),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.08),
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : (colors.dividerStrong as Color),
                         ),
                       ),
                       child: Column(
@@ -529,7 +543,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                               Text(
                                 'Sunset',
                                 style: Theme.of(ctx).textTheme.labelSmall?.copyWith(
-                                      color: colors.textSecondary,
+                                      color: colors.textSecondary as Color,
                                       fontWeight: FontWeight.w600,
                                       fontSize: 10,
                                       letterSpacing: 0.5,
@@ -541,7 +555,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                           Text(
                             widget.sunsetTime ?? '06:18 PM',
                             style: AppTypography.timerStyle(
-                              color: Colors.white,
+                              color: colors.textPrimary as Color,
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
                             ),
@@ -556,16 +570,16 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF59E0B).withValues(alpha: 0.08),
+                  color: (colors.primary as Color).withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
+                    color: (colors.primary as Color).withValues(alpha: 0.2),
                   ),
                 ),
                 child: Text(
                   'Daylight Window: Fajr ends promptly at sunrise. Maghrib begins at sunset.',
                   style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
-                        color: colors.textSecondary,
+                        color: colors.textSecondary as Color,
                         fontSize: 11,
                         height: 1.4,
                       ),
@@ -582,11 +596,11 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
     final formattedTime = _formatDuration(_currentRemaining);
 
     final isCurrentSalah = widget.headerLabel == 'CURRENT SALAH';
-    final ledColor = isCurrentSalah ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
-    final accentColor = isCurrentSalah ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
+    final accentColor = colors.primary;
 
     final startTime = _resolveStartTime();
     final endTime = _resolveEndTime();
@@ -623,7 +637,9 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.06),
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.06)
+                          : colors.dividerStrong,
                       width: 1.0,
                     ),
                   ),
@@ -643,7 +659,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                     ),
                     const SizedBox(width: 6),
                     _PulsingDot(
-                      color: ledColor,
+                      color: accentColor,
                       animate: widget.animate,
                     ),
                   ],
@@ -680,49 +696,48 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                           ),
                           const SizedBox(height: 8),
 
-                          // Solution 2 Box: Fluid Non-Teleporting Size Animated Rows
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 400),
-                            curve: Curves.easeInOutCubic,
-                            padding: const EdgeInsets.only(left: 10),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                left: BorderSide(
-                                  color: accentColor,
-                                  width: 2.5,
+                          // Solution 2 Box: Rock-solid fixed height eliminates layout shifts & screen shake
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Container(
+                              padding: const EdgeInsets.only(left: 10),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  left: BorderSide(
+                                    color: accentColor,
+                                    width: 2.5,
+                                  ),
                                 ),
                               ),
-                            ),
-                            child: AnimatedSize(
-                              duration: const Duration(milliseconds: 400),
-                              curve: Curves.easeInOutCubic,
-                              alignment: Alignment.centerLeft,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // Top Row: Always Start Time
-                                  _buildAnimatedTimeRow(
-                                    tag: isCurrentSalah ? 'Started' : 'Starts',
-                                    tagKey: ValueKey('tag_start_${isCurrentSalah ? "started" : "starts"}'),
-                                    digits: startTime.digits,
-                                    ampm: startTime.ampm,
-                                    isBig: !isCurrentSalah,
-                                    accentColor: const Color(0xFFF59E0B),
-                                    colors: colors,
-                                  ),
-                                  const SizedBox(height: 3),
-                                  // Bottom Row: Always End Time
-                                  _buildAnimatedTimeRow(
-                                    tag: 'Ends',
-                                    tagKey: const ValueKey('tag_end_ends'),
-                                    digits: endTime.digits,
-                                    ampm: endTime.ampm,
-                                    isBig: isCurrentSalah,
-                                    accentColor: const Color(0xFF10B981),
-                                    colors: colors,
-                                  ),
-                                ],
+                              child: SizedBox(
+                                height: 52.0,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Top Row: Always Start Time
+                                    _buildAnimatedTimeRow(
+                                      tag: isCurrentSalah ? 'Started' : 'Starts',
+                                      tagKey: ValueKey('tag_start_${isCurrentSalah ? "started" : "starts"}'),
+                                      digits: startTime.digits,
+                                      ampm: startTime.ampm,
+                                      isBig: !isCurrentSalah,
+                                      accentColor: accentColor,
+                                      colors: colors,
+                                    ),
+                                    // Bottom Row: Always End Time
+                                    _buildAnimatedTimeRow(
+                                      tag: 'Ends',
+                                      tagKey: const ValueKey('tag_end_ends'),
+                                      digits: endTime.digits,
+                                      ampm: endTime.ampm,
+                                      isBig: isCurrentSalah,
+                                      accentColor: accentColor,
+                                      colors: colors,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -734,16 +749,20 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                               fit: BoxFit.scaleDown,
                               alignment: Alignment.centerLeft,
                               child: GestureDetector(
-                                onTap: () => _showSolarModal(context, colors),
+                                onTap: () => _showSolarModal(context, colors, isDark),
                                 behavior: HitTestBehavior.opaque,
                                 child: Container(
                                   height: 24,
                                   padding: const EdgeInsets.symmetric(horizontal: 8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.06),
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.06)
+                                        : colors.surface.withValues(alpha: 0.65),
                                     borderRadius: BorderRadius.circular(9999),
                                     border: Border.all(
-                                      color: Colors.white.withValues(alpha: 0.12),
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.12)
+                                          : colors.dividerStrong,
                                       width: 0.8,
                                     ),
                                   ),
@@ -772,7 +791,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                                       Text(
                                         solarTime,
                                         style: AppTypography.timerStyle(
-                                          color: Colors.white,
+                                          color: colors.textPrimary,
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
                                         ).copyWith(height: 1.0),
@@ -806,7 +825,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                             size: const Size(104, 104),
                             painter: _CountdownRingPainter(
                               progress: _dynamicProgress.clamp(0.0, 1.0),
-                              trackColor: accentColor.withValues(alpha: 0.15),
+                              trackColor: accentColor.withValues(alpha: isDark ? 0.15 : 0.12),
                               progressColor: accentColor,
                             ),
                           ),
@@ -832,7 +851,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                               Text(
                                 'remaining',
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: colors.textTertiary,
+                                      color: colors.textSecondary,
                                       letterSpacing: 0.5,
                                       fontSize: 9.5,
                                       fontWeight: FontWeight.w600,

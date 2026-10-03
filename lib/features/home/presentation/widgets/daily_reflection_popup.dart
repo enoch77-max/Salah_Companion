@@ -106,15 +106,18 @@ class DailyReflectionPopup extends StatelessWidget {
               ),
               child: Stack(
                 children: [
-                  // Large Muted Watermark Quotation Mark (Integrated as background texture)
+                  // Large Muted Watermark Quotation Mark (66 Opening Quotation Position)
                   Positioned(
-                    top: 8,
+                    top: -10,
                     left: 12,
                     child: IgnorePointer(
-                      child: Icon(
-                        Icons.format_quote_rounded,
-                        size: 74,
-                        color: accentGold.withValues(alpha: 0.08),
+                      child: RotatedBox(
+                        quarterTurns: 2,
+                        child: Icon(
+                          Icons.format_quote_rounded,
+                          size: 64,
+                          color: accentGold.withValues(alpha: 0.08),
+                        ),
                       ),
                     ),
                   ),

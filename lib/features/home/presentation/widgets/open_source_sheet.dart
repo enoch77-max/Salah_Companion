@@ -176,14 +176,14 @@ class OpenSourceSheet extends StatelessWidget {
                       title: 'Zero Data Stored or Shared',
                       description: 'No account required. We never collect, track, or sell your personal data.',
                     ),
-                    Divider(height: 1, thickness: 1, color: colors.divider, indent: 52),
+                    Divider(height: 1, thickness: 1, color: colors.divider, indent: 0, endIndent: 0),
                     _PrivacyFeatureTile(
                       icon: Icons.signal_wifi_off_rounded,
                       iconColor: const Color(0xFF0EA5E9),
                       title: '100% Offline Capability',
                       description: 'Prayer times, Qibla calculation, and Duas work completely offline.',
                     ),
-                    Divider(height: 1, thickness: 1, color: colors.divider, indent: 52),
+                    Divider(height: 1, thickness: 1, color: colors.divider, indent: 0, endIndent: 0),
                     _PrivacyFeatureTile(
                       icon: Icons.visibility_outlined,
                       iconColor: const Color(0xFF8B5CF6),

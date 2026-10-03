@@ -94,15 +94,18 @@ class DailyReflectionCard extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Background Watermark Quotation Mark
+          // Background Watermark Quotation Mark (66 Opening Quotation Position)
           Positioned(
-            top: 4,
+            top: -12,
             left: 8,
             child: IgnorePointer(
-              child: Icon(
-                Icons.format_quote_rounded,
-                size: 74,
-                color: accentGold.withValues(alpha: 0.08),
+              child: RotatedBox(
+                quarterTurns: 2,
+                child: Icon(
+                  Icons.format_quote_rounded,
+                  size: 64,
+                  color: accentGold.withValues(alpha: 0.08),
+                ),
               ),
             ),
           ),

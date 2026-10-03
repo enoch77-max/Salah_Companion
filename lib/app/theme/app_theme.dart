@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
 
@@ -27,6 +28,23 @@ abstract final class AppTheme {
     ];
   }
 
+  /// Dynamic SystemUiOverlayStyle configured for crisp contrast across Light and Dark themes.
+  static SystemUiOverlayStyle systemOverlayStyle({
+    required Brightness brightness,
+    required AppCustomColors colors,
+  }) {
+    final isDark = brightness == Brightness.dark;
+    return SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+      statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+      systemNavigationBarColor: colors.background,
+      systemNavigationBarDividerColor: Colors.transparent,
+      systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+      systemNavigationBarContrastEnforced: false,
+    );
+  }
+
   /// Dark Mode [ThemeData] (cached instance for instant sub-millisecond theme switching).
   static final ThemeData dark = _buildDarkTheme();
 
@@ -49,6 +67,15 @@ abstract final class AppTheme {
       cardColor: customColors.surface,
       dividerColor: customColors.divider,
       shadowColor: customColors.shadow,
+      appBarTheme: AppBarTheme(
+        backgroundColor: customColors.background,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        systemOverlayStyle: systemOverlayStyle(
+          brightness: Brightness.dark,
+          colors: customColors,
+        ),
+      ),
       textTheme: textTheme,
       colorScheme: ColorScheme.dark(
         primary: customColors.primary,
@@ -161,6 +188,15 @@ abstract final class AppTheme {
       cardColor: customColors.surface,
       dividerColor: customColors.divider,
       shadowColor: customColors.shadow,
+      appBarTheme: AppBarTheme(
+        backgroundColor: customColors.background,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        systemOverlayStyle: systemOverlayStyle(
+          brightness: Brightness.light,
+          colors: customColors,
+        ),
+      ),
       textTheme: textTheme,
       colorScheme: ColorScheme.light(
         primary: customColors.primary,

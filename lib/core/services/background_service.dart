@@ -56,6 +56,7 @@ class MidnightRefreshHandler {
     try {
       WidgetsFlutterBinding.ensureInitialized();
       tz.initializeTimeZones();
+      NotificationService.configureLocalTimeZone();
 
       final effectivePrefs = prefs ?? await SharedPreferences.getInstance();
       final effectiveDb = db ?? AppDatabase(NativeDatabase.memory());

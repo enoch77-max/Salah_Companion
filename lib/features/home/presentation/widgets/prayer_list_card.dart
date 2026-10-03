@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/theme/app_theme.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../core/services/app_haptics.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 
 enum PrayerStatus {
@@ -78,6 +82,10 @@ class PrayerListCard extends StatefulWidget {
   final DateTime? dhuhrDateTime;
   /// Maghrib (sunset) DateTime for computing the sunset forbidden window (maghrib-20min → maghrib).
   final DateTime? maghribDateTime;
+  /// Optional override for testing dynamic forbidden nafl card
+  final DateTime? nowOverride;
+  /// Service managing local notifications
+  final NotificationService? notificationService;
 
   const PrayerListCard({
     super.key,
@@ -86,6 +94,8 @@ class PrayerListCard extends StatefulWidget {
     this.sunriseDateTime,
     this.dhuhrDateTime,
     this.maghribDateTime,
+    this.nowOverride,
+    this.notificationService,
   });
 
   static const List<PrayerItem> defaultPrayers = [
@@ -217,6 +227,8 @@ class _PrayerListCardState extends State<PrayerListCard> {
               sunrise: widget.sunriseDateTime!,
               dhuhr: widget.dhuhrDateTime!,
               maghrib: widget.maghribDateTime!,
+              nowOverride: widget.nowOverride,
+              notificationService: widget.notificationService,
             ),
         ],
       ),
@@ -725,17 +737,128 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
 }
 }
 
-/// Dynamic note at the bottom of Today's Prayers card highlighting forbidden times for Nafl (voluntary) prayers.
-class _ForbiddenNaflNote extends StatelessWidget {
+/// Dynamic event-driven note at the bottom of Today's Prayers card highlighting
+/// forbidden times for Nafl (voluntary) prayers.
+/// Appears 10m before prohibition, shows live pulsing red warning during prohibition,
+/// shows brief 1-minute notice upon completion, and disappears completely (0px footprint) thereafter.
+class _ForbiddenNaflNote extends StatefulWidget {
   final DateTime sunrise;
   final DateTime dhuhr;
   final DateTime maghrib;
+  final DateTime? nowOverride;
+  final NotificationService? notificationService;
 
   const _ForbiddenNaflNote({
     required this.sunrise,
     required this.dhuhr,
     required this.maghrib,
+    this.nowOverride,
+    this.notificationService,
   });
+
+  @override
+  State<_ForbiddenNaflNote> createState() => _ForbiddenNaflNoteState();
+}
+
+enum _ForbiddenWindowType { sunrise, zawal, sunset }
+enum _ForbiddenWindowPhase { upcoming, active, concluded }
+
+class _ForbiddenWindowInfo {
+  final _ForbiddenWindowType type;
+  final _ForbiddenWindowPhase phase;
+  final DateTime appear;
+  final DateTime start;
+  final DateTime end;
+  final DateTime disappear;
+
+  const _ForbiddenWindowInfo({
+    required this.type,
+    required this.phase,
+    required this.appear,
+    required this.start,
+    required this.end,
+    required this.disappear,
+  });
+}
+
+class _ForbiddenNaflNoteState extends State<_ForbiddenNaflNote>
+    with WidgetsBindingObserver {
+  Timer? _eventTimer;
+  _ForbiddenWindowType? _lastNotifiedWindowType;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _scheduleNextEvent();
+    _checkAndTriggerActiveNotification();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ForbiddenNaflNote oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.sunrise != widget.sunrise ||
+        oldWidget.dhuhr != widget.dhuhr ||
+        oldWidget.maghrib != widget.maghrib ||
+        oldWidget.nowOverride != widget.nowOverride ||
+        oldWidget.notificationService != widget.notificationService) {
+      if (oldWidget.nowOverride != widget.nowOverride) {
+        _lastNotifiedWindowType = null;
+      }
+      _scheduleNextEvent();
+      _checkAndTriggerActiveNotification();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (mounted) {
+        setState(() {});
+        _scheduleNextEvent();
+        _checkAndTriggerActiveNotification();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _eventTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _checkAndTriggerActiveNotification() async {
+    final activeWindow = _resolveActiveWindow();
+    if (activeWindow != null && activeWindow.phase == _ForbiddenWindowPhase.active) {
+      if (_lastNotifiedWindowType != activeWindow.type) {
+        _lastNotifiedWindowType = activeWindow.type;
+        final prefs = await SharedPreferences.getInstance();
+        final enabled = prefs.getBool('notif_enabled_forbidden_times') ?? true;
+        if (enabled) {
+          final service = widget.notificationService ?? NotificationService();
+          AppLocalizations? localizations;
+          if (mounted) {
+            try {
+              localizations = AppLocalizations.of(context);
+            } catch (_) {}
+          }
+          await service.scheduleForbiddenTimesNotifications(
+            sunrise: widget.sunrise,
+            dhuhr: widget.dhuhr,
+            maghrib: widget.maghrib,
+            enabled: true,
+            nowOverride: widget.nowOverride,
+            localizations: localizations,
+          );
+        }
+      }
+    } else {
+      _lastNotifiedWindowType = null;
+    }
+  }
+
+  DateTime get _currentTime => widget.nowOverride ?? DateTime.now();
 
   String _formatTime(DateTime dt) {
     final hour = dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
@@ -744,51 +867,178 @@ class _ForbiddenNaflNote extends StatelessWidget {
     return '${hour.toString().padLeft(2, '0')}:$minute $ampm';
   }
 
+  List<_ForbiddenWindowInfo> _getWindows() {
+    final sunriseStart = widget.sunrise;
+    final sunriseEnd = widget.sunrise.add(const Duration(minutes: 20));
+
+    final zawalStart = widget.dhuhr.subtract(const Duration(minutes: 10));
+    final zawalEnd = widget.dhuhr;
+
+    final sunsetStart = widget.maghrib.subtract(const Duration(minutes: 20));
+    final sunsetEnd = widget.maghrib;
+
+    return [
+      _createWindowInfo(_ForbiddenWindowType.sunrise, sunriseStart, sunriseEnd),
+      _createWindowInfo(_ForbiddenWindowType.zawal, zawalStart, zawalEnd),
+      _createWindowInfo(_ForbiddenWindowType.sunset, sunsetStart, sunsetEnd),
+    ];
+  }
+
+  _ForbiddenWindowInfo _createWindowInfo(
+    _ForbiddenWindowType type,
+    DateTime start,
+    DateTime end,
+  ) {
+    final appear = start.subtract(const Duration(minutes: 10));
+    final disappear = end.add(const Duration(minutes: 1));
+    final now = _currentTime;
+
+    _ForbiddenWindowPhase phase;
+    if (!now.isBefore(appear) && now.isBefore(start)) {
+      phase = _ForbiddenWindowPhase.upcoming;
+    } else if (!now.isBefore(start) && now.isBefore(end)) {
+      phase = _ForbiddenWindowPhase.active;
+    } else {
+      phase = _ForbiddenWindowPhase.concluded;
+    }
+
+    return _ForbiddenWindowInfo(
+      type: type,
+      phase: phase,
+      appear: appear,
+      start: start,
+      end: end,
+      disappear: disappear,
+    );
+  }
+
+  _ForbiddenWindowInfo? _resolveActiveWindow() {
+    final now = _currentTime;
+    for (final window in _getWindows()) {
+      if (!now.isBefore(window.appear) && now.isBefore(window.disappear)) {
+        return window;
+      }
+    }
+    return null;
+  }
+
+  void _scheduleNextEvent() {
+    _eventTimer?.cancel();
+    if (widget.nowOverride != null) return;
+
+    final now = _currentTime;
+    final windows = _getWindows();
+
+    final allTransitions = <DateTime>[];
+    for (final w in windows) {
+      allTransitions.addAll([w.appear, w.start, w.end, w.disappear]);
+    }
+
+    // Include tomorrow's sunrise appear transition in case all today's windows passed
+    final tomorrowSunriseAppear = widget.sunrise
+        .add(const Duration(days: 1))
+        .subtract(const Duration(minutes: 10));
+    allTransitions.add(tomorrowSunriseAppear);
+
+    final futureTransitions = allTransitions
+        .where((t) => t.isAfter(now))
+        .toList()
+      ..sort();
+
+    if (futureTransitions.isNotEmpty) {
+      final nextTransition = futureTransitions.first;
+      // Add a 50ms buffer to guarantee the clock is strictly at or past the milestone
+      final delay = nextTransition.difference(now) + const Duration(milliseconds: 50);
+      _eventTimer = Timer(delay, () {
+        if (mounted) {
+          setState(() {});
+          _scheduleNextEvent();
+          _checkAndTriggerActiveNotification();
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final activeWindow = _resolveActiveWindow();
+    if (activeWindow == null) {
+      return const SizedBox.shrink();
+    }
+
     final colors = context.appColors;
-    final now = DateTime.now();
-
-    // Define forbidden windows
-    final sunriseEnd = sunrise.add(const Duration(minutes: 20));
-    final zawalStart = dhuhr.subtract(const Duration(minutes: 10));
-    final sunsetStart = maghrib.subtract(const Duration(minutes: 20));
-
-    final isSunriseForbidden = now.isAfter(sunrise) && now.isBefore(sunriseEnd);
-    final isZawalForbidden = now.isAfter(zawalStart) && now.isBefore(dhuhr);
-    final isSunsetForbidden = now.isAfter(sunsetStart) && now.isBefore(maghrib);
-    final isCurrentlyForbidden = isSunriseForbidden || isZawalForbidden || isSunsetForbidden;
-
     final l10n = AppLocalizations.of(context);
+
     String headerText;
     String bodyText;
     Color accentColor;
     IconData iconData;
+    bool shouldPulse = false;
 
-    if (isSunriseForbidden) {
-      headerText = l10n?.forbiddenNaflSunriseHeader ?? 'FORBIDDEN NAFL TIME • SUNRISE';
-      bodyText = l10n?.forbiddenNaflSunriseBody(_formatTime(sunrise), _formatTime(sunriseEnd)) ??
-          'Sun is rising (${_formatTime(sunrise)} – ${_formatTime(sunriseEnd)}). Voluntary (Nafl) prayers are prohibited until the sun is fully risen. (Sahih Muslim 831)';
-      accentColor = colors.missed;
-      iconData = Icons.do_not_disturb_on_rounded;
-    } else if (isZawalForbidden) {
-      headerText = l10n?.forbiddenNaflZawalHeader ?? 'FORBIDDEN NAFL TIME • ZENITH (ZAWAL)';
-      bodyText = l10n?.forbiddenNaflZawalBody(_formatTime(zawalStart), _formatTime(dhuhr)) ??
-          'Sun is at its zenith (${_formatTime(zawalStart)} – ${_formatTime(dhuhr)}). Nafl prayers are prohibited during this midday peak. (Sahih Muslim 831)';
-      accentColor = colors.missed;
-      iconData = Icons.do_not_disturb_on_rounded;
-    } else if (isSunsetForbidden) {
-      headerText = l10n?.forbiddenNaflSunsetHeader ?? 'FORBIDDEN NAFL TIME • SUNSET';
-      bodyText = l10n?.forbiddenNaflSunsetBody(_formatTime(sunsetStart), _formatTime(maghrib)) ??
-          'Sun is setting (${_formatTime(sunsetStart)} – ${_formatTime(maghrib)}). Nafl prayers are prohibited until sunset is complete. (Sahih Muslim 831)';
-      accentColor = colors.missed;
-      iconData = Icons.do_not_disturb_on_rounded;
-    } else {
-      headerText = l10n?.forbiddenNaflHeader ?? 'FORBIDDEN TIMES FOR NAFL PRAYERS';
-      bodyText = l10n?.forbiddenNaflBody ??
-          'Voluntary (Nafl) prayers are prohibited during sunrise (~20m), solar zenith (~10m before Dhuhr), and sunset (~20m before Maghrib). Obligatory (Fard) make-ups remain valid. (Sahih Muslim 831)';
-      accentColor = colors.primary;
-      iconData = Icons.info_outline_rounded;
+    switch (activeWindow.phase) {
+      case _ForbiddenWindowPhase.active:
+        accentColor = colors.missed;
+        iconData = Icons.do_not_disturb_on_rounded;
+        shouldPulse = true;
+        switch (activeWindow.type) {
+          case _ForbiddenWindowType.sunrise:
+            headerText = l10n?.forbiddenNaflSunriseHeader ?? 'FORBIDDEN NAFL TIME • SUNRISE';
+            bodyText = l10n?.forbiddenNaflSunriseBody(
+                  _formatTime(activeWindow.start),
+                  _formatTime(activeWindow.end),
+                ) ??
+                'Sun is rising (${_formatTime(activeWindow.start)} – ${_formatTime(activeWindow.end)}). Voluntary (Nafl) prayers are prohibited until the sun is fully risen. (Sahih Muslim 831)';
+            break;
+          case _ForbiddenWindowType.zawal:
+            headerText = l10n?.forbiddenNaflZawalHeader ?? 'FORBIDDEN NAFL TIME • ZENITH (ZAWAL)';
+            bodyText = l10n?.forbiddenNaflZawalBody(
+                  _formatTime(activeWindow.start),
+                  _formatTime(activeWindow.end),
+                ) ??
+                'Sun is at its zenith (${_formatTime(activeWindow.start)} – ${_formatTime(activeWindow.end)}). Nafl prayers are prohibited during this midday peak. (Sahih Muslim 831)';
+            break;
+          case _ForbiddenWindowType.sunset:
+            headerText = l10n?.forbiddenNaflSunsetHeader ?? 'FORBIDDEN NAFL TIME • SUNSET';
+            bodyText = l10n?.forbiddenNaflSunsetBody(
+                  _formatTime(activeWindow.start),
+                  _formatTime(activeWindow.end),
+                ) ??
+                'Sun is setting (${_formatTime(activeWindow.start)} – ${_formatTime(activeWindow.end)}). Nafl prayers are prohibited until sunset is complete. (Sahih Muslim 831)';
+            break;
+        }
+        break;
+
+      case _ForbiddenWindowPhase.upcoming:
+        accentColor = const Color(0xFFF59E0B); // Amber warning
+        iconData = Icons.hourglass_top_rounded;
+        shouldPulse = false;
+        switch (activeWindow.type) {
+          case _ForbiddenWindowType.sunrise:
+            headerText = l10n?.forbiddenNaflUpcomingSunriseHeader ?? 'UPCOMING FORBIDDEN TIME • SUNRISE';
+            bodyText = l10n?.forbiddenNaflUpcomingSunriseBody(_formatTime(activeWindow.start)) ??
+                'Voluntary (Nafl) prayers become prohibited at ${_formatTime(activeWindow.start)} as the sun rises. Conclude voluntary prayers before this time.';
+            break;
+          case _ForbiddenWindowType.zawal:
+            headerText = l10n?.forbiddenNaflUpcomingZawalHeader ?? 'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
+            bodyText = l10n?.forbiddenNaflUpcomingZawalBody(_formatTime(activeWindow.start)) ??
+                'Voluntary (Nafl) prayers become prohibited at ${_formatTime(activeWindow.start)} during solar zenith. Conclude voluntary prayers before this time.';
+            break;
+          case _ForbiddenWindowType.sunset:
+            headerText = l10n?.forbiddenNaflUpcomingSunsetHeader ?? 'UPCOMING FORBIDDEN TIME • SUNSET';
+            bodyText = l10n?.forbiddenNaflUpcomingSunsetBody(_formatTime(activeWindow.start)) ??
+                'Voluntary (Nafl) prayers become prohibited at ${_formatTime(activeWindow.start)} before sunset. Conclude voluntary prayers before this time.';
+            break;
+        }
+        break;
+
+      case _ForbiddenWindowPhase.concluded:
+        accentColor = colors.success;
+        iconData = Icons.check_circle_outline_rounded;
+        shouldPulse = false;
+        headerText = l10n?.forbiddenNaflConcludedHeader ?? 'FORBIDDEN TIME CONCLUDED';
+        bodyText = l10n?.forbiddenNaflConcludedBody ??
+            'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
+        break;
     }
 
     Widget noteIcon = Icon(
@@ -797,7 +1047,7 @@ class _ForbiddenNaflNote extends StatelessWidget {
       color: accentColor,
     );
 
-    if (isCurrentlyForbidden) {
+    if (shouldPulse) {
       noteIcon = noteIcon
           .animate(onPlay: (c) => c.repeat(reverse: true))
           .fade(begin: 0.4, end: 1.0, duration: const Duration(milliseconds: 800));
@@ -807,15 +1057,11 @@ class _ForbiddenNaflNote extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8.0),
       child: Container(
         decoration: ShapeDecoration(
-          color: isCurrentlyForbidden
-              ? accentColor.withValues(alpha: 0.12)
-              : colors.surface.withValues(alpha: 0.5),
+          color: accentColor.withValues(alpha: 0.12),
           shape: ContinuousRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: isCurrentlyForbidden
-                  ? accentColor.withValues(alpha: 0.4)
-                  : colors.dividerStrong,
+              color: accentColor.withValues(alpha: 0.4),
               width: 1,
             ),
           ),
@@ -839,7 +1085,7 @@ class _ForbiddenNaflNote extends StatelessWidget {
                       fontSize: 10.0,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
-                      color: isCurrentlyForbidden ? accentColor : colors.textSecondary,
+                      color: accentColor,
                     ),
                   ),
                   const SizedBox(height: 3),

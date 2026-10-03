@@ -997,4 +997,45 @@ class AppLocalizationsTr extends AppLocalizations {
   String tasbihLap(String lap) {
     return 'Tur $lap';
   }
+
+  @override
+  String get forbiddenTimesNotificationTitle => 'Forbidden Time Notifications';
+
+  @override
+  String get forbiddenTimesNotificationSubtitle =>
+      'Alerts for Sunrise, Zenith & Sunset prohibited windows';
+
+  @override
+  String get forbiddenNaflUpcomingSunriseHeader =>
+      'UPCOMING FORBIDDEN TIME • SUNRISE';
+
+  @override
+  String forbiddenNaflUpcomingSunriseBody(String time) {
+    return 'Voluntary (Nafl) prayers become prohibited at $time as the sun rises. Conclude voluntary prayers before this time.';
+  }
+
+  @override
+  String get forbiddenNaflUpcomingZawalHeader =>
+      'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
+
+  @override
+  String forbiddenNaflUpcomingZawalBody(String time) {
+    return 'Voluntary (Nafl) prayers become prohibited at $time during solar zenith. Conclude voluntary prayers before this time.';
+  }
+
+  @override
+  String get forbiddenNaflUpcomingSunsetHeader =>
+      'UPCOMING FORBIDDEN TIME • SUNSET';
+
+  @override
+  String forbiddenNaflUpcomingSunsetBody(String time) {
+    return 'Voluntary (Nafl) prayers become prohibited at $time before sunset. Conclude voluntary prayers before this time.';
+  }
+
+  @override
+  String get forbiddenNaflConcludedHeader => 'FORBIDDEN TIME CONCLUDED';
+
+  @override
+  String get forbiddenNaflConcludedBody =>
+      'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
 }

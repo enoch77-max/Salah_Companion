@@ -562,6 +562,9 @@ class _QiblaScreenState extends State<QiblaScreen>
 
     final bool isAligned = currentHeading != null && diffAngle.abs() <= 3.0;
 
+    final bottomPadding = MediaQuery.paddingOf(context).bottom;
+    final navBarInset = 58.0 + (bottomPadding > 0 ? 8.0 + bottomPadding : 12.0) + 16.0;
+
     return Scaffold(
       backgroundColor: colors.background,
       body: SafeArea(
@@ -575,7 +578,7 @@ class _QiblaScreenState extends State<QiblaScreen>
                 ? _buildErrorView(context, _locationError!)
                 : SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                    padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, navBarInset),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

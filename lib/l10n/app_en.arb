@@ -457,5 +457,60 @@
         "type": "String"
       }
     }
+  },
+  "forbiddenTimesNotificationTitle": "Forbidden Time Notifications",
+  "@forbiddenTimesNotificationTitle": {
+    "description": "Title for forbidden time notification toggle in settings"
+  },
+  "forbiddenTimesNotificationSubtitle": "Alerts for Sunrise, Zenith & Sunset prohibited windows",
+  "@forbiddenTimesNotificationSubtitle": {
+    "description": "Subtitle for forbidden time notification toggle in settings"
+  },
+  "forbiddenNaflUpcomingSunriseHeader": "UPCOMING FORBIDDEN TIME • SUNRISE",
+  "@forbiddenNaflUpcomingSunriseHeader": {
+    "description": "Header for upcoming sunrise forbidden nafl time"
+  },
+  "forbiddenNaflUpcomingSunriseBody": "Voluntary (Nafl) prayers become prohibited at {time} as the sun rises. Conclude voluntary prayers before this time.",
+  "@forbiddenNaflUpcomingSunriseBody": {
+    "description": "Body for upcoming sunrise forbidden nafl time",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "forbiddenNaflUpcomingZawalHeader": "UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)",
+  "@forbiddenNaflUpcomingZawalHeader": {
+    "description": "Header for upcoming zawal forbidden nafl time"
+  },
+  "forbiddenNaflUpcomingZawalBody": "Voluntary (Nafl) prayers become prohibited at {time} during solar zenith. Conclude voluntary prayers before this time.",
+  "@forbiddenNaflUpcomingZawalBody": {
+    "description": "Body for upcoming zawal forbidden nafl time",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "forbiddenNaflUpcomingSunsetHeader": "UPCOMING FORBIDDEN TIME • SUNSET",
+  "@forbiddenNaflUpcomingSunsetHeader": {
+    "description": "Header for upcoming sunset forbidden nafl time"
+  },
+  "forbiddenNaflUpcomingSunsetBody": "Voluntary (Nafl) prayers become prohibited at {time} before sunset. Conclude voluntary prayers before this time.",
+  "@forbiddenNaflUpcomingSunsetBody": {
+    "description": "Body for upcoming sunset forbidden nafl time",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "forbiddenNaflConcludedHeader": "FORBIDDEN TIME CONCLUDED",
+  "@forbiddenNaflConcludedHeader": {
+    "description": "Header when forbidden time window ends"
+  },
+  "forbiddenNaflConcludedBody": "The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.",
+  "@forbiddenNaflConcludedBody": {
+    "description": "Body when forbidden time window ends"
   }
 }

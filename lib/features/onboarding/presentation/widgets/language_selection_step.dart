@@ -180,7 +180,9 @@ class _LanguageSelectionStepState extends State<LanguageSelectionStep> {
             itemCount: filteredLanguages.length,
             separatorBuilder: (context, index) => Divider(
               height: 1,
-              indent: 52,
+              thickness: 1.0,
+              indent: 0,
+              endIndent: 0,
               color: colors.divider,
             ),
             itemBuilder: (context, idx) {

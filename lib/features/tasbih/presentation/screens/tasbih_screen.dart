@@ -297,6 +297,8 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
     final nextDhikrIndex = (_selectedDhikrIndex + 1) % TasbihScreen.dhikrs.length;
     final nextDhikr = TasbihScreen.dhikrs[nextDhikrIndex];
     final progress = (_count / _target).clamp(0.0, 1.0);
+    final bottomPadding = MediaQuery.paddingOf(context).bottom;
+    final navBarClearance = 58.0 + (bottomPadding > 0 ? 8.0 + bottomPadding : 12.0) + 8.0;
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -429,7 +431,7 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
               Expanded(
                 child: Container(
                   width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 16),
+                  margin: EdgeInsets.only(bottom: navBarClearance),
                   decoration: ShapeDecoration(
                     color: colors.surface,
                     shape: ContinuousRectangleBorder(

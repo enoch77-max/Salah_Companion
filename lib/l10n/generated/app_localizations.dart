@@ -1913,6 +1913,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Lap {lap}'**
   String tasbihLap(String lap);
+
+  /// Title for forbidden time notification toggle in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Forbidden Time Notifications'**
+  String get forbiddenTimesNotificationTitle;
+
+  /// Subtitle for forbidden time notification toggle in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts for Sunrise, Zenith & Sunset prohibited windows'**
+  String get forbiddenTimesNotificationSubtitle;
+
+  /// Header for upcoming sunrise forbidden nafl time
+  ///
+  /// In en, this message translates to:
+  /// **'UPCOMING FORBIDDEN TIME • SUNRISE'**
+  String get forbiddenNaflUpcomingSunriseHeader;
+
+  /// Body for upcoming sunrise forbidden nafl time
+  ///
+  /// In en, this message translates to:
+  /// **'Voluntary (Nafl) prayers become prohibited at {time} as the sun rises. Conclude voluntary prayers before this time.'**
+  String forbiddenNaflUpcomingSunriseBody(String time);
+
+  /// Header for upcoming zawal forbidden nafl time
+  ///
+  /// In en, this message translates to:
+  /// **'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)'**
+  String get forbiddenNaflUpcomingZawalHeader;
+
+  /// Body for upcoming zawal forbidden nafl time
+  ///
+  /// In en, this message translates to:
+  /// **'Voluntary (Nafl) prayers become prohibited at {time} during solar zenith. Conclude voluntary prayers before this time.'**
+  String forbiddenNaflUpcomingZawalBody(String time);
+
+  /// Header for upcoming sunset forbidden nafl time
+  ///
+  /// In en, this message translates to:
+  /// **'UPCOMING FORBIDDEN TIME • SUNSET'**
+  String get forbiddenNaflUpcomingSunsetHeader;
+
+  /// Body for upcoming sunset forbidden nafl time
+  ///
+  /// In en, this message translates to:
+  /// **'Voluntary (Nafl) prayers become prohibited at {time} before sunset. Conclude voluntary prayers before this time.'**
+  String forbiddenNaflUpcomingSunsetBody(String time);
+
+  /// Header when forbidden time window ends
+  ///
+  /// In en, this message translates to:
+  /// **'FORBIDDEN TIME CONCLUDED'**
+  String get forbiddenNaflConcludedHeader;
+
+  /// Body when forbidden time window ends
+  ///
+  /// In en, this message translates to:
+  /// **'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.'**
+  String get forbiddenNaflConcludedBody;
 }
 
 class _AppLocalizationsDelegate

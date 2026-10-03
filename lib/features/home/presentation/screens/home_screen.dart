@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:adhan_dart/adhan_dart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/theme/app_theme.dart';
@@ -85,6 +86,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedNavIndex = 0;
+  bool _isDrawerOpen = false;
   bool _isReflectionFavorited = false;
   late String _currentLocationName;
   int _hijriOffset = 0;
@@ -402,7 +404,10 @@ class _HomeScreenState extends State<HomeScreen> {
     required Map<String, PrayerStatus> logs,
   }) {
     final now = DateTime.now();
-    final l10n = AppLocalizations.of(context);
+    AppLocalizations? l10n;
+    try {
+      l10n = AppLocalizations.of(context);
+    } catch (_) {}
     final upcomingLabel = l10n?.upcomingPrayer ?? 'UPCOMING PRAYER';
     final currentSalahLabel = l10n?.currentSalah ?? 'CURRENT SALAH';
 
@@ -650,6 +655,77 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _scheduleCurrentPrayerNotifications({
+    bool? adhanAudioOverride,
+    bool? prayerNotifOverride,
+    String? voiceOverride,
+    Map<String, PrayerStatus>? prayerLogs,
+  }) async {
+    if (_calculatedTimesMap.isEmpty) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final notifService = widget.notificationService ?? NotificationService();
+    final notifPrayerMaster =
+        prayerNotifOverride ?? (prefs.getBool('notif_enabled_prayer') ?? true);
+    final notifAdhanMaster =
+        adhanAudioOverride ?? (prefs.getBool('notif_enabled_adhan') ?? true);
+    final adhanVoice =
+        voiceOverride ?? (prefs.getString('adhan_voice') ?? 'Makkah (Ali Mulla)');
+
+    if (!notifPrayerMaster) {
+      await notifService.cancelAllPrayerNotifications();
+      return;
+    }
+
+    final enabledMap = <String, bool>{
+      'Fajr': notifPrayerMaster && (prefs.getBool('notif_enabled_fajr') ?? true),
+      'Sunrise': false,
+      'Dhuhr': notifPrayerMaster && (prefs.getBool('notif_enabled_dhuhr') ?? true),
+      'Asr': notifPrayerMaster && (prefs.getBool('notif_enabled_asr') ?? true),
+      'Maghrib': notifPrayerMaster && (prefs.getBool('notif_enabled_maghrib') ?? true),
+      'Isha': notifPrayerMaster && (prefs.getBool('notif_enabled_isha') ?? true),
+    };
+
+    final fajr = _calculatedTimesMap['Fajr'];
+    final sunrise = _calculatedTimesMap['Sunrise'];
+    final asr = _calculatedTimesMap['Asr'];
+    final maghrib = _calculatedTimesMap['Maghrib'];
+    final isha = _calculatedTimesMap['Isha'];
+
+    final endTimesMap = <String, DateTime>{
+      'Fajr': ?sunrise,
+      'Dhuhr': ?asr,
+      'Asr': ?maghrib,
+      'Maghrib': ?isha,
+      if (fajr != null) 'Isha': fajr.add(const Duration(days: 1)),
+    };
+
+    final completedPrayers = <String>{};
+    if (prayerLogs != null) {
+      prayerLogs.forEach((name, status) {
+        if (status == PrayerStatus.prayed || status == PrayerStatus.missed) {
+          completedPrayers.add(name);
+        }
+      });
+    } else {
+      for (final p in _prayers) {
+        if (p.status == PrayerStatus.prayed || p.status == PrayerStatus.missed) {
+          completedPrayers.add(p.name);
+        }
+      }
+    }
+
+    await notifService.schedulePrayerNotifications(
+      prayerTimes: _calculatedTimesMap,
+      enabledPrayers: enabledMap,
+      endTimes: endTimesMap,
+      completedPrayers: completedPrayers,
+      playAdhanSound: notifAdhanMaster,
+      adhanVoice: adhanVoice,
+      localizations: mounted ? AppLocalizations.of(context) : null,
+    );
+  }
+
   Future<void> _applyLocationAndCalculate(LocationData loc) async {
     final prefs = await SharedPreferences.getInstance();
     final savedMethod = prefs.getString('calc_method');
@@ -742,40 +818,16 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     });
 
+    await _scheduleCurrentPrayerNotifications(prayerLogs: savedLogs);
+
     final notifService = widget.notificationService ?? NotificationService();
-    final notifPrayerMaster = prefs.getBool('notif_enabled_prayer') ?? true;
-    final notifAdhanMaster = prefs.getBool('notif_enabled_adhan') ?? true;
-    final adhanVoice = prefs.getString('adhan_voice') ?? 'Makkah (Ali Mulla)';
-
-    final enabledMap = <String, bool>{
-      'Fajr': notifPrayerMaster,
-      'Sunrise': false,
-      'Dhuhr': notifPrayerMaster,
-      'Asr': notifPrayerMaster,
-      'Maghrib': notifPrayerMaster,
-      'Isha': notifPrayerMaster,
-    };
-    final endTimesMap = <String, DateTime>{
-      'Fajr': prayerTimes.sunrise,
-      'Dhuhr': prayerTimes.asr,
-      'Asr': prayerTimes.maghrib,
-      'Maghrib': prayerTimes.isha,
-      'Isha': prayerTimes.fajr.add(const Duration(days: 1)),
-    };
-    final completedPrayers = <String>{};
-    savedLogs.forEach((name, status) {
-      if (status == PrayerStatus.prayed || status == PrayerStatus.missed) {
-        completedPrayers.add(name);
-      }
-    });
-
-    await notifService.schedulePrayerNotifications(
-      prayerTimes: _calculatedTimesMap,
-      enabledPrayers: enabledMap,
-      endTimes: endTimesMap,
-      completedPrayers: completedPrayers,
-      playAdhanSound: notifAdhanMaster,
-      adhanVoice: adhanVoice,
+    final notifForbiddenEnabled = prefs.getBool('notif_enabled_forbidden_times') ?? true;
+    await notifService.scheduleForbiddenTimesNotifications(
+      sunrise: prayerTimes.sunrise,
+      dhuhr: prayerTimes.dhuhr,
+      maghrib: prayerTimes.maghrib,
+      enabled: notifForbiddenEnabled,
+      localizations: mounted ? AppLocalizations.of(context) : null,
     );
   }
 
@@ -974,6 +1026,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBody(BuildContext context) {
     final reflection = _reflectionItem ?? widget.reflectionItem ?? HomeScreen.defaultReflection;
+    final bottomPadding = MediaQuery.paddingOf(context).bottom;
+    final dynamicBottomInset = 58.0 + (bottomPadding > 0 ? 8.0 + bottomPadding : 12.0) + 20.0;
 
     return IndexedStack(
       index: _selectedNavIndex,
@@ -983,11 +1037,11 @@ class _HomeScreenState extends State<HomeScreen> {
           enabled: _selectedNavIndex == 0,
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.only(
+            padding: EdgeInsets.only(
               left: 16.0,
               right: 16.0,
               top: 16.0,
-              bottom: 110.0, // Space for frosted glass nav bar
+              bottom: dynamicBottomInset, // Dynamic space for frosted glass nav bar
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1038,6 +1092,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     sunriseDateTime: _calculatedTimesMap['Sunrise'],
                     dhuhrDateTime: _calculatedTimesMap['Dhuhr'],
                     maghribDateTime: _calculatedTimesMap['Maghrib'],
+                    notificationService: widget.notificationService,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -1098,84 +1153,150 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final brightness = Theme.of(context).brightness;
+    final overlayStyle = AppTheme.systemOverlayStyle(
+      brightness: brightness,
+      colors: colors,
+    );
 
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: colors.background,
-      extendBody: true,
-      appBar: AppBar(
-        backgroundColor: colors.background,
-        elevation: 0,
-        centerTitle: false,
-        leading: IconButton(
-          key: const ValueKey('three_line_menu_button'),
-          icon: const Icon(Icons.menu_rounded),
-          color: colors.textPrimary,
-          tooltip: 'Menu',
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: overlayStyle,
+      child: PopScope(
+        canPop: _selectedNavIndex == 0 && !_isDrawerOpen,
+        onPopInvokedWithResult: (bool didPop, Object? result) {
+          if (didPop) return;
+          if (_isDrawerOpen || (_scaffoldKey.currentState?.isDrawerOpen ?? false)) {
+            _scaffoldKey.currentState?.closeDrawer();
+            return;
+          }
+          if (_selectedNavIndex != 0) {
+            setState(() {
+              _selectedNavIndex = 0;
+            });
+            return;
+          }
+        },
+        child: Scaffold(
+          key: _scaffoldKey,
+          onDrawerChanged: (isOpen) {
+            if (_isDrawerOpen != isOpen) {
+              setState(() {
+                _isDrawerOpen = isOpen;
+              });
+            }
           },
-        ),
-        title: Text(
-          'Salah Companion',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        actions: [
-          IconButton(
-            key: const ValueKey('top_right_settings_button'),
-            icon: const Icon(Icons.settings_rounded),
-            color: colors.textPrimary,
-            tooltip: 'Settings',
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SettingsScreen(
-                    currentThemeMode: widget.currentThemeMode,
-                    onThemeModeChanged: widget.onThemeModeChanged,
-                    currentLocale: widget.currentLocale,
-                    onLocaleChanged: widget.onLocaleChanged,
-                  ),
-                ),
-              );
-              final loc = LocationService.savedLocation ?? LocationService.defaultFallbackLocation;
-              await _applyLocationAndCalculate(loc);
-            },
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      drawer: AppNavigationDrawer(
-        currentThemeMode: widget.currentThemeMode,
-        onThemeModeChanged: widget.onThemeModeChanged,
-      ),
-      body: SafeArea(
-        bottom: false,
-        child: Stack(
-          children: [
-            // Active Tab Content Viewport
-            Positioned.fill(
-              child: _buildBody(context),
+          backgroundColor: colors.background,
+          extendBody: true,
+          appBar: AppBar(
+            systemOverlayStyle: overlayStyle,
+            backgroundColor: colors.background,
+            elevation: 0,
+            centerTitle: false,
+            leading: IconButton(
+              key: const ValueKey('three_line_menu_button'),
+              icon: const Icon(Icons.menu_rounded),
+              color: colors.textPrimary,
+              tooltip: 'Menu',
+              onPressed: () {
+                _scaffoldKey.currentState?.openDrawer();
+              },
             ),
-
-            // Frosted-Glass Bottom Navigation Bar (6 Tabs)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: FrostedGlassBottomNavBar(
-                selectedIndex: _selectedNavIndex,
-                onItemSelected: (index) {
-                  setState(() {
-                    _selectedNavIndex = index;
-                  });
+            title: Text(
+              'Salah Companion',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            actions: [
+              IconButton(
+                key: const ValueKey('top_right_settings_button'),
+                icon: const Icon(Icons.settings_rounded),
+                color: colors.textPrimary,
+                tooltip: 'Settings',
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SettingsScreen(
+                        currentThemeMode: widget.currentThemeMode,
+                        onThemeModeChanged: widget.onThemeModeChanged,
+                        currentLocale: widget.currentLocale,
+                        onLocaleChanged: widget.onLocaleChanged,
+                        notificationService: widget.notificationService,
+                        onPrayerNotificationsToggled: (enabled) async {
+                          if (!enabled) {
+                            final notifService = widget.notificationService ?? NotificationService();
+                            await notifService.cancelAllPrayerNotifications();
+                          } else {
+                            await _scheduleCurrentPrayerNotifications(prayerNotifOverride: true);
+                          }
+                        },
+                        onAdhanAudioToggled: (enabled) async {
+                          await _scheduleCurrentPrayerNotifications(adhanAudioOverride: enabled);
+                        },
+                        onAdhanVoiceChanged: (voice) async {
+                          await _scheduleCurrentPrayerNotifications(voiceOverride: voice);
+                        },
+                        onForbiddenTimesNotificationsToggled: (enabled) async {
+                          final notifService = widget.notificationService ?? NotificationService();
+                          if (enabled) {
+                            final sunrise = _calculatedTimesMap['Sunrise'];
+                            final dhuhr = _calculatedTimesMap['Dhuhr'];
+                            final maghrib = _calculatedTimesMap['Maghrib'];
+                            if (sunrise != null && dhuhr != null && maghrib != null) {
+                              await notifService.scheduleForbiddenTimesNotifications(
+                                sunrise: sunrise,
+                                dhuhr: dhuhr,
+                                maghrib: maghrib,
+                                enabled: true,
+                                localizations: mounted ? AppLocalizations.of(context) : null,
+                              );
+                            }
+                          } else {
+                            await notifService.cancelForbiddenTimesNotifications();
+                          }
+                        },
+                      ),
+                    ),
+                  );
+                  final loc = LocationService.savedLocation ?? LocationService.defaultFallbackLocation;
+                  await _applyLocationAndCalculate(loc);
                 },
               ),
+              const SizedBox(width: 8),
+            ],
+          ),
+          drawer: AppNavigationDrawer(
+            currentThemeMode: widget.currentThemeMode,
+            onThemeModeChanged: widget.onThemeModeChanged,
+          ),
+          body: SafeArea(
+            bottom: false,
+            child: Stack(
+              children: [
+                // Active Tab Content Viewport
+                Positioned.fill(
+                  child: _buildBody(context),
+                ),
+
+                // Frosted-Glass Bottom Navigation Bar (6 Tabs)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: FrostedGlassBottomNavBar(
+                    selectedIndex: _selectedNavIndex,
+                    onItemSelected: (index) {
+                      setState(() {
+                        _selectedNavIndex = index;
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
