@@ -27,28 +27,28 @@ class AppLocalizationsKy extends AppLocalizations {
   String get navCalendar => 'Calendar';
 
   @override
-  String get prayerFajr => 'Fajr';
+  String get prayerFajr => 'Багымдат';
 
   @override
-  String get prayerSunrise => 'Sunrise';
+  String get prayerSunrise => 'Күн чыгышы';
 
   @override
-  String get prayerDhuhr => 'Dhuhr';
+  String get prayerDhuhr => 'Бешим';
 
   @override
-  String get prayerAsr => 'Asr';
+  String get prayerAsr => 'Аср';
 
   @override
-  String get prayerMaghrib => 'Maghrib';
+  String get prayerMaghrib => 'Шам';
 
   @override
-  String get prayerIsha => 'Isha';
+  String get prayerIsha => 'Куптан';
 
   @override
-  String get upcomingPrayer => 'UPCOMING PRAYER';
+  String get upcomingPrayer => 'Кийинки намаз';
 
   @override
-  String get currentSalah => 'CURRENT SALAH';
+  String get currentSalah => 'Учурдагы намаз';
 
   @override
   String get remaining => 'калды';
@@ -377,7 +377,7 @@ class AppLocalizationsKy extends AppLocalizations {
   String get navTracker => 'Tracker';
 
   @override
-  String get prayerSunset => 'Sunset';
+  String get prayerSunset => 'Күн батышы';
 
   @override
   String get statusNotPrayed => 'Not Prayed';
@@ -954,6 +954,9 @@ class AppLocalizationsKy extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'Лаа илааха иллаллах';
 
   @override
+  String get dhikrSalawat => 'Salawat';
+
+  @override
   String get dhikrSubhanAllahTranslation =>
       'Аллах бардык кемчиликтерден аруу жана таза';
 
@@ -971,6 +974,12 @@ class AppLocalizationsKy extends AppLocalizations {
   @override
   String get dhikrLaIlahaIllallahTranslation =>
       'Бир Аллахтан башка сыйынууга татыктуу кудай жок';
+
+  @override
+  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+
+  @override
+  String get doSalawat => 'Do Salawat';
 
   @override
   String tasbihNextDhikr(String dhikr) {
@@ -1003,43 +1012,212 @@ class AppLocalizationsKy extends AppLocalizations {
   }
 
   @override
-  String get forbiddenTimesNotificationTitle => 'Forbidden Time Notifications';
+  String get forbiddenTimesNotificationTitle =>
+      'Тыюу салынган убакыт билдирмелери';
 
   @override
   String get forbiddenTimesNotificationSubtitle =>
-      'Alerts for Sunrise, Zenith & Sunset prohibited windows';
+      'Напил намазга тыюу салынган убакыт тууралуу эскертүү';
 
   @override
   String get forbiddenNaflUpcomingSunriseHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNRISE';
+      'ЖАКЫНДАГАН ТЫЮУ САЛЫНГАН УБАКЫТ • КҮН ЧЫГЫШЫ';
 
   @override
   String forbiddenNaflUpcomingSunriseBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time as the sun rises. Conclude voluntary prayers before this time.';
+    return 'Күн чыгып жатканда саат $time-де напил намаз окууга тыюу салынат. Напил намаздарыңызды ушул убакытка чейин бүтүрүңүз.';
   }
 
   @override
   String get forbiddenNaflUpcomingZawalHeader =>
-      'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
+      'ЖАКЫНДАГАН ТЫЮУ САЛЫНГАН УБАКЫТ • ЗАВАЛ';
 
   @override
   String forbiddenNaflUpcomingZawalBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time during solar zenith. Conclude voluntary prayers before this time.';
+    return 'Күн төбөгө келгенде саат $time-де напил намаз окууга тыюу салынат. Напил намаздарыңызды ушул убакытка чейин бүтүрүңүз.';
   }
 
   @override
   String get forbiddenNaflUpcomingSunsetHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNSET';
+      'ЖАКЫНДАГАН ТЫЮУ САЛЫНГАН УБАКЫТ • КҮН БАТЫШЫ';
 
   @override
   String forbiddenNaflUpcomingSunsetBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time before sunset. Conclude voluntary prayers before this time.';
+    return 'Күн батар алдында саат $time-де напил намаз окууга тыюу салынат. Напил намаздарыңызды ушул убакытка чейин бүтүрүңүз.';
   }
 
   @override
-  String get forbiddenNaflConcludedHeader => 'FORBIDDEN TIME CONCLUDED';
+  String get forbiddenNaflConcludedHeader => 'ТЫЮУ САЛЫНГАН УБАКЫТ АЯКТАДЫ';
 
   @override
   String get forbiddenNaflConcludedBody =>
-      'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
+      'Тыюу салынган убакыт аяктады. Эми напил намаздарын окууга болот.';
+
+  @override
+  String get solarTimingsTitle => 'Күн убактылары';
+
+  @override
+  String get daylightWindowNote =>
+      'Күндүзгү убакыт терезеси: Багымдат күн чыкканда бүтөт. Шам күн батканда башталат.';
+
+  @override
+  String get prayerStarts => 'Башталат';
+
+  @override
+  String get prayerStarted => 'Башталды';
+
+  @override
+  String get prayerEnds => 'Аяктайт';
+
+  @override
+  String get badgeCurrent => 'УЧУРДАГЫ';
+
+  @override
+  String get badgeNext => 'КИЙИНКИ';
+
+  @override
+  String get shuruqBadge => 'Шурук (Күн чыгыш)';
+
+  @override
+  String get continueToPrayerTimes => 'Намаз убактыларына өтүү';
+
+  @override
+  String tomorrowAt(String time) {
+    return 'Эртең $time-де';
+  }
+
+  @override
+  String get fridayJumuahTitle => 'Жума';
+
+  @override
+  String get fridayLocationLabel => 'Орду';
+
+  @override
+  String get fridayAtMosque => 'Мечитте';
+
+  @override
+  String get fridayAtHome => 'Үйдө';
+
+  @override
+  String get fridaySunnahRulingsTitle => 'Жума сүннөттөрү жана өкүмдөрү';
+
+  @override
+  String get fridayBeforeLabel => 'Чейин';
+
+  @override
+  String get fridayAfterLabel => 'Кийин';
+
+  @override
+  String get fridayMosqueBeforeDesc =>
+      'Мечитке киргенде тахийятул-масжид жана хутба башталганга чейин нафил намаздар.';
+
+  @override
+  String get fridayMosqueAfterDesc =>
+      '4 рекет сүннөт (мечитте) же 2 рекет сүннөт (үйдө окулса).';
+
+  @override
+  String get fridayHomeBeforeDesc =>
+      'Бешимге чейин 4 рекет сүннөт (Бешимди үйдө окугандар үчүн).';
+
+  @override
+  String get fridayHomeAfterDesc =>
+      'Бешимден кийин 2 рекет сүннөт (Бешимди үйдө окугандар үчүн).';
+
+  @override
+  String get fridayClickToReadFull =>
+      'Ишенимдүү хадистерди жана өкүмдөрдү көрүү үчүн басыңыз';
+
+  @override
+  String get fridaySuiteHeader => 'ЖУМА СҮННӨТТӨРҮ ЖАНА СООПТУУ АМАЛДАР';
+
+  @override
+  String get fridayTodayOnly => 'Жума күнү гана жеткиликтүү';
+
+  @override
+  String get surahKahfTitle => 'Кахф сүрөсү';
+
+  @override
+  String get surahKahfBadge => 'Эки жума ортосундагы нур';
+
+  @override
+  String get surahKahfHadith =>
+      'Ким жума күнү Кахф сүрөсүн окуса, эки жуманын ортосунда ага нур чачырайт. (аль-Байхаки)';
+
+  @override
+  String get markAsRead => 'Окулду деп белгилөө';
+
+  @override
+  String get readCompleted => 'Окулду';
+
+  @override
+  String get salawatTitle => 'Пайгамбарга ﷺ көп салават айтуу';
+
+  @override
+  String get salawatBadge => 'Түз тартууланат';
+
+  @override
+  String get salawatHadith =>
+      'Жума күнү мага салаватты көбөйткүлө, анткени силердин салаватыңар мага көрсөтүлөт. (Абу Дауд)';
+
+  @override
+  String get salawatCountLabel => 'Бүгүнкү салават саны';
+
+  @override
+  String get salawatTapBtn => 'Салават айтуу (+1)';
+
+  @override
+  String get fridayEtiquettesTitle => 'Жуманын сүннөттөрү жана адептери';
+
+  @override
+  String get fridayEtiquettesRef => 'Жуманын ишенимдүү сүннөттөрү';
+
+  @override
+  String get fridayGhusl => 'Намаз алдында гусул алуу';
+
+  @override
+  String get fridaySiwak => 'Мисвак колдонуу жана атыр себинүү';
+
+  @override
+  String get fridayCleanClothes => 'Эң таза жана жакшы кийимдерди кийүү';
+
+  @override
+  String get fridayEarlyMosque => 'Хутбага мечитке эртерээк баруу';
+
+  @override
+  String get istijabahTitle => 'Дуба кабыл болуучу убакыт (Саатуль-истижаба)';
+
+  @override
+  String get istijabahBadge => 'Дуба кабыл болот';
+
+  @override
+  String get istijabahHadith =>
+      'Жума күнүндө бир саат бар, мусулман пенде Аллахтан жакшылык сураса, сөзсүз берет — аны Асрдан кийинки акыркы убакытта издегиле. (Абу Дауд, Ан-Насаи)';
+
+  @override
+  String get fridayHadithGuideSheetTitle =>
+      'Жума сүннөттөрүнүн колдонмосу: Хадистер';
+
+  @override
+  String get fridayHadithBeforeCardTitle => 'Жума / Бешим намазына чейин';
+
+  @override
+  String get fridayHadithBeforeCardDesc =>
+      'Мечитте: Киргенде 2 рекет Мечит акысы намазы, андан соң имам минбарга чыкканга чейин нафил намаздар. Үйдө (Бешим): Бешимге чейин 4 рекет сүннөт.';
+
+  @override
+  String get fridayHadithAfterMosqueTitle => 'Жумадан кийин мечитте (4 рекет)';
+
+  @override
+  String get fridayHadithAfterMosqueDesc =>
+      'Абу Хурайра риваят кылган хадисте Аллахтын Элчиси ﷺ: \'Бириңер жума намазын окуса, андан кийин төрт рекет намаз окусун\' деген. (Сахих Муслим 881)';
+
+  @override
+  String get fridayHadithAfterHomeTitle => 'Жумадан кийин үйдө (2 рекет)';
+
+  @override
+  String get fridayHadithAfterHomeDesc =>
+      'Ибн Умар риваят кылган: \'Пайгамбар ﷺ жумадан кийин үйүнө кайтканга чейин намаз окучу эмес, андан соң үйүндө эки рекет намаз окучу.\' (Сахих аль-Бухари 937, Сахих Муслим 882)';
+
+  @override
+  String get closeGuideBtn => 'Колдонмону жабуу';
 }

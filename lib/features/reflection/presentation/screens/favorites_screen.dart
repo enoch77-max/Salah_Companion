@@ -111,11 +111,21 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       case SavedCategory.all:
         return items;
       case SavedCategory.hadiths:
-        return items.where((item) => item.type == DailyContentType.hadith).toList();
+        return items
+            .where((item) => item.type == DailyContentType.hadith)
+            .toList();
       case SavedCategory.verses:
-        return items.where((item) => item.type == DailyContentType.ayah).toList();
+        return items
+            .where((item) => item.type == DailyContentType.ayah)
+            .toList();
       case SavedCategory.duas:
-        return items.where((item) => item.type != DailyContentType.hadith && item.type != DailyContentType.ayah).toList();
+        return items
+            .where(
+              (item) =>
+                  item.type != DailyContentType.hadith &&
+                  item.type != DailyContentType.ayah,
+            )
+            .toList();
     }
   }
 
@@ -147,16 +157,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             Text(
               l10n?.savedItems ?? 'Saved',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: colors.textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             Text(
               l10n?.savedItemsSubtitle ?? 'Hadiths, Verses & Duas',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colors.textSecondary,
-                    fontSize: 11,
-                  ),
+                color: colors.textSecondary,
+                fontSize: 11,
+              ),
             ),
           ],
         ),
@@ -218,11 +228,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final l10n = AppLocalizations.of(context);
 
     if (_isLoading) {
-      return Center(
-        child: CircularProgressIndicator(
-          color: colors.primary,
-        ),
-      );
+      return Center(child: CircularProgressIndicator(color: colors.primary));
     }
 
     final items = _filteredItems;
@@ -252,17 +258,18 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               Text(
                 l10n?.noSavedItems ?? 'No saved items yet',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
-                l10n?.noSavedItemsSubtitle ?? 'Tap the bookmark icon on any content to save it here.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: colors.textSecondary,
-                    ),
+                l10n?.noSavedItemsSubtitle ??
+                    'Tap the bookmark icon on any content to save it here.',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: colors.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ],

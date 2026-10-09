@@ -154,11 +154,20 @@ class _LanguageSelectionStepState extends State<LanguageSelectionStep> {
             onChanged: (val) => setState(() => _searchQuery = val),
             style: TextStyle(color: colors.textPrimary, fontSize: 13),
             decoration: InputDecoration(
-              hintText: l10n?.searchLanguagePlaceholder ?? 'Search from 19 supported languages...',
+              hintText:
+                  l10n?.searchLanguagePlaceholder ??
+                  'Search from 19 supported languages...',
               hintStyle: TextStyle(color: colors.textTertiary, fontSize: 12),
               isDense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              prefixIcon: Icon(Icons.search_rounded, size: 18, color: colors.textTertiary),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+              prefixIcon: Icon(
+                Icons.search_rounded,
+                size: 18,
+                color: colors.textTertiary,
+              ),
               border: InputBorder.none,
             ),
           ),
@@ -193,7 +202,10 @@ class _LanguageSelectionStepState extends State<LanguageSelectionStep> {
                 key: ValueKey('lang_item_${lang.code}'),
                 onTap: () => _select(lang),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                   child: Row(
                     children: [
                       Text(lang.flag, style: const TextStyle(fontSize: 20)),
@@ -205,8 +217,12 @@ class _LanguageSelectionStepState extends State<LanguageSelectionStep> {
                             Text(
                               lang.nativeName,
                               style: TextStyle(
-                                color: isSelected ? colors.primary : colors.textPrimary,
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                color: isSelected
+                                    ? colors.primary
+                                    : colors.textPrimary,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.w600,
                                 fontSize: 14,
                               ),
                             ),
@@ -281,10 +297,7 @@ class _LanguageSelectionStepState extends State<LanguageSelectionStep> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  language.flag,
-                  style: const TextStyle(fontSize: 22),
-                ),
+                Text(language.flag, style: const TextStyle(fontSize: 22)),
                 if (isSelected)
                   Icon(
                     Icons.check_circle_rounded,

@@ -45,10 +45,10 @@ class AppLocalizationsUz extends AppLocalizations {
   String get prayerIsha => 'Xufton';
 
   @override
-  String get upcomingPrayer => 'UPCOMING PRAYER';
+  String get upcomingPrayer => 'Keyingi namoz';
 
   @override
-  String get currentSalah => 'CURRENT SALAH';
+  String get currentSalah => 'Hozirgi namoz';
 
   @override
   String get remaining => 'qoldi';
@@ -957,6 +957,9 @@ class AppLocalizationsUz extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'La ilaha illalloh';
 
   @override
+  String get dhikrSalawat => 'Salawat';
+
+  @override
   String get dhikrSubhanAllahTranslation =>
       'Alloh barcha ayb va nuqsonlardan mutlaqo pokdir';
 
@@ -975,6 +978,12 @@ class AppLocalizationsUz extends AppLocalizations {
   @override
   String get dhikrLaIlahaIllallahTranslation =>
       'Allohdan o\'zga haqiqiy ibodatga loyiq iloh yo\'qdir';
+
+  @override
+  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+
+  @override
+  String get doSalawat => 'Do Salawat';
 
   @override
   String tasbihNextDhikr(String dhikr) {
@@ -1007,43 +1016,212 @@ class AppLocalizationsUz extends AppLocalizations {
   }
 
   @override
-  String get forbiddenTimesNotificationTitle => 'Forbidden Time Notifications';
+  String get forbiddenTimesNotificationTitle =>
+      'Makruh vaqtlar bildirishnomalari';
 
   @override
   String get forbiddenTimesNotificationSubtitle =>
-      'Alerts for Sunrise, Zenith & Sunset prohibited windows';
+      'Nafl namoz oʻqish makruh boʻlgan vaqtlar eslatmasi';
 
   @override
   String get forbiddenNaflUpcomingSunriseHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNRISE';
+      'YAQINLASHAYOTGAN MAKRUH VAQT • QUYOSH CHIQISHI';
 
   @override
   String forbiddenNaflUpcomingSunriseBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time as the sun rises. Conclude voluntary prayers before this time.';
+    return 'Quyosh chiqishi sababli soat $time dan nafl namoz oʻqish makruh boʻladi. Nafl namozlarni ushbu vaqtdan oldin tugating.';
   }
 
   @override
   String get forbiddenNaflUpcomingZawalHeader =>
-      'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
+      'YAQINLASHAYOTGAN MAKRUH VAQT • ZAVOL (TIKKA QUYOSH)';
 
   @override
   String forbiddenNaflUpcomingZawalBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time during solar zenith. Conclude voluntary prayers before this time.';
+    return 'Tikka quyosh paytida soat $time dan nafl namoz oʻqish makruh boʻladi. Nafl namozlarni ushbu vaqtdan oldin tugating.';
   }
 
   @override
   String get forbiddenNaflUpcomingSunsetHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNSET';
+      'YAQINLASHAYOTGAN MAKRUH VAQT • QUYOSH BOTISHI';
 
   @override
   String forbiddenNaflUpcomingSunsetBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time before sunset. Conclude voluntary prayers before this time.';
+    return 'Quyosh botishidan oldin soat $time dan nafl namoz oʻqish makruh boʻladi. Nafl namozlarni ushbu vaqtdan oldin tugating.';
   }
 
   @override
-  String get forbiddenNaflConcludedHeader => 'FORBIDDEN TIME CONCLUDED';
+  String get forbiddenNaflConcludedHeader => 'MAKRUH VAQT TUGADI';
 
   @override
   String get forbiddenNaflConcludedBody =>
-      'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
+      'Makruh vaqt yakunlandi. Endi nafl namozlarini oʻqish joiz.';
+
+  @override
+  String get solarTimingsTitle => 'Quyosh vaqtlari';
+
+  @override
+  String get daylightWindowNote =>
+      'Kunduzgi vaqt: Bomdod quyosh chiqishi bilan tugaydi. Shom quyosh botishi bilan boshlanadi.';
+
+  @override
+  String get prayerStarts => 'Boshlanadi';
+
+  @override
+  String get prayerStarted => 'Boshlandi';
+
+  @override
+  String get prayerEnds => 'Tugaydi';
+
+  @override
+  String get badgeCurrent => 'HOZIRGI';
+
+  @override
+  String get badgeNext => 'KEYINGI';
+
+  @override
+  String get shuruqBadge => 'Quyosh (Shuruq)';
+
+  @override
+  String get continueToPrayerTimes => 'Namoz vaqtlariga o‘tish';
+
+  @override
+  String tomorrowAt(String time) {
+    return 'Ertaga soat $time da';
+  }
+
+  @override
+  String get fridayJumuahTitle => 'Juma';
+
+  @override
+  String get fridayLocationLabel => 'Joyi';
+
+  @override
+  String get fridayAtMosque => 'Masjidda';
+
+  @override
+  String get fridayAtHome => 'Uyda';
+
+  @override
+  String get fridaySunnahRulingsTitle => 'Juma sunnatlari va hukmlari';
+
+  @override
+  String get fridayBeforeLabel => 'Oldin';
+
+  @override
+  String get fridayAfterLabel => 'Keyin';
+
+  @override
+  String get fridayMosqueBeforeDesc =>
+      'Masjidga kirganda tahiyyatul-masjid va xutba boshlanguncha nafl namozlar.';
+
+  @override
+  String get fridayMosqueAfterDesc =>
+      '4 rakat sunnat (masjidda) yoki 2 rakat sunnat (uyda o\'qilsa).';
+
+  @override
+  String get fridayHomeBeforeDesc =>
+      'Peshindan oldin 4 rakat sunnat (Peshinni uyda o\'qiydiganlar uchun).';
+
+  @override
+  String get fridayHomeAfterDesc =>
+      'Peshindan keyin 2 rakat sunnat (Peshinni uyda o\'qiydiganlar uchun).';
+
+  @override
+  String get fridayClickToReadFull =>
+      'Sahih hadislar va hukmlarni ko\'rish uchun bosing';
+
+  @override
+  String get fridaySuiteHeader => 'JUMA SUNNATLARI VA FAZILATLI AMALLAR';
+
+  @override
+  String get fridayTodayOnly => 'Faqat juma kunlari faol';
+
+  @override
+  String get surahKahfTitle => 'Kahf surasi';
+
+  @override
+  String get surahKahfBadge => 'Ikki juma orasidagi nur';
+
+  @override
+  String get surahKahfHadith =>
+      'Kim juma kuni Kahf surasini o\'qisa, ikki juma o\'rtasida unga nur yog\'iladi. (Bayhaqiy)';
+
+  @override
+  String get markAsRead => 'O\'qildi deb belgilash';
+
+  @override
+  String get readCompleted => 'Tugatildi';
+
+  @override
+  String get salawatTitle => 'Payg\'ambarimizga ﷺ ko\'p salavot aytish';
+
+  @override
+  String get salawatBadge => 'To\'g\'ridan-to\'g\'ri yetkaziladi';
+
+  @override
+  String get salawatHadith =>
+      'Juma kuni menga ko\'p salavot aytinglar, chunki salavotlaringiz menga ko\'rsatiladi. (Abu Dovud)';
+
+  @override
+  String get salawatCountLabel => 'Bugungi salavotlar soni';
+
+  @override
+  String get salawatTapBtn => 'Salavot aytish (+1)';
+
+  @override
+  String get fridayEtiquettesTitle => 'Juma sunnatlari va odoblari';
+
+  @override
+  String get fridayEtiquettesRef => 'Jumaning sahih sunnatlari';
+
+  @override
+  String get fridayGhusl => 'Namozdan oldin g\'usl qilish';
+
+  @override
+  String get fridaySiwak => 'Misvok ishlatish va xushbo\'ylanish';
+
+  @override
+  String get fridayCleanClothes => 'Eng toza va chiroyli kiyimlarni kiyish';
+
+  @override
+  String get fridayEarlyMosque => 'Xutbaga masjidga ertaroq borish';
+
+  @override
+  String get istijabahTitle => 'Duo ijobat bo\'ladigan vaqt (Soat al-istijoba)';
+
+  @override
+  String get istijabahBadge => 'Duo qabul bo\'ladi';
+
+  @override
+  String get istijabahHadith =>
+      'Juma kunida bir soat borki, musulmon banda Allohdan bir yaxshilik so\'rasa, albatta beradi — uni Asrdan keyingi oxirgi soatda izlanglar. (Abu Dovud, Nasoiy)';
+
+  @override
+  String get fridayHadithGuideSheetTitle =>
+      'Juma sunnat namozlari qo\'llanmasi: Hadislar';
+
+  @override
+  String get fridayHadithBeforeCardTitle => 'Juma / Peshin namozidan oldin';
+
+  @override
+  String get fridayHadithBeforeCardDesc =>
+      'Masjidda: Kirganda 2 rakat Tahiyyatul-masjid, so\'ng imom minbarga chiqquncha nafl namozlar. Uyda (Peshin): Peshindan oldin 4 rakat sunnati muakkada.';
+
+  @override
+  String get fridayHadithAfterMosqueTitle => 'Jumadan keyin masjidda (4 rakat)';
+
+  @override
+  String get fridayHadithAfterMosqueDesc =>
+      'Abu Hurayra rivoyat qiladi, Rasululloh ﷺ aytdilar: \'Sizlardan birortangiz juma namozini o\'qisa, undan keyin to\'rt rakat namoz o\'qisin.\' (Sahih Muslim 881)';
+
+  @override
+  String get fridayHadithAfterHomeTitle => 'Jumadan keyin uyda (2 rakat)';
+
+  @override
+  String get fridayHadithAfterHomeDesc =>
+      'Ibn Umar rivoyat qiladi: \'Payg\'ambar ﷺ jumadan keyin uyga qaytmaguncha namoz o\'qimas edilar, keyin uylarida ikki rakat namoz o\'qirdilar.\' (Sahih al-Buxoriy 937, Sahih Muslim 882)';
+
+  @override
+  String get closeGuideBtn => 'Qo\'llanmani yopish';
 }

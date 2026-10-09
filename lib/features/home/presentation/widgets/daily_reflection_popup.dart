@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../core/services/app_haptics.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../reflection/domain/models/daily_content.dart';
 import 'daily_reflection_card.dart';
 
@@ -61,20 +62,23 @@ class DailyReflectionPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
     final isHadith = content.type == DailyContentType.hadith;
     final langCode = Localizations.localeOf(context).languageCode;
     final localizedTranslation = content.getLocalizedTranslation(langCode);
 
-    final TextStyle arabicTextStyle = (isHadith
-            ? AppTypography.hadithStyle(color: colors.textPrimary)
-            : AppTypography.quranicStyle(color: colors.textPrimary))
-        .copyWith(height: 1.7, fontSize: 20.0);
+    final TextStyle arabicTextStyle =
+        (isHadith
+                ? AppTypography.hadithStyle(color: colors.textPrimary)
+                : AppTypography.quranicStyle(color: colors.textPrimary))
+            .copyWith(height: 1.7, fontSize: 20.0);
 
     final TextStyle translationTextStyle = AppTypography.quoteTranslationStyle(
       color: colors.textPrimary,
     ).copyWith(height: 1.45, fontSize: 14.5);
 
-    final shareCallback = onShare ?? () => DailyReflectionCard.shareContent(content, langCode);
+    final shareCallback =
+        onShare ?? () => DailyReflectionCard.shareContent(content, langCode);
 
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
@@ -155,8 +159,11 @@ class DailyReflectionPopup extends StatelessWidget {
                         // Centered Eyebrow Header Tag
                         Center(
                           child: Text(
-                            'DAILY REFLECTION',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            (l10n?.notificationDailyReflectionTitle ??
+                                    'Daily Reflection')
+                                .toUpperCase(),
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
                                   color: accentGold,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.8,
@@ -181,7 +188,10 @@ class DailyReflectionPopup extends StatelessWidget {
                         Container(
                           height: 1,
                           width: double.infinity,
-                          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
@@ -212,21 +222,29 @@ class DailyReflectionPopup extends StatelessWidget {
                             Text(
                               content.getLocalizedSource(langCode),
                               textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              style: Theme.of(context).textTheme.labelMedium
+                                  ?.copyWith(
                                     color: colors.textSecondary,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 11.5,
                                   ),
                             ),
-                            if (isHadith && content.grade != null && content.grade!.trim().isNotEmpty) ...[
+                            if (isHadith &&
+                                content.grade != null &&
+                                content.grade!.trim().isNotEmpty) ...[
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7,
+                                  vertical: 2,
+                                ),
                                 decoration: ShapeDecoration(
                                   color: emeraldGreen.withValues(alpha: 0.12),
                                   shape: ContinuousRectangleBorder(
                                     borderRadius: BorderRadius.circular(6),
                                     side: BorderSide(
-                                      color: emeraldGreen.withValues(alpha: 0.3),
+                                      color: emeraldGreen.withValues(
+                                        alpha: 0.3,
+                                      ),
                                       width: 1,
                                     ),
                                   ),
@@ -261,9 +279,7 @@ class DailyReflectionPopup extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             if (onRefresh != null)
-                              AnimatedRefreshButton(
-                                onRefresh: onRefresh!,
-                              ),
+                              AnimatedRefreshButton(onRefresh: onRefresh!),
                             IconButton(
                               onPressed: shareCallback,
                               icon: Icon(
@@ -307,12 +323,15 @@ class DailyReflectionPopup extends StatelessWidget {
                                 Navigator.of(context).pop();
                               },
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      'Continue to Prayer Times',
+                                      l10n?.continueToPrayerTimes ??
+                                          'Continue to Prayer Times',
                                       style: TextStyle(
                                         color: colors.background,
                                         fontWeight: FontWeight.w700,

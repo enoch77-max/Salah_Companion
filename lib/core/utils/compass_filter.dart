@@ -18,9 +18,9 @@ class CompassFilter {
     this.alpha = 0.35,
     this.minDeltaThreshold = 0.10,
     this.maxStepLimit = 180.0,
-  })  : assert(alpha > 0.0 && alpha <= 1.0, 'alpha must be between 0 and 1'),
-        assert(minDeltaThreshold >= 0.0, 'minDeltaThreshold cannot be negative'),
-        assert(maxStepLimit > 0.0, 'maxStepLimit must be positive');
+  }) : assert(alpha > 0.0 && alpha <= 1.0, 'alpha must be between 0 and 1'),
+       assert(minDeltaThreshold >= 0.0, 'minDeltaThreshold cannot be negative'),
+       assert(maxStepLimit > 0.0, 'maxStepLimit must be positive');
 
   /// Returns the current smoothed heading, or null if no updates received yet.
   double? get currentHeading => _filteredHeading;

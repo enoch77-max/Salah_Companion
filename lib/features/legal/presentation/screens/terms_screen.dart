@@ -25,9 +25,9 @@ class TermsScreen extends StatelessWidget {
         title: Text(
           'Terms & Conditions',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
+            color: colors.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: SafeArea(
@@ -39,18 +39,18 @@ class TermsScreen extends StatelessWidget {
               Text(
                 'Terms of Service',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.2,
-                    ),
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.2,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
                 'By downloading and using Salah Companion, you agree to the following terms and guidelines.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: colors.textSecondary,
-                      height: 1.5,
-                    ),
+                  color: colors.textSecondary,
+                  height: 1.5,
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -90,9 +90,9 @@ class TermsScreen extends StatelessWidget {
               Center(
                 child: Text(
                   'Salah Companion • Open Source',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: colors.textTertiary,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: colors.textTertiary),
                 ),
               ),
               const SizedBox(height: 20),
@@ -126,17 +126,17 @@ class TermsScreen extends StatelessWidget {
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: colors.textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               content,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colors.textSecondary,
-                    height: 1.5,
-                  ),
+                color: colors.textSecondary,
+                height: 1.5,
+              ),
             ),
             if (githubUrl != null) ...[
               const SizedBox(height: 12),
@@ -147,7 +147,10 @@ class TermsScreen extends StatelessWidget {
                 },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: colors.primarySoft,
                     borderRadius: BorderRadius.circular(12),
@@ -172,7 +175,11 @@ class TermsScreen extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Icon(Icons.open_in_new_rounded, size: 16, color: colors.primary),
+                      Icon(
+                        Icons.open_in_new_rounded,
+                        size: 16,
+                        color: colors.primary,
+                      ),
                     ],
                   ),
                 ),

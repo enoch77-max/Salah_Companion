@@ -17,7 +17,8 @@ class InteractiveFeatureDemoStep extends StatefulWidget {
       _InteractiveFeatureDemoStepState();
 }
 
-class _InteractiveFeatureDemoStepState extends State<InteractiveFeatureDemoStep> {
+class _InteractiveFeatureDemoStepState
+    extends State<InteractiveFeatureDemoStep> {
   int _activeFeatureIndex = 0;
 
   // Qibla interactive state
@@ -145,14 +146,34 @@ class _InteractiveFeatureDemoStepState extends State<InteractiveFeatureDemoStep>
           ),
           child: Row(
             children: [
-              _buildTabPill(0, Icons.schedule_rounded, l10n?.navHome ?? 'Prayer', colors,
-                  const [Color(0xFFFBBF24), Color(0xFFF59E0B)]),
-              _buildTabPill(1, Icons.explore_rounded, l10n?.navQibla ?? 'Qibla', colors,
-                  const [Color(0xFF38BDF8), Color(0xFF0EA5E9)]),
-              _buildTabPill(2, Icons.touch_app_rounded, l10n?.navTasbih ?? 'Tasbih', colors,
-                  const [Color(0xFF34D399), Color(0xFF10B981)]),
-              _buildTabPill(3, Icons.menu_book_rounded, l10n?.navDuas ?? 'Sunnah', colors,
-                  const [Color(0xFFA78BFA), Color(0xFF8B5CF6)]),
+              _buildTabPill(
+                0,
+                Icons.schedule_rounded,
+                l10n?.navHome ?? 'Prayer',
+                colors,
+                const [Color(0xFFFBBF24), Color(0xFFF59E0B)],
+              ),
+              _buildTabPill(
+                1,
+                Icons.explore_rounded,
+                l10n?.navQibla ?? 'Qibla',
+                colors,
+                const [Color(0xFF38BDF8), Color(0xFF0EA5E9)],
+              ),
+              _buildTabPill(
+                2,
+                Icons.touch_app_rounded,
+                l10n?.navTasbih ?? 'Tasbih',
+                colors,
+                const [Color(0xFF34D399), Color(0xFF10B981)],
+              ),
+              _buildTabPill(
+                3,
+                Icons.menu_book_rounded,
+                l10n?.navDuas ?? 'Sunnah',
+                colors,
+                const [Color(0xFFA78BFA), Color(0xFF8B5CF6)],
+              ),
             ],
           ),
         ),
@@ -220,7 +241,9 @@ class _InteractiveFeatureDemoStepState extends State<InteractiveFeatureDemoStep>
                     maxLines: 1,
                     style: TextStyle(
                       color: isSelected ? Colors.white : colors.textSecondary,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
                       fontSize: 12,
                     ),
                   ),
@@ -256,7 +279,9 @@ class _InteractiveFeatureDemoStepState extends State<InteractiveFeatureDemoStep>
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.35)),
+        border: Border.all(
+          color: const Color(0xFFF59E0B).withValues(alpha: 0.35),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,7 +302,11 @@ class _InteractiveFeatureDemoStepState extends State<InteractiveFeatureDemoStep>
                         ),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.sunny, color: Colors.white, size: 20),
+                      child: const Icon(
+                        Icons.sunny,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -308,11 +337,16 @@ class _InteractiveFeatureDemoStepState extends State<InteractiveFeatureDemoStep>
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: const Color(0xFFF59E0B).withValues(alpha: 0.3),
+                  ),
                 ),
                 child: const Text(
                   'Solar 18.0° MWL',
@@ -350,7 +384,9 @@ class _InteractiveFeatureDemoStepState extends State<InteractiveFeatureDemoStep>
                     margin: EdgeInsets.only(right: idx < 2 ? 6 : 0),
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: isSel ? const Color(0xFFF59E0B).withValues(alpha: 0.15) : colors.elevatedBackground,
+                      color: isSel
+                          ? const Color(0xFFF59E0B).withValues(alpha: 0.15)
+                          : colors.elevatedBackground,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: isSel ? const Color(0xFFF59E0B) : colors.divider,
@@ -360,8 +396,12 @@ class _InteractiveFeatureDemoStepState extends State<InteractiveFeatureDemoStep>
                       child: Text(
                         soundModes[idx],
                         style: TextStyle(
-                          color: isSel ? const Color(0xFFF59E0B) : colors.textSecondary,
-                          fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
+                          color: isSel
+                              ? const Color(0xFFF59E0B)
+                              : colors.textSecondary,
+                          fontWeight: isSel
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                           fontSize: 11,
                         ),
                       ),
@@ -377,100 +417,111 @@ class _InteractiveFeatureDemoStepState extends State<InteractiveFeatureDemoStep>
   }
 
   Widget _buildQiblaDemo(AppCustomColors colors, AppLocalizations? l10n) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final dialSize = math.min(constraints.maxWidth - 32, 210.0);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final dialSize = math.min(constraints.maxWidth - 32, 210.0);
 
-      return Container(
-        key: const ValueKey('qibla_demo_view'),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: _isQiblaAligned ? colors.success : colors.divider,
-            width: _isQiblaAligned ? 1.5 : 1.0,
-          ),
-        ),
-        child: Column(
-          children: [
-            // Status Header Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: _isQiblaAligned
-                    ? colors.successSoft
-                    : colors.primarySoft,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: _isQiblaAligned
-                      ? colors.success.withValues(alpha: 0.4)
-                      : colors.primary.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    _isQiblaAligned ? Icons.check_circle_rounded : Icons.explore_rounded,
-                    size: 14,
-                    color: _isQiblaAligned ? colors.success : colors.primary,
-                  ),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      _isQiblaAligned
-                          ? (l10n?.onboardingFeatureQiblaAligned ?? 'Qibla Aligned • Makkah Al-Mukarramah')
-                          : 'Aim needle North (Heading: ${_qiblaAngle.round()}°)',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: _isQiblaAligned ? colors.successText : colors.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+        return Container(
+          key: const ValueKey('qibla_demo_view'),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: _isQiblaAligned ? colors.success : colors.divider,
+              width: _isQiblaAligned ? 1.5 : 1.0,
             ),
-            const SizedBox(height: 14),
-
-            // Authentic App Qibla Dial with Drag Controller
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onPanUpdate: (d) => _onQiblaPanUpdate(d, Size(dialSize, dialSize)),
-              child: SizedBox(
-                width: dialSize,
-                height: dialSize,
-                child: Stack(
-                  alignment: Alignment.center,
+          ),
+          child: Column(
+            children: [
+              // Status Header Badge
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: _isQiblaAligned
+                      ? colors.successSoft
+                      : colors.primarySoft,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: _isQiblaAligned
+                        ? colors.success.withValues(alpha: 0.4)
+                        : colors.primary.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Authentic 360° Compass Dial (Ticks, N, E, S, W & Kaaba dot)
-                    CustomPaint(
-                      size: Size(dialSize, dialSize),
-                      painter: _DemoCompassDialPainter(
-                        qiblaBearing: 0.0,
-                        colors: colors,
-                      ),
+                    Icon(
+                      _isQiblaAligned
+                          ? Icons.check_circle_rounded
+                          : Icons.explore_rounded,
+                      size: 14,
+                      color: _isQiblaAligned ? colors.success : colors.primary,
                     ),
-
-                    // Authentic Qibla Needle
-                    CustomPaint(
-                      size: Size(dialSize, dialSize),
-                      painter: _DemoQiblaNeedlePainter(
-                        angleDegrees: _qiblaAngle,
-                        isAligned: _isQiblaAligned,
-                        colors: colors,
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        _isQiblaAligned
+                            ? (l10n?.onboardingFeatureQiblaAligned ??
+                                  'Qibla Aligned • Makkah Al-Mukarramah')
+                            : 'Aim needle North (Heading: ${_qiblaAngle.round()}°)',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: _isQiblaAligned
+                              ? colors.successText
+                              : colors.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
-      );
-    });
+              const SizedBox(height: 14),
+
+              // Authentic App Qibla Dial with Drag Controller
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onPanUpdate: (d) =>
+                    _onQiblaPanUpdate(d, Size(dialSize, dialSize)),
+                child: SizedBox(
+                  width: dialSize,
+                  height: dialSize,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Authentic 360° Compass Dial (Ticks, N, E, S, W & Kaaba dot)
+                      CustomPaint(
+                        size: Size(dialSize, dialSize),
+                        painter: _DemoCompassDialPainter(
+                          qiblaBearing: 0.0,
+                          colors: colors,
+                        ),
+                      ),
+
+                      // Authentic Qibla Needle
+                      CustomPaint(
+                        size: Size(dialSize, dialSize),
+                        painter: _DemoQiblaNeedlePainter(
+                          angleDegrees: _qiblaAngle,
+                          isAligned: _isQiblaAligned,
+                          colors: colors,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildTasbihDemo(AppCustomColors colors, AppLocalizations? l10n) {
@@ -482,7 +533,9 @@ class _InteractiveFeatureDemoStepState extends State<InteractiveFeatureDemoStep>
         decoration: BoxDecoration(
           color: colors.surface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.35)),
+          border: Border.all(
+            color: const Color(0xFF10B981).withValues(alpha: 0.35),
+          ),
         ),
         child: Column(
           children: [
@@ -508,11 +561,9 @@ class _InteractiveFeatureDemoStepState extends State<InteractiveFeatureDemoStep>
             ),
             const SizedBox(height: 6),
             Text(
-              l10n?.onboardingFeatureTapToCount ?? 'Tap anywhere or drag to count',
-              style: TextStyle(
-                color: colors.textTertiary,
-                fontSize: 12,
-              ),
+              l10n?.onboardingFeatureTapToCount ??
+                  'Tap anywhere or drag to count',
+              style: TextStyle(color: colors.textTertiary, fontSize: 12),
             ),
           ],
         ),
@@ -527,7 +578,9 @@ class _InteractiveFeatureDemoStepState extends State<InteractiveFeatureDemoStep>
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.35)),
+        border: Border.all(
+          color: const Color(0xFF8B5CF6).withValues(alpha: 0.35),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -544,7 +597,11 @@ class _InteractiveFeatureDemoStepState extends State<InteractiveFeatureDemoStep>
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.verified_rounded, color: Colors.white, size: 16),
+                child: const Icon(
+                  Icons.verified_rounded,
+                  color: Colors.white,
+                  size: 16,
+                ),
               ),
               const SizedBox(width: 8),
               const Text(
@@ -623,7 +680,9 @@ class _DemoCompassDialPainter extends CustomPainter {
 
       tickPaint.color = isCardinal
           ? (i == 0 ? colors.missed : colors.textPrimary)
-          : (isMajor ? colors.textSecondary : colors.textTertiary.withValues(alpha: 0.4));
+          : (isMajor
+                ? colors.textSecondary
+                : colors.textTertiary.withValues(alpha: 0.4));
       tickPaint.strokeWidth = strokeWidth;
 
       final outerPt = Offset(

@@ -7,7 +7,7 @@ import '../../../../core/presentation/widgets/dua_hands_icon.dart';
 import '../../../../core/presentation/widgets/tasbih_icon.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 
-/// Floating frosted-glass navigation bar matching the design spec.
+/// Floating navigation bar with solid surface and tactile elevation shadow.
 class FrostedGlassBottomNavBar extends StatefulWidget {
   final int selectedIndex;
   final ValueChanged<int> onItemSelected;
@@ -19,7 +19,8 @@ class FrostedGlassBottomNavBar extends StatefulWidget {
   });
 
   @override
-  State<FrostedGlassBottomNavBar> createState() => _FrostedGlassBottomNavBarState();
+  State<FrostedGlassBottomNavBar> createState() =>
+      _FrostedGlassBottomNavBarState();
 }
 
 class _FrostedGlassBottomNavBarState extends State<FrostedGlassBottomNavBar> {
@@ -32,195 +33,276 @@ class _FrostedGlassBottomNavBarState extends State<FrostedGlassBottomNavBar> {
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
     final navItems = [
-      NavItemData(selectedIcon: Icons.home_rounded, unselectedIcon: Icons.home_outlined, label: l10n?.navHome ?? 'Home'),
-      NavItemData(selectedIcon: Icons.book_rounded, unselectedIcon: Icons.book_outlined, label: l10n?.navDuas ?? 'Duas'),
-      NavItemData(selectedIcon: Icons.radio_button_checked_rounded, unselectedIcon: Icons.radio_button_off_rounded, label: l10n?.navTasbih ?? 'Tasbih'),
-      NavItemData(selectedIcon: Icons.explore_rounded, unselectedIcon: Icons.explore_outlined, label: l10n?.navQibla ?? 'Qibla'),
-      NavItemData(selectedIcon: Icons.calendar_month_rounded, unselectedIcon: Icons.calendar_today_outlined, label: l10n?.navCalendar ?? 'Calendar'),
+      NavItemData(
+        selectedIcon: Icons.home_rounded,
+        unselectedIcon: Icons.home_outlined,
+        label: l10n?.navHome ?? 'Home',
+      ),
+      NavItemData(
+        selectedIcon: Icons.book_rounded,
+        unselectedIcon: Icons.book_outlined,
+        label: l10n?.navDuas ?? 'Duas',
+      ),
+      NavItemData(
+        selectedIcon: Icons.radio_button_checked_rounded,
+        unselectedIcon: Icons.radio_button_off_rounded,
+        label: l10n?.navTasbih ?? 'Tasbih',
+      ),
+      NavItemData(
+        selectedIcon: Icons.explore_rounded,
+        unselectedIcon: Icons.explore_outlined,
+        label: l10n?.navQibla ?? 'Qibla',
+      ),
+      NavItemData(
+        selectedIcon: Icons.calendar_month_rounded,
+        unselectedIcon: Icons.calendar_today_outlined,
+        label: l10n?.navCalendar ?? 'Calendar',
+      ),
     ];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return RepaintBoundary(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              colors.background.withValues(alpha: 0.0),
-              colors.background.withValues(alpha: 0.72),
-              colors.background,
-            ],
-            stops: const [0.0, 0.45, 1.0],
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: ConstrainedBox(
+            key: const ValueKey('floating_nav_bar_dock'),
+            constraints: const BoxConstraints(maxWidth: 560.0),
+            child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Container(
+                key: const ValueKey('floating_nav_bar_container'),
                 decoration: BoxDecoration(
-                  color: colors.surface.withValues(alpha: 0.88),
                   borderRadius: BorderRadius.circular(28),
                   border: Border.all(
-                    color: colors.dividerStrong,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.14)
+                        : Colors.white.withValues(alpha: 0.65),
                     width: 1.0,
                   ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.14),
-                blurRadius: 20,
-                offset: const Offset(0, 6),
-                spreadRadius: -2,
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(28),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-              child: Container(
-                height: 58,
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final availableWidth = constraints.maxWidth;
-                    final itemWidth = availableWidth / navItems.length;
-
-                    return Stack(
-                      children: [
-                        // ─── FLUID SLIDING SELECTION HIGHLIGHT PILL (Fully Rounded Edges) ───
-                        AnimatedPositioned(
-                          duration: const Duration(milliseconds: 260),
-                          curve: Curves.easeOutCubic,
-                          left: (widget.selectedIndex * itemWidth) + 3,
-                          top: 2,
-                          bottom: 2,
-                          width: itemWidth - 6,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: colors.primarySoft,
-                              borderRadius: BorderRadius.circular(23), // Fully rounded stadium pill!
-                              border: Border.all(
-                                color: colors.primary.withValues(alpha: 0.35),
-                                width: 1.0,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: colors.primary.withValues(alpha: 0.12),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                          ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(
+                        alpha: isDark ? 0.40 : 0.08,
+                      ),
+                      blurRadius: 20,
+                      offset: const Offset(0, 6),
+                      spreadRadius: -4,
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withValues(
+                        alpha: isDark ? 0.20 : 0.04,
+                      ),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(28),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                    child: Container(
+                      height: 58,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: isDark
+                              ? [
+                                  colors.surface.withValues(alpha: 0.38),
+                                  colors.surface.withValues(alpha: 0.18),
+                                ]
+                              : [
+                                  Colors.white.withValues(alpha: 0.38),
+                                  Colors.white.withValues(alpha: 0.16),
+                                ],
                         ),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 4,
+                      ),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final availableWidth = constraints.maxWidth;
+                          final itemWidth = availableWidth / navItems.length;
 
-                        // ─── NAV ITEMS ROW ──────────────────────────────────────────
-                        Row(
-                          children: List.generate(navItems.length, (index) {
-                            final item = navItems[index];
-                            final isSelected = widget.selectedIndex == index;
-                            final isPressed = _pressedIndex == index;
-
-                            return Expanded(
-                              child: GestureDetector(
-                                key: ValueKey('nav_item_$index'),
-                                behavior: HitTestBehavior.opaque,
-                                onTapDown: (_) {
-                                  setState(() {
-                                    _pressedIndex = index;
-                                  });
-                                  HapticFeedback.selectionClick();
-                                },
-                                onTapUp: (_) {
-                                  setState(() {
-                                    _pressedIndex = null;
-                                  });
-                                  widget.onItemSelected(index);
-                                },
-                                onTapCancel: () {
-                                  setState(() {
-                                    _pressedIndex = null;
-                                  });
-                                },
-                                child: AnimatedScale(
-                                  scale: isPressed ? 0.92 : 1.0,
-                                  duration: const Duration(milliseconds: 120),
-                                  curve: Curves.easeOutCubic,
-                                  child: Container(
-                                    color: Colors.transparent,
-                                    alignment: Alignment.center,
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        AnimatedScale(
-                                          scale: isSelected ? 1.10 : 1.0,
-                                          duration: const Duration(milliseconds: 220),
-                                          curve: Curves.easeOutBack,
-                                          child: index == 1
-                                              ? DuaHandsIcon(
-                                                  color: isSelected ? colors.primary : colors.textTertiary,
-                                                  size: 20,
-                                                  isSelected: isSelected,
-                                                )
-                                              : index == 2
-                                                  ? TasbihIcon(
-                                                      color: isSelected ? colors.primary : colors.textTertiary,
-                                                      size: 20,
-                                                      isSelected: isSelected,
-                                                    )
-                                                  : Icon(
-                                                      isSelected ? item.selectedIcon : item.unselectedIcon,
-                                                      color: isSelected ? colors.primary : colors.textTertiary,
-                                                      size: 20,
-                                                    ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        AnimatedDefaultTextStyle(
-                                          duration: const Duration(milliseconds: 200),
-                                          style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                                                color: isSelected ? colors.primary : colors.textTertiary,
-                                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                                                fontSize: 10.5,
-                                                letterSpacing: isSelected ? -0.1 : 0.0,
-                                              ),
-                                          child: Text(
-                                            item.label,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
+                          return Stack(
+                            children: [
+                              // ─── FLUID SLIDING SELECTION HIGHLIGHT PILL (Fully Rounded Edges) ───
+                              AnimatedPositioned(
+                                duration: const Duration(milliseconds: 260),
+                                curve: Curves.easeOutCubic,
+                                left: (widget.selectedIndex * itemWidth) + 3,
+                                top: 2,
+                                bottom: 2,
+                                width: itemWidth - 6,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: colors.primarySoft,
+                                    borderRadius: BorderRadius.circular(
+                                      23,
+                                    ), // Fully rounded stadium pill!
+                                    border: Border.all(
+                                      color: colors.primary.withValues(
+                                        alpha: 0.35,
+                                      ),
+                                      width: 1.0,
                                     ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: colors.primary.withValues(
+                                          alpha: 0.12,
+                                        ),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                            );
-                          }),
-                        ),
-                      ],
-                    );
-                  },
+
+                              // ─── NAV ITEMS ROW ──────────────────────────────────────────
+                              Row(
+                                children: List.generate(navItems.length, (
+                                  index,
+                                ) {
+                                  final item = navItems[index];
+                                  final isSelected =
+                                      widget.selectedIndex == index;
+                                  final isPressed = _pressedIndex == index;
+
+                                  return Expanded(
+                                    child: GestureDetector(
+                                      key: ValueKey('nav_item_$index'),
+                                      behavior: HitTestBehavior.opaque,
+                                      onTapDown: (_) {
+                                        setState(() {
+                                          _pressedIndex = index;
+                                        });
+                                        HapticFeedback.selectionClick();
+                                      },
+                                      onTapUp: (_) {
+                                        setState(() {
+                                          _pressedIndex = null;
+                                        });
+                                        widget.onItemSelected(index);
+                                      },
+                                      onTapCancel: () {
+                                        setState(() {
+                                          _pressedIndex = null;
+                                        });
+                                      },
+                                      child: AnimatedScale(
+                                        scale: isPressed ? 0.92 : 1.0,
+                                        duration: const Duration(
+                                          milliseconds: 120,
+                                        ),
+                                        curve: Curves.easeOutCubic,
+                                        child: Container(
+                                          color: Colors.transparent,
+                                          alignment: Alignment.center,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              AnimatedScale(
+                                                scale: isSelected ? 1.10 : 1.0,
+                                                duration: const Duration(
+                                                  milliseconds: 220,
+                                                ),
+                                                curve: Curves.easeOutBack,
+                                                child: index == 1
+                                                    ? DuaHandsIcon(
+                                                        color: isSelected
+                                                            ? colors.primary
+                                                            : colors
+                                                                  .textSecondary,
+                                                        size: 20,
+                                                        isSelected: isSelected,
+                                                      )
+                                                    : index == 2
+                                                    ? TasbihIcon(
+                                                        color: isSelected
+                                                            ? colors.primary
+                                                            : colors
+                                                                  .textSecondary,
+                                                        size: 20,
+                                                        isSelected: isSelected,
+                                                      )
+                                                    : Icon(
+                                                        isSelected
+                                                            ? item.selectedIcon
+                                                            : item.unselectedIcon,
+                                                        color: isSelected
+                                                            ? colors.primary
+                                                            : colors
+                                                                  .textSecondary,
+                                                        size: 20,
+                                                      ),
+                                              ),
+                                              const SizedBox(height: 2),
+                                              AnimatedDefaultTextStyle(
+                                                duration: const Duration(
+                                                  milliseconds: 200,
+                                                ),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .labelSmall!
+                                                    .copyWith(
+                                                      color: isSelected
+                                                          ? colors.primary
+                                                          : colors
+                                                                .textSecondary,
+                                                      fontWeight: isSelected
+                                                          ? FontWeight.w700
+                                                          : FontWeight.w500,
+                                                      fontSize: 10.5,
+                                                      letterSpacing: isSelected
+                                                          ? -0.1
+                                                          : 0.0,
+                                                    ),
+                                                child: Text(
+                                                  item.label,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-      SizedBox(height: bottomPadding > 0 ? 8.0 : 12.0),
-      if (bottomPadding > 0)
-        Container(
-          height: bottomPadding,
-          width: double.infinity,
-          color: colors.background,
-        ),
-    ],
-  ),
-),
-);
+        SizedBox(height: bottomPadding > 0 ? 8.0 : 12.0),
+        if (bottomPadding > 0)
+          Container(
+            height: bottomPadding,
+            width: double.infinity,
+            color: colors.background,
+          ),
+      ],
+    );
   }
 }
 

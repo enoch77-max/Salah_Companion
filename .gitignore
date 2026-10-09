@@ -18,6 +18,8 @@ Thumbs.db
 # AI / IDE / Tools
 .claude/
 .idea/
+.superpowers/
+plans/
 *.iml
 *.ipr
 *.iws

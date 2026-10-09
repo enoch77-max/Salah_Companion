@@ -941,6 +941,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'لَا إِلَٰهَ إِلَّا اللَّهُ';
 
   @override
+  String get dhikrSalawat => 'الصَّلَاةُ عَلَى النَّبِيِّ';
+
+  @override
   String get dhikrSubhanAllahTranslation =>
       'تنزيه الله تعالى عن كل نقص وبراءة له';
 
@@ -958,6 +961,13 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get dhikrLaIlahaIllallahTranslation =>
       'لا معبود بحق إلا الله وحده لا شريك له';
+
+  @override
+  String get dhikrSalawatTranslation =>
+      'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ';
+
+  @override
+  String get doSalawat => 'صَلِّ على النبي';
 
   @override
   String tasbihNextDhikr(String dhikr) {
@@ -990,43 +1000,207 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get forbiddenTimesNotificationTitle => 'Forbidden Time Notifications';
+  String get forbiddenTimesNotificationTitle => 'إشعارات أوقات الكراهة والنهي';
 
   @override
   String get forbiddenTimesNotificationSubtitle =>
-      'Alerts for Sunrise, Zenith & Sunset prohibited windows';
+      'تنبيهات عند دخول أوقات النهي عن صلاة النوافل';
 
   @override
-  String get forbiddenNaflUpcomingSunriseHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNRISE';
+  String get forbiddenNaflUpcomingSunriseHeader => 'اقتراب وقت النهي • الشروق';
 
   @override
   String forbiddenNaflUpcomingSunriseBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time as the sun rises. Conclude voluntary prayers before this time.';
+    return 'ستُكره صلاة النفل عند الساعة $time مع شروق الشمس. يُرجى إنهاء النوافل قبل هذا الوقت.';
   }
 
   @override
-  String get forbiddenNaflUpcomingZawalHeader =>
-      'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
+  String get forbiddenNaflUpcomingZawalHeader => 'اقتراب وقت النهي • الزوال';
 
   @override
   String forbiddenNaflUpcomingZawalBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time during solar zenith. Conclude voluntary prayers before this time.';
+    return 'ستُكره صلاة النفل عند الساعة $time عند استواء الشمس في كبد السماء. يُرجى إنهاء النوافل قبل هذا الوقت.';
   }
 
   @override
-  String get forbiddenNaflUpcomingSunsetHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNSET';
+  String get forbiddenNaflUpcomingSunsetHeader => 'اقتراب وقت النهي • الغروب';
 
   @override
   String forbiddenNaflUpcomingSunsetBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time before sunset. Conclude voluntary prayers before this time.';
+    return 'ستُكره صلاة النفل عند الساعة $time قبيل غروب الشمس. يُرجى إنهاء النوافل قبل هذا الوقت.';
   }
 
   @override
-  String get forbiddenNaflConcludedHeader => 'FORBIDDEN TIME CONCLUDED';
+  String get forbiddenNaflConcludedHeader => 'انتهاء وقت النهي عن النوافل';
 
   @override
   String get forbiddenNaflConcludedBody =>
-      'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
+      'انتهى وقت النهي، وتجوز صلاة النوافل الآن.';
+
+  @override
+  String get solarTimingsTitle => 'المواقيت الشمسية';
+
+  @override
+  String get daylightWindowNote =>
+      'نافذة ضوء النهار: ينتهي الفجر بدقة عند شروق الشمس. ويبدأ المغرب عند غروب الشمس.';
+
+  @override
+  String get prayerStarts => 'يبدأ';
+
+  @override
+  String get prayerStarted => 'بدأ';
+
+  @override
+  String get prayerEnds => 'ينتهي';
+
+  @override
+  String get badgeCurrent => 'الحالي';
+
+  @override
+  String get badgeNext => 'التالي';
+
+  @override
+  String get shuruqBadge => 'الشروق';
+
+  @override
+  String get continueToPrayerTimes => 'المتابعة إلى مواقيت الصلاة';
+
+  @override
+  String tomorrowAt(String time) {
+    return 'غداً عند $time';
+  }
+
+  @override
+  String get fridayJumuahTitle => 'الجمعة';
+
+  @override
+  String get fridayLocationLabel => 'المكان';
+
+  @override
+  String get fridayAtMosque => 'في المسجد';
+
+  @override
+  String get fridayAtHome => 'في البيت';
+
+  @override
+  String get fridaySunnahRulingsTitle => 'أحكام سنن يوم الجمعة';
+
+  @override
+  String get fridayBeforeLabel => 'قبل الصلاة';
+
+  @override
+  String get fridayAfterLabel => 'بعد الصلاة';
+
+  @override
+  String get fridayMosqueBeforeDesc =>
+      'تحية المسجد ونوافل مطلقة حتى يصعد الإمام المنبر.';
+
+  @override
+  String get fridayMosqueAfterDesc =>
+      '٤ ركعات سنة (في المسجد) أو ركعتان (إذا صليت في البيت).';
+
+  @override
+  String get fridayHomeBeforeDesc =>
+      '٤ ركعات سنة قبل الظهر (لمن يصلي الظهر في بيته).';
+
+  @override
+  String get fridayHomeAfterDesc =>
+      'ركعتان سنة بعد الظهر (لمن يصلي الظهر في بيته).';
+
+  @override
+  String get fridayClickToReadFull =>
+      'اضغط للاطلاع على الأحكام والأحاديث النبوية';
+
+  @override
+  String get fridaySuiteHeader => 'سنن وفضائل يوم الجمعة';
+
+  @override
+  String get fridayTodayOnly => 'متاح يوم الجمعة';
+
+  @override
+  String get surahKahfTitle => 'سورة الكهف';
+
+  @override
+  String get surahKahfBadge => 'نور بين الجمعتين';
+
+  @override
+  String get surahKahfHadith =>
+      'من قرأ سورة الكهف في يوم الجمعة أضاء له من النور ما بين الجمعتين. (رواه البيهقي)';
+
+  @override
+  String get markAsRead => 'تحديد كمقروء';
+
+  @override
+  String get readCompleted => 'تمت القراءة';
+
+  @override
+  String get salawatTitle => 'الإكثار من الصلاة على النبي ﷺ';
+
+  @override
+  String get salawatBadge => 'معروضة عليه ﷺ';
+
+  @override
+  String get salawatHadith =>
+      'أكثروا علي من الصلاة فيه؛ فإن صلاتكم معروضة علي. (رواه أبو داود)';
+
+  @override
+  String get salawatCountLabel => 'الصلوات اليوم';
+
+  @override
+  String get salawatTapBtn => 'صَلِّ على النبي (+١)';
+
+  @override
+  String get fridayEtiquettesTitle => 'سنن وآداب يوم الجمعة';
+
+  @override
+  String get fridayEtiquettesRef => 'السنن النبوية للجمعة';
+
+  @override
+  String get fridayGhusl => 'الغسل والتطهر قبل الصلاة';
+
+  @override
+  String get fridaySiwak => 'استعمال السواك والتطيب';
+
+  @override
+  String get fridayCleanClothes => 'لبس أحسن الثياب وأنظفها';
+
+  @override
+  String get fridayEarlyMosque => 'التبكير إلى المسجد والإنصات للخطبة';
+
+  @override
+  String get istijabahTitle => 'ساعة الاستجابة';
+
+  @override
+  String get istijabahBadge => 'دعاء مستجاب';
+
+  @override
+  String get istijabahHadith =>
+      'إن في الجمعة لساعة لا يوافقها عبد مسلم يسأل الله فيها خيرا إلا أعطاه إياه — فالتمسوها آخر ساعة بعد العصر. (رواه أبو داود والنسائي)';
+
+  @override
+  String get fridayHadithGuideSheetTitle => 'دليل سنن صلاة الجمعة وأحاديثها';
+
+  @override
+  String get fridayHadithBeforeCardTitle => 'قبل صلاة الجمعة / الظهر';
+
+  @override
+  String get fridayHadithBeforeCardDesc =>
+      'في المسجد: ركعتا تحية المسجد عند الدخول ونفل مطلق حتى يبدأ الإمام بالخطبة. في البيت (صلاة الظهر): ٤ ركعات سنة مؤكدة قبل الظهر.';
+
+  @override
+  String get fridayHadithAfterMosqueTitle => 'بعد الجمعة في المسجد (٤ ركعات)';
+
+  @override
+  String get fridayHadithAfterMosqueDesc =>
+      'عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ: «إذا صلى أحدكم الجمعة فليصل بعدها أربعا». (صحيح مسلم ٨٨١)';
+
+  @override
+  String get fridayHadithAfterHomeTitle => 'بعد الجمعة في البيت (ركعتان)';
+
+  @override
+  String get fridayHadithAfterHomeDesc =>
+      'عن ابن عمر رضي الله عنهما: «أن النبي ﷺ كان لا يصلي بعد الجمعة حتى ينصرف فيصلي ركعتين في بيته». (صحيح البخاري ٩٣٧، صحيح مسلم ٨٨٢)';
+
+  @override
+  String get closeGuideBtn => 'إغلاق الدليل';
 }

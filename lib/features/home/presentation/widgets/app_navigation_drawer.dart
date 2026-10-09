@@ -41,7 +41,10 @@ class AppNavigationDrawer extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                       child: Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                         decoration: ShapeDecoration(
                           color: colors.surface,
                           shape: ContinuousRectangleBorder(
@@ -71,7 +74,10 @@ class AppNavigationDrawer extends StatelessWidget {
                                 children: [
                                   Text(
                                     l10n?.appTitle ?? 'Salah Companion',
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
                                           color: colors.textPrimary,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 17,
@@ -79,10 +85,10 @@ class AppNavigationDrawer extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 1),
                                   Text(
-                                    l10n?.prayerAndReflection ?? 'Prayer & Reflection',
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: colors.textSecondary,
-                                        ),
+                                    l10n?.prayerAndReflection ??
+                                        'Prayer & Reflection',
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(color: colors.textSecondary),
                                   ),
                                 ],
                               ),
@@ -94,16 +100,26 @@ class AppNavigationDrawer extends StatelessWidget {
 
                     // 1. GUIDANCE Category (Learn Salah on Top of Navigation)
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 4.0,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(left: 4.0, bottom: 6.0, top: 4.0),
+                            padding: const EdgeInsets.only(
+                              left: 4.0,
+                              bottom: 6.0,
+                              top: 4.0,
+                            ),
                             child: Text(
                               l10n?.guidanceCategory ?? 'GUIDANCE',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: const Color(0xFF7C3AED), // Royal Amethyst Violet
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    color: const Color(
+                                      0xFF7C3AED,
+                                    ), // Royal Amethyst Violet
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 0.8,
                                   ),
@@ -114,23 +130,32 @@ class AppNavigationDrawer extends StatelessWidget {
                             shape: ContinuousRectangleBorder(
                               borderRadius: BorderRadius.circular(24),
                               side: BorderSide(
-                                color: const Color(0xFF7C3AED).withValues(alpha: 0.35),
+                                color: const Color(
+                                  0xFF7C3AED,
+                                ).withValues(alpha: 0.35),
                                 width: 1.2,
                               ),
                             ),
                             clipBehavior: Clip.antiAlias,
                             child: DrawerGroupedTile(
-                              tileKey: const ValueKey('drawer_learn_salah_item'),
+                              tileKey: const ValueKey(
+                                'drawer_learn_salah_item',
+                              ),
                               icon: Icons.auto_stories_rounded,
-                              iconColor: const Color(0xFF7C3AED), // Royal Amethyst Violet
+                              iconColor: const Color(
+                                0xFF7C3AED,
+                              ), // Royal Amethyst Violet
                               title: l10n?.learnSalah ?? 'Learn Salah',
-                              subtitle: l10n?.learnSalahSubtitle ?? 'Learn Salah with authentic Sunnah and Hadith',
+                              subtitle:
+                                  l10n?.learnSalahSubtitle ??
+                                  'Learn Salah with authentic Sunnah and Hadith',
                               onTap: () {
                                 Navigator.pop(context); // Close drawer
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const LearnSalahHubScreen(),
+                                    builder: (context) =>
+                                        const LearnSalahHubScreen(),
                                   ),
                                 );
                               },
@@ -143,15 +168,23 @@ class AppNavigationDrawer extends StatelessWidget {
 
                     // 2. Navigation Grouped Inset Card (Matching SettingsScreen iOS Style)
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 4.0,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(left: 4.0, bottom: 6.0, top: 4.0),
+                            padding: const EdgeInsets.only(
+                              left: 4.0,
+                              bottom: 6.0,
+                              top: 4.0,
+                            ),
                             child: Text(
                               l10n?.drawerNavigation ?? 'NAVIGATION',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
                                     color: colors.textSecondary,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 0.8,
@@ -162,7 +195,10 @@ class AppNavigationDrawer extends StatelessWidget {
                             color: colors.surface,
                             shape: ContinuousRectangleBorder(
                               borderRadius: BorderRadius.circular(24),
-                              side: BorderSide(color: colors.divider, width: 1.0),
+                              side: BorderSide(
+                                color: colors.divider,
+                                width: 1.0,
+                              ),
                             ),
                             clipBehavior: Clip.antiAlias,
                             child: Column(
@@ -170,31 +206,51 @@ class AppNavigationDrawer extends StatelessWidget {
                               children: [
                                 // 1. Saved Screen Option
                                 DrawerGroupedTile(
-                                  tileKey: const ValueKey('drawer_favorites_item'),
+                                  tileKey: const ValueKey(
+                                    'drawer_favorites_item',
+                                  ),
                                   icon: Icons.bookmark_rounded,
-                                  iconColor: const Color(0xFFF59E0B), // Warm Amber Gold
+                                  iconColor: const Color(
+                                    0xFFF59E0B,
+                                  ), // Warm Amber Gold
                                   title: l10n?.savedItems ?? 'Saved',
-                                  subtitle: l10n?.savedItemsSubtitle ?? 'Hadiths, Verses & Duas',
+                                  subtitle:
+                                      l10n?.savedItemsSubtitle ??
+                                      'Hadiths, Verses & Duas',
                                   onTap: () {
                                     Navigator.pop(context); // Close drawer
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => FavoritesScreen(
-                                          repository: DailyContentRepository(AppDatabase.instance()),
+                                          repository: DailyContentRepository(
+                                            AppDatabase.instance(),
+                                          ),
                                         ),
                                       ),
                                     );
                                   },
                                 ),
-                                Divider(height: 1, thickness: 1, color: colors.divider, indent: 0, endIndent: 0),
+                                Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: colors.divider,
+                                  indent: 0,
+                                  endIndent: 0,
+                                ),
                                 // 2. Home Screen Widgets Option
                                 DrawerGroupedTile(
-                                  tileKey: const ValueKey('drawer_widgets_item'),
+                                  tileKey: const ValueKey(
+                                    'drawer_widgets_item',
+                                  ),
                                   icon: Icons.widgets_rounded,
-                                  iconColor: const Color(0xFF06B6D4), // Electric Cyan (Modular Widgets)
+                                  iconColor: const Color(
+                                    0xFF06B6D4,
+                                  ), // Electric Cyan (Modular Widgets)
                                   title: l10n?.widgetsTitle ?? 'Widgets',
-                                  subtitle: l10n?.widgetsSubtitle ?? 'Add widgets to home screen',
+                                  subtitle:
+                                      l10n?.widgetsSubtitle ??
+                                      'Add widgets to home screen',
                                   onTap: () {
                                     Navigator.pop(context); // Close drawer
                                     WidgetPreviewSheet.show(context);
@@ -210,15 +266,24 @@ class AppNavigationDrawer extends StatelessWidget {
 
                     // 3. OPEN SOURCE & PRIVACY Inset Card
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 4.0,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(left: 4.0, bottom: 6.0, top: 4.0),
+                            padding: const EdgeInsets.only(
+                              left: 4.0,
+                              bottom: 6.0,
+                              top: 4.0,
+                            ),
                             child: Text(
-                              l10n?.drawerOpenSourcePrivacy ?? 'OPEN SOURCE & PRIVACY',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              l10n?.drawerOpenSourcePrivacy ??
+                                  'OPEN SOURCE & PRIVACY',
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
                                     color: colors.textSecondary,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 0.8,
@@ -229,15 +294,26 @@ class AppNavigationDrawer extends StatelessWidget {
                             color: colors.surface,
                             shape: ContinuousRectangleBorder(
                               borderRadius: BorderRadius.circular(24),
-                              side: BorderSide(color: colors.divider, width: 1.0),
+                              side: BorderSide(
+                                color: colors.divider,
+                                width: 1.0,
+                              ),
                             ),
                             clipBehavior: Clip.antiAlias,
                             child: DrawerGroupedTile(
-                              tileKey: const ValueKey('drawer_open_source_privacy_item'),
+                              tileKey: const ValueKey(
+                                'drawer_open_source_privacy_item',
+                              ),
                               icon: Icons.verified_user_rounded,
-                              iconColor: const Color(0xFF059669), // Trust Jade Emerald
-                              title: l10n?.openSourcePrivacy ?? 'Open Source & Privacy',
-                              subtitle: l10n?.openSourcePrivacySubtitle ?? '100% offline, zero tracking & Non-Commercial',
+                              iconColor: const Color(
+                                0xFF059669,
+                              ), // Trust Jade Emerald
+                              title:
+                                  l10n?.openSourcePrivacy ??
+                                  'Open Source & Privacy',
+                              subtitle:
+                                  l10n?.openSourcePrivacySubtitle ??
+                                  '100% offline, zero tracking & Non-Commercial',
                               onTap: () {
                                 Navigator.pop(context); // Close drawer
                                 OpenSourceSheet.show(context);
@@ -261,12 +337,15 @@ class AppNavigationDrawer extends StatelessWidget {
 
             // Footer
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
               child: Text(
                 AppInfoService.drawerFooterText,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colors.textTertiary,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelSmall?.copyWith(color: colors.textTertiary),
               ),
             ),
           ],
@@ -313,11 +392,7 @@ class DrawerGroupedTile extends StatelessWidget {
                 color: iconColor,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 20,
-              ),
+              child: Icon(icon, color: Colors.white, size: 20),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -327,18 +402,18 @@ class DrawerGroupedTile extends StatelessWidget {
                   Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                        ),
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
                   ),
                   const SizedBox(height: 1),
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colors.textSecondary,
-                          fontSize: 12,
-                        ),
+                      color: colors.textSecondary,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
@@ -393,10 +468,10 @@ class ThemeSegmentedControl extends StatelessWidget {
             child: Text(
               l10n?.themeMode ?? 'THEME MODE',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: colors.textSecondary,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.8,
-                  ),
+                color: colors.textSecondary,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.8,
+              ),
             ),
           ),
           Container(
@@ -415,8 +490,8 @@ class ThemeSegmentedControl extends StatelessWidget {
                 final alignment = selectedIndex == 0
                     ? Alignment.centerLeft
                     : selectedIndex == 1
-                        ? Alignment.center
-                        : Alignment.centerRight;
+                    ? Alignment.center
+                    : Alignment.centerRight;
 
                 return Stack(
                   children: [
@@ -506,11 +581,7 @@ class ThemeSegmentedControl extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 14,
-                color: textColor,
-              ),
+              Icon(icon, size: 14, color: textColor),
               const SizedBox(width: 4),
               Text(
                 label.toUpperCase(),

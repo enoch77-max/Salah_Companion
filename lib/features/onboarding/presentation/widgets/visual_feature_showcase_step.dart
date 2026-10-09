@@ -14,7 +14,8 @@ class VisualFeatureShowcaseStep extends StatefulWidget {
   const VisualFeatureShowcaseStep({super.key});
 
   @override
-  State<VisualFeatureShowcaseStep> createState() => _VisualFeatureShowcaseStepState();
+  State<VisualFeatureShowcaseStep> createState() =>
+      _VisualFeatureShowcaseStepState();
 }
 
 class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
@@ -63,10 +64,34 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
           ),
           child: Row(
             children: [
-              _buildFeatureTab(0, Icons.schedule_rounded, l10n?.navHome ?? 'Prayer', const [Color(0xFFFBBF24), Color(0xFFF59E0B)], colors),
-              _buildFeatureTab(1, Icons.explore_rounded, l10n?.navQibla ?? 'Qibla', const [Color(0xFF38BDF8), Color(0xFF0EA5E9)], colors),
-              _buildFeatureTab(2, Icons.touch_app_rounded, l10n?.navTasbih ?? 'Tasbih', const [Color(0xFF34D399), Color(0xFF10B981)], colors),
-              _buildFeatureTab(3, Icons.auto_stories_rounded, l10n?.categoryHadith ?? 'Reflect', const [Color(0xFFA78BFA), Color(0xFF8B5CF6)], colors),
+              _buildFeatureTab(
+                0,
+                Icons.schedule_rounded,
+                l10n?.navHome ?? 'Prayer',
+                const [Color(0xFFFBBF24), Color(0xFFF59E0B)],
+                colors,
+              ),
+              _buildFeatureTab(
+                1,
+                Icons.explore_rounded,
+                l10n?.navQibla ?? 'Qibla',
+                const [Color(0xFF38BDF8), Color(0xFF0EA5E9)],
+                colors,
+              ),
+              _buildFeatureTab(
+                2,
+                Icons.touch_app_rounded,
+                l10n?.navTasbih ?? 'Tasbih',
+                const [Color(0xFF34D399), Color(0xFF10B981)],
+                colors,
+              ),
+              _buildFeatureTab(
+                3,
+                Icons.auto_stories_rounded,
+                l10n?.categoryHadith ?? 'Reflect',
+                const [Color(0xFFA78BFA), Color(0xFF8B5CF6)],
+                colors,
+              ),
             ],
           ),
         ),
@@ -158,7 +183,9 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
                     label,
                     style: TextStyle(
                       color: isSelected ? Colors.white : colors.textSecondary,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w600,
                       fontSize: 11,
                     ),
                   ),
@@ -172,20 +199,26 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
   }
 
   // ─── SLIDE 1: PRAYER TIMES & COUNTDOWN HERO ──────────────────────────────────
-  Widget _buildPrayerShowcaseSlide(AppCustomColors colors, AppLocalizations? l10n) {
+  Widget _buildPrayerShowcaseSlide(
+    AppCustomColors colors,
+    AppLocalizations? l10n,
+  ) {
     return Container(
       key: const ValueKey('showcase_prayer_slide'),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.35)),
+        border: Border.all(
+          color: const Color(0xFFF59E0B).withValues(alpha: 0.35),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            l10n?.onboardingShowcasePrayerTitle ?? 'Astronomical Precision Prayer Times',
+            l10n?.onboardingShowcasePrayerTitle ??
+                'Astronomical Precision Prayer Times',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: colors.textPrimary,
@@ -221,7 +254,9 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
+              border: Border.all(
+                color: const Color(0xFFF59E0B).withValues(alpha: 0.3),
+              ),
             ),
             child: Column(
               children: [
@@ -229,14 +264,21 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.wb_sunny_rounded, color: Color(0xFFF59E0B), size: 14),
+                          const Icon(
+                            Icons.wb_sunny_rounded,
+                            color: Color(0xFFF59E0B),
+                            size: 14,
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             l10n?.prayerAsr ?? 'Asr',
@@ -279,7 +321,10 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
                 const SizedBox(height: 10),
                 // Period Capsule
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: colors.surface,
                     borderRadius: BorderRadius.circular(8),
@@ -290,14 +335,28 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
                     children: [
                       Text(
                         '${l10n?.timeStart ?? 'Start'} 03:45 PM',
-                        style: TextStyle(fontSize: 10, color: colors.textSecondary, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: colors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(width: 8),
-                      Text('•', style: TextStyle(color: colors.textTertiary, fontSize: 10)),
+                      Text(
+                        '•',
+                        style: TextStyle(
+                          color: colors.textTertiary,
+                          fontSize: 10,
+                        ),
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         '${l10n?.timeEnd ?? 'End'} 06:18 PM',
-                        style: TextStyle(fontSize: 10, color: colors.textPrimary, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: colors.textPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -317,11 +376,16 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.menu_book_rounded, color: Color(0xFFF59E0B), size: 14),
+                const Icon(
+                  Icons.menu_book_rounded,
+                  color: Color(0xFFF59E0B),
+                  size: 14,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    l10n?.sunnahAsrDesc ?? "4 Raka'at Sunnah Before (Ghair Mu'akkadah)",
+                    l10n?.sunnahAsrDesc ??
+                        "4 Raka'at Sunnah Before (Ghair Mu'akkadah)",
                     style: TextStyle(
                       color: colors.textPrimary,
                       fontSize: 11,
@@ -338,14 +402,19 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
   }
 
   // ─── SLIDE 2: TRUE-NORTH QIBLA COMPASS ────────────────────────────────────────
-  Widget _buildQiblaShowcaseSlide(AppCustomColors colors, AppLocalizations? l10n) {
+  Widget _buildQiblaShowcaseSlide(
+    AppCustomColors colors,
+    AppLocalizations? l10n,
+  ) {
     return Container(
       key: const ValueKey('showcase_qibla_slide'),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFF0EA5E9).withValues(alpha: 0.35)),
+        border: Border.all(
+          color: const Color(0xFF0EA5E9).withValues(alpha: 0.35),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -381,12 +450,18 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
               decoration: BoxDecoration(
                 color: colors.successSoft,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colors.success.withValues(alpha: 0.4)),
+                border: Border.all(
+                  color: colors.success.withValues(alpha: 0.4),
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle_rounded, size: 14, color: colors.success),
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 14,
+                    color: colors.success,
+                  ),
                   const SizedBox(width: 6),
                   const Text(
                     '294° NW • Makkah Al-Mukarramah',
@@ -432,7 +507,10 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
   }
 
   // ─── SLIDE 3: TACTILE DIGITAL TASBIH ──────────────────────────────────────────
-  Widget _buildTasbihShowcaseSlide(AppCustomColors colors, AppLocalizations? l10n) {
+  Widget _buildTasbihShowcaseSlide(
+    AppCustomColors colors,
+    AppLocalizations? l10n,
+  ) {
     return GestureDetector(
       key: const ValueKey('showcase_tasbih_slide'),
       onTap: () {
@@ -446,7 +524,9 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
         decoration: BoxDecoration(
           color: colors.surface,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.35)),
+          border: Border.all(
+            color: const Color(0xFF10B981).withValues(alpha: 0.35),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -481,7 +561,9 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
               decoration: BoxDecoration(
                 color: const Color(0xFF10B981).withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.25)),
+                border: Border.all(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.25),
+                ),
               ),
               child: const Column(
                 children: [
@@ -555,20 +637,26 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
   }
 
   // ─── SLIDE 4: DAILY REFLECTIONS & DUAS ────────────────────────────────────────
-  Widget _buildReflectionShowcaseSlide(AppCustomColors colors, AppLocalizations? l10n) {
+  Widget _buildReflectionShowcaseSlide(
+    AppCustomColors colors,
+    AppLocalizations? l10n,
+  ) {
     return Container(
       key: const ValueKey('showcase_reflection_slide'),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.35)),
+        border: Border.all(
+          color: const Color(0xFF8B5CF6).withValues(alpha: 0.35),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            l10n?.onboardingShowcaseReflectionTitle ?? 'Daily Spiritual Reflections & Duas',
+            l10n?.onboardingShowcaseReflectionTitle ??
+                'Daily Spiritual Reflections & Duas',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: colors.textPrimary,
@@ -604,7 +692,9 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.3)),
+              border: Border.all(
+                color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -613,23 +703,38 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF8B5CF6).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Row(
                         children: [
-                          Icon(Icons.verified_rounded, color: Color(0xFF8B5CF6), size: 12),
+                          Icon(
+                            Icons.verified_rounded,
+                            color: Color(0xFF8B5CF6),
+                            size: 12,
+                          ),
                           SizedBox(width: 4),
                           Text(
                             'Sahih al-Bukhari • 5058',
-                            style: TextStyle(color: Color(0xFF8B5CF6), fontSize: 10.5, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              color: Color(0xFF8B5CF6),
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.bookmark_added_rounded, color: Color(0xFF8B5CF6), size: 16),
+                    const Icon(
+                      Icons.bookmark_added_rounded,
+                      color: Color(0xFF8B5CF6),
+                      size: 16,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -667,7 +772,11 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.favorite_rounded, color: Color(0xFF8B5CF6), size: 14),
+                const Icon(
+                  Icons.favorite_rounded,
+                  color: Color(0xFF8B5CF6),
+                  size: 14,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -731,7 +840,10 @@ class _ShowcaseCompassDialPainter extends CustomPainter {
         ),
         textDirection: TextDirection.ltr,
       )..layout();
-      textPainter.paint(canvas, offset - Offset(textPainter.width / 2, textPainter.height / 2));
+      textPainter.paint(
+        canvas,
+        offset - Offset(textPainter.width / 2, textPainter.height / 2),
+      );
     }
   }
 
@@ -777,7 +889,11 @@ class _ShowcaseQiblaNeedlePainter extends CustomPainter {
       ..style = PaintingStyle.fill;
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromCenter(center: Offset(0, -(radius - 26)), width: 10, height: 10),
+        Rect.fromCenter(
+          center: Offset(0, -(radius - 26)),
+          width: 10,
+          height: 10,
+        ),
         const Radius.circular(2),
       ),
       goldBoxPaint,
@@ -800,5 +916,6 @@ class _ShowcaseQiblaNeedlePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _ShowcaseQiblaNeedlePainter oldDelegate) =>
-      oldDelegate.angleDegrees != angleDegrees || oldDelegate.isAligned != isAligned;
+      oldDelegate.angleDegrees != angleDegrees ||
+      oldDelegate.isAligned != isAligned;
 }

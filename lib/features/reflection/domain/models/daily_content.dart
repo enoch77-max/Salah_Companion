@@ -50,7 +50,9 @@ class DailyContentItem {
   /// Resolves the authentic scholarly translation for the given language code,
   /// falling back to the default English translation.
   String getLocalizedTranslation(String? languageCode) {
-    if (languageCode != null && translations != null && translations!.containsKey(languageCode)) {
+    if (languageCode != null &&
+        translations != null &&
+        translations!.containsKey(languageCode)) {
       final val = translations![languageCode];
       if (val != null && val.trim().isNotEmpty) return val;
     }
@@ -59,7 +61,9 @@ class DailyContentItem {
 
   /// Resolves the authentic scholarly citation source for the given language code.
   String getLocalizedSource(String? languageCode) {
-    if (languageCode != null && translationSources != null && translationSources!.containsKey(languageCode)) {
+    if (languageCode != null &&
+        translationSources != null &&
+        translationSources!.containsKey(languageCode)) {
       final val = translationSources![languageCode];
       if (val != null && val.trim().isNotEmpty) return val;
     }
@@ -90,7 +94,9 @@ class DailyContentItem {
 
     final translationSource = json['translation_source'] as String?;
     if (translationSource == null || translationSource.trim().isEmpty) {
-      throw FormatException('DailyContentItem $id missing "translation_source"');
+      throw FormatException(
+        'DailyContentItem $id missing "translation_source"',
+      );
     }
 
     final reference = json['reference'] as String?;
@@ -102,25 +108,31 @@ class DailyContentItem {
     final grade = json['grade'] as String?;
     final gradedBy = json['graded_by'] as String?;
     final occasion = json['occasion'] as String?;
-    final tagsList = (json['tags'] as List<dynamic>?)
-            ?.map((e) => e.toString())
-            .toList() ??
+    final tagsList =
+        (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
         const <String>[];
 
     final translationsRaw = json['translations'] as Map<String, dynamic>?;
-    final translations = translationsRaw?.map((k, v) => MapEntry(k, v.toString()));
+    final translations = translationsRaw?.map(
+      (k, v) => MapEntry(k, v.toString()),
+    );
 
-    final translationSourcesRaw = json['translation_sources'] as Map<String, dynamic>?;
-    final translationSources = translationSourcesRaw?.map((k, v) => MapEntry(k, v.toString()));
+    final translationSourcesRaw =
+        json['translation_sources'] as Map<String, dynamic>?;
+    final translationSources = translationSourcesRaw?.map(
+      (k, v) => MapEntry(k, v.toString()),
+    );
 
     if (type == DailyContentType.hadith) {
       if (grade != 'Sahih') {
         throw FormatException(
-            'Hadith item $id must have grade "Sahih", got: $grade');
+          'Hadith item $id must have grade "Sahih", got: $grade',
+        );
       }
       if (gradedBy == null || gradedBy.trim().isEmpty) {
         throw FormatException(
-            'Hadith item $id must have a non-empty graded_by field');
+          'Hadith item $id must have a non-empty graded_by field',
+        );
       }
     }
 

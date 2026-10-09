@@ -48,7 +48,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get upcomingPrayer => 'পরবর্তী সালাত';
 
   @override
-  String get currentSalah => 'বর্তমান সালাতের ওয়াক্ত';
+  String get currentSalah => 'বর্তমান সালাত';
 
   @override
   String get remaining => 'বাকি সময়';
@@ -559,20 +559,19 @@ class AppLocalizationsBn extends AppLocalizations {
   String get sunnahPrayerHeader => 'সুন্নাত সালাত';
 
   @override
-  String get sunnahFajrDesc => 'ফরজের পূর্বে ২ রাকাত সুন্নাতে মুয়াক্কাদাহ';
+  String get sunnahFajrDesc => 'পূর্বে ২ রাকাত সুন্নত';
 
   @override
-  String get sunnahDhuhrDesc => 'ফরজের পূর্বে ৪ রাকাত ও পরে ২ রাকাত সুন্নাত';
+  String get sunnahDhuhrDesc => 'পূর্বে ৪ রাকাত ও পরে ২ রাকাত সুন্নত';
 
   @override
-  String get sunnahAsrDesc =>
-      'ফরজের পূর্বে ৪ রাকাত সুন্নাতে গায়রে মুয়াক্কাদাহ';
+  String get sunnahAsrDesc => 'পূর্বে ৪ রাকাত সুন্নত';
 
   @override
-  String get sunnahMaghribDesc => 'ফরজের পরে ২ রাকাত সুন্নাতে মুয়াক্কাদাহ';
+  String get sunnahMaghribDesc => 'পরে ২ রাকাত সুন্নত';
 
   @override
-  String get sunnahIshaDesc => 'ফরজের পরে ২ রাকাত সুন্নাত + ৩ রাকাত বিতর';
+  String get sunnahIshaDesc => 'পরে ২ রাকাত সুন্নত + ৩ রাকাত বিতর';
 
   @override
   String get forbiddenNaflHeader => 'নফল নামাযের নিষিদ্ধ সময়';
@@ -950,6 +949,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'লা ইলাহা ইল্লাল্লাহ';
 
   @override
+  String get dhikrSalawat => 'Salawat';
+
+  @override
   String get dhikrSubhanAllahTranslation =>
       'আল্লাহ সকল প্রকার ত্রুটি ও দোষ থেকে সম্পূর্ণ পবিত্র';
 
@@ -968,6 +970,12 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get dhikrLaIlahaIllallahTranslation =>
       'একমাত্র আল্লাহ ছাড়া আর কোনো সত্য উপাস্য নেই';
+
+  @override
+  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+
+  @override
+  String get doSalawat => 'Do Salawat';
 
   @override
   String tasbihNextDhikr(String dhikr) {
@@ -1000,43 +1008,211 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get forbiddenTimesNotificationTitle => 'Forbidden Time Notifications';
+  String get forbiddenTimesNotificationTitle => 'নিষিদ্ধ সময়ের বিজ্ঞপ্তি';
 
   @override
   String get forbiddenTimesNotificationSubtitle =>
-      'Alerts for Sunrise, Zenith & Sunset prohibited windows';
+      'নফল নামাযের নিষিদ্ধ সময়ের সতর্কতা';
 
   @override
   String get forbiddenNaflUpcomingSunriseHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNRISE';
+      'আসন্ন নিষিদ্ধ সময় • সূর্যোদয়';
 
   @override
   String forbiddenNaflUpcomingSunriseBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time as the sun rises. Conclude voluntary prayers before this time.';
+    return 'সূর্যোদয়ের কারণে $time থেকে নফল নামায নিষিদ্ধ হবে। এর আগেই নফল নামায সম্পন্ন করুন।';
   }
 
   @override
   String get forbiddenNaflUpcomingZawalHeader =>
-      'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
+      'আসন্ন নিষিদ্ধ সময় • যাওয়াল (দ্বিপ্রহর)';
 
   @override
   String forbiddenNaflUpcomingZawalBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time during solar zenith. Conclude voluntary prayers before this time.';
+    return 'দ্বিপ্রহরে খাড়া সূর্যের কারণে $time থেকে নফল নামায নিষিদ্ধ হবে। এর আগেই নফল নামায সম্পন্ন করুন।';
   }
 
   @override
   String get forbiddenNaflUpcomingSunsetHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNSET';
+      'আসন্ন নিষিদ্ধ সময় • সূর্যাস্ত';
 
   @override
   String forbiddenNaflUpcomingSunsetBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time before sunset. Conclude voluntary prayers before this time.';
+    return 'সূর্যাস্তের কারণে $time থেকে নফল নামায নিষিদ্ধ হবে। এর আগেই নফল নামায সম্পন্ন করুন।';
   }
 
   @override
-  String get forbiddenNaflConcludedHeader => 'FORBIDDEN TIME CONCLUDED';
+  String get forbiddenNaflConcludedHeader => 'নিষিদ্ধ সময় সমাপ্ত';
 
   @override
   String get forbiddenNaflConcludedBody =>
-      'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
+      'নিষিদ্ধ সময় শেষ হয়েছে। এখন নফল নামায আদায় করা যাবে।';
+
+  @override
+  String get solarTimingsTitle => 'সৌর সময়সূচী';
+
+  @override
+  String get daylightWindowNote =>
+      'দিবালোকের সময়সীমা: সূর্যোদয়ের সাথে সাথে ফজরের ওয়াক্ত শেষ হয়। সূর্যাস্তের সাথে মাগরিব শুরু হয়।';
+
+  @override
+  String get prayerStarts => 'শুরু';
+
+  @override
+  String get prayerStarted => 'শুরু হয়েছে';
+
+  @override
+  String get prayerEnds => 'শেষ';
+
+  @override
+  String get badgeCurrent => 'চলমান';
+
+  @override
+  String get badgeNext => 'পরবর্তী';
+
+  @override
+  String get shuruqBadge => 'সূর্যোদয় (শুরূক)';
+
+  @override
+  String get continueToPrayerTimes => 'নামাজের সময়সূচীতে যান';
+
+  @override
+  String tomorrowAt(String time) {
+    return 'আগামীকাল $time টায়';
+  }
+
+  @override
+  String get fridayJumuahTitle => 'জুমুআহ';
+
+  @override
+  String get fridayLocationLabel => 'স্থান';
+
+  @override
+  String get fridayAtMosque => 'মসজিদে';
+
+  @override
+  String get fridayAtHome => 'বাসায়';
+
+  @override
+  String get fridaySunnahRulingsTitle => 'জুমার সুন্নাত ও বিধিবিধান';
+
+  @override
+  String get fridayBeforeLabel => 'পূর্বে';
+
+  @override
+  String get fridayAfterLabel => 'পরে';
+
+  @override
+  String get fridayMosqueBeforeDesc =>
+      'তাহিয়্যাতুল মসজিদ ও খুতবা শুরু হওয়া পর্যন্ত সাধারণ নফল সালাত।';
+
+  @override
+  String get fridayMosqueAfterDesc =>
+      '৪ রাকাত সুন্নাত (মসজিদে) অথবা ২ রাকাত সুন্নাত (বাসায় পড়লে)।';
+
+  @override
+  String get fridayHomeBeforeDesc =>
+      'যোহরের পূর্বে ৪ রাকাত সুন্নাত (যাঁরা বাসায় যোহর আদায় করবেন)।';
+
+  @override
+  String get fridayHomeAfterDesc =>
+      'যোহরের পরে ২ রাকাত সুন্নাত (যাঁরা বাসায় যোহর আদায় করবেন)।';
+
+  @override
+  String get fridayClickToReadFull =>
+      'সহিহ হাদিস ও বিধানসমূহ বিস্তারিত দেখতে ট্যাপ করুন';
+
+  @override
+  String get fridaySuiteHeader => 'জুমার সুন্নাত ও বিশেষ আমল';
+
+  @override
+  String get fridayTodayOnly => 'শুধুমাত্র জুমাবারে প্রযোজ্য';
+
+  @override
+  String get surahKahfTitle => 'সূরা আল-কাহাফ';
+
+  @override
+  String get surahKahfBadge => 'দুই জুমার মধ্যবর্তী নূর';
+
+  @override
+  String get surahKahfHadith =>
+      'যে ব্যক্তি জুমার দিন সূরা আল-কাহাফ পাঠ করবে, তার জন্য দুই জুমার মধ্যবর্তী সময় নূর দ্বারা আলোকিত থাকবে। (বায়হাকী)';
+
+  @override
+  String get markAsRead => 'পড়া সম্পন্ন চিহ্নিত করুন';
+
+  @override
+  String get readCompleted => 'পড়া সম্পন্ন';
+
+  @override
+  String get salawatTitle => 'নবীজির ﷺ ওপর অধিক দরুদ পাঠ';
+
+  @override
+  String get salawatBadge => 'সরাসরি উপস্থাপিত';
+
+  @override
+  String get salawatHadith =>
+      'তোমরা জুমার দিন আমার ওপর অধিক পরিমাণে দরুদ পাঠ করো; কারণ তোমাদের দরুদ আমার কাছে পেশ করা হয়। (আবু দাউদ)';
+
+  @override
+  String get salawatCountLabel => 'আজকের দরুদ সংখ্যা';
+
+  @override
+  String get salawatTapBtn => 'দরুদ পাঠ করুন (+১)';
+
+  @override
+  String get fridayEtiquettesTitle => 'জুমার দিনের সুন্নাত ও আদব';
+
+  @override
+  String get fridayEtiquettesRef => 'জুমার নির্ভরযোগ্য সুন্নাতসমূহ';
+
+  @override
+  String get fridayGhusl => 'নামাজের পূর্বে উত্তমরূপে গোসল করা';
+
+  @override
+  String get fridaySiwak => 'মেসওয়াক ব্যবহার ও সুগন্ধি লাগানো';
+
+  @override
+  String get fridayCleanClothes => 'উত্তম ও পরিষ্কার-পরিচ্ছন্ন পোশাক পরিধান';
+
+  @override
+  String get fridayEarlyMosque => 'খুতবা শোনার জন্য আগেভাগে মসজিদে যাওয়া';
+
+  @override
+  String get istijabahTitle => 'দোয়া কবুলের বিশেষ সময় (সাআতুল ইস্তিজাবাহ)';
+
+  @override
+  String get istijabahBadge => 'দোয়া কবুল হয়';
+
+  @override
+  String get istijabahHadith =>
+      'জুমার দিনে এমন একটি মুহূর্ত রয়েছে, যে সময়ে কোনো মুসলিম বান্দা আল্লাহর কাছে কোনো কল্যাণের দোয়া করলে তিনি তা দান করেন — আসরের শেষ প্রহরে তা অনুসন্ধান করো। (আবু দাউদ, নাসাঈ)';
+
+  @override
+  String get fridayHadithGuideSheetTitle =>
+      'জুমার সুন্নাত সালাত নির্দেশিকা: হাদিসের আলোকে';
+
+  @override
+  String get fridayHadithBeforeCardTitle => 'জুমুআহ / যোহরের পূর্বে';
+
+  @override
+  String get fridayHadithBeforeCardDesc =>
+      'মসজিদে: প্রবেশ করে ২ রাকাত তাহিয়্যাতুল মসজিদ এবং ইমাম মিম্বারে ওঠার পূর্ব পর্যন্ত নফল সালাত। বাসায় (যোহর): যোহরের পূর্বে ৪ রাকাত সুন্নাতে মুয়াক্কাদা।';
+
+  @override
+  String get fridayHadithAfterMosqueTitle => 'জুমার পরে মসজিদে (৪ রাকাত)';
+
+  @override
+  String get fridayHadithAfterMosqueDesc =>
+      'আবু হুরায়রা (রা.) বর্ণিত: রাসূলুল্লাহ ﷺ বলেছেন: \'তোমাদের কেউ যখন জুমার নামাজ আদায় করে, সে যেন এরপর চার রাকাত নামাজ পড়ে নেয়।\' (সহিহ মুসলিম ৮৮১)';
+
+  @override
+  String get fridayHadithAfterHomeTitle => 'জুমার পরে বাসায় (২ রাকাত)';
+
+  @override
+  String get fridayHadithAfterHomeDesc =>
+      'ইবনে উমর (রা.) বর্ণিত: \'নবীজি ﷺ জুমার পর ঘরে ফিরে না আসা পর্যন্ত সালাত পড়তেন না; ঘরে এসে তিনি দুই রাকাত সালাত আদায় করতেন।\' (সহিহ বুখারী ৯৩৭, সহিহ মুসলিম ৮৮২)';
+
+  @override
+  String get closeGuideBtn => 'গাইড বন্ধ করুন';
 }

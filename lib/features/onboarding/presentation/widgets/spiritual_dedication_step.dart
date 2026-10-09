@@ -53,10 +53,7 @@ class _SpiritualDedicationStepState extends State<SpiritualDedicationStep>
           child: AnimatedBuilder(
             animation: _glowAnimation,
             builder: (context, child) {
-              return Transform.scale(
-                scale: _glowAnimation.value,
-                child: child,
-              );
+              return Transform.scale(scale: _glowAnimation.value, child: child);
             },
             child: Container(
               width: 72,
@@ -125,8 +122,7 @@ class _SpiritualDedicationStepState extends State<SpiritualDedicationStep>
               ),
               const SizedBox(height: 6),
               Text(
-                l10n?.onboardingDedicationReference ??
-                    'Surah An-Nisa (4:103)',
+                l10n?.onboardingDedicationReference ?? 'Surah An-Nisa (4:103)',
                 style: TextStyle(
                   color: colors.textTertiary,
                   fontWeight: FontWeight.bold,

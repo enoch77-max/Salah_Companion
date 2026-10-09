@@ -45,10 +45,10 @@ class AppLocalizationsMs extends AppLocalizations {
   String get prayerIsha => 'Isyak';
 
   @override
-  String get upcomingPrayer => 'UPCOMING PRAYER';
+  String get upcomingPrayer => 'Solat Seterusnya';
 
   @override
-  String get currentSalah => 'CURRENT SALAH';
+  String get currentSalah => 'Solat Semasa';
 
   @override
   String get remaining => 'berbaki';
@@ -952,6 +952,9 @@ class AppLocalizationsMs extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'La ilaha illallah';
 
   @override
+  String get dhikrSalawat => 'Salawat';
+
+  @override
   String get dhikrSubhanAllahTranslation =>
       'Maha Suci Allah daripada segala kelemahan dan sifat kekurangan';
 
@@ -970,6 +973,12 @@ class AppLocalizationsMs extends AppLocalizations {
   @override
   String get dhikrLaIlahaIllallahTranslation =>
       'Tiada tuhan yang berhak disembah melainkan Allah';
+
+  @override
+  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+
+  @override
+  String get doSalawat => 'Do Salawat';
 
   @override
   String tasbihNextDhikr(String dhikr) {
@@ -1002,43 +1011,214 @@ class AppLocalizationsMs extends AppLocalizations {
   }
 
   @override
-  String get forbiddenTimesNotificationTitle => 'Forbidden Time Notifications';
+  String get forbiddenTimesNotificationTitle =>
+      'Pemberitahuan Waktu Diharamkan';
 
   @override
   String get forbiddenTimesNotificationSubtitle =>
-      'Alerts for Sunrise, Zenith & Sunset prohibited windows';
+      'Peringatan waktu haram solat sunat';
 
   @override
   String get forbiddenNaflUpcomingSunriseHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNRISE';
+      'WAKTU HARAM AKAN DATANG • TERBIT MATAHARI';
 
   @override
   String forbiddenNaflUpcomingSunriseBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time as the sun rises. Conclude voluntary prayers before this time.';
+    return 'Solat sunat dilarang bermula jam $time ketika matahari terbit. Selesaikan solat sunat sebelum waktu ini.';
   }
 
   @override
   String get forbiddenNaflUpcomingZawalHeader =>
-      'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
+      'WAKTU HARAM AKAN DATANG • ISTIWA / TENGAH HARI';
 
   @override
   String forbiddenNaflUpcomingZawalBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time during solar zenith. Conclude voluntary prayers before this time.';
+    return 'Solat sunat dilarang bermula jam $time ketika matahari tegak di atas kepala. Selesaikan solat sunat sebelum waktu ini.';
   }
 
   @override
   String get forbiddenNaflUpcomingSunsetHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNSET';
+      'WAKTU HARAM AKAN DATANG • TERBENAM MATAHARI';
 
   @override
   String forbiddenNaflUpcomingSunsetBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time before sunset. Conclude voluntary prayers before this time.';
+    return 'Solat sunat dilarang bermula jam $time sebelum matahari terbenam. Selesaikan solat sunat sebelum waktu ini.';
   }
 
   @override
-  String get forbiddenNaflConcludedHeader => 'FORBIDDEN TIME CONCLUDED';
+  String get forbiddenNaflConcludedHeader => 'WAKTU HARAM TELAH TAMAT';
 
   @override
   String get forbiddenNaflConcludedBody =>
-      'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
+      'Waktu yang diharamkan solat sunat telah berakhir. Solat sunat kini dibolehkan.';
+
+  @override
+  String get solarTimingsTitle => 'Waktu Suria';
+
+  @override
+  String get daylightWindowNote =>
+      'Tetingkap Siang: Subuh berakhir tepat pada waktu terbit matahari. Maghrib bermula pada waktu terbenam matahari.';
+
+  @override
+  String get prayerStarts => 'Bermula';
+
+  @override
+  String get prayerStarted => 'Telah Bermula';
+
+  @override
+  String get prayerEnds => 'Berakhir';
+
+  @override
+  String get badgeCurrent => 'SEMASA';
+
+  @override
+  String get badgeNext => 'SETERUSNYA';
+
+  @override
+  String get shuruqBadge => 'Syuruq';
+
+  @override
+  String get continueToPrayerTimes => 'Teruskan ke Waktu Solat';
+
+  @override
+  String tomorrowAt(String time) {
+    return 'Esok pada $time';
+  }
+
+  @override
+  String get fridayJumuahTitle => 'Jumaat';
+
+  @override
+  String get fridayLocationLabel => 'Lokasi';
+
+  @override
+  String get fridayAtMosque => 'Di Masjid';
+
+  @override
+  String get fridayAtHome => 'Di Rumah';
+
+  @override
+  String get fridaySunnahRulingsTitle => 'Hukum & Sunat Solat Jumaat';
+
+  @override
+  String get fridayBeforeLabel => 'Sebelum';
+
+  @override
+  String get fridayAfterLabel => 'Selepas';
+
+  @override
+  String get fridayMosqueBeforeDesc =>
+      'Tahiyyatul masjid & solat sunat mutlak sehingga khutbah bermula.';
+
+  @override
+  String get fridayMosqueAfterDesc =>
+      '4 rakaat sunat (di masjid) atau 2 rakaat sunat (jika di rumah).';
+
+  @override
+  String get fridayHomeBeforeDesc =>
+      '4 rakaat sunat sebelum Zohor (bagi yang solat Zohor di rumah).';
+
+  @override
+  String get fridayHomeAfterDesc =>
+      '2 rakaat sunat selepas Zohor (bagi yang solat Zohor di rumah).';
+
+  @override
+  String get fridayClickToReadFull =>
+      'Ketik untuk melihat dalil hadis dan hukum penuh';
+
+  @override
+  String get fridaySuiteHeader => 'SUNAT & AMALAN UTAMA HARI JUMAAT';
+
+  @override
+  String get fridayTodayOnly => 'Tersedia pada hari Jumaat';
+
+  @override
+  String get surahKahfTitle => 'Surah Al-Kahfi';
+
+  @override
+  String get surahKahfBadge => 'Cahaya Antara Dua Jumaat';
+
+  @override
+  String get surahKahfHadith =>
+      'Sesiapa yang membaca Surah Al-Kahfi pada hari Jumaat, nescaya akan terpancar cahaya baginya antara dua Jumaat. (HR. Al-Baihaqi)';
+
+  @override
+  String get markAsRead => 'Tanda Sudah Dibaca';
+
+  @override
+  String get readCompleted => 'Selesai';
+
+  @override
+  String get salawatTitle => 'Memperbanyak Selawat ke atas Nabi ﷺ';
+
+  @override
+  String get salawatBadge => 'Disampaikan Terus';
+
+  @override
+  String get salawatHadith =>
+      'Perbanyakkanlah berselawat ke atasku pada hari Jumaat, kerana sesungguhnya selawat kamu dibentangkan kepadaku. (HR. Abu Dawud)';
+
+  @override
+  String get salawatCountLabel => 'Jumlah Selawat Hari Ini';
+
+  @override
+  String get salawatTapBtn => 'Kirim Selawat (+1)';
+
+  @override
+  String get fridayEtiquettesTitle => 'Sunat & Adab Hari Jumaat';
+
+  @override
+  String get fridayEtiquettesRef => 'Sunat Sahih Hari Jumaat';
+
+  @override
+  String get fridayGhusl => 'Mandi sunat sebelum solat';
+
+  @override
+  String get fridaySiwak => 'Bersiwak dan memakai wangi-wangian';
+
+  @override
+  String get fridayCleanClothes => 'Memakai pakaian terbaik dan bersih';
+
+  @override
+  String get fridayEarlyMosque =>
+      'Hadir awal ke masjid untuk mendengar khutbah';
+
+  @override
+  String get istijabahTitle => 'Waktu Mustajab Doa (Sa\'at al-Istijabah)';
+
+  @override
+  String get istijabahBadge => 'Doa Dimakbulkan';
+
+  @override
+  String get istijabahHadith =>
+      'Pada hari Jumaat ada suatu waktu yang tiada seorang hamba muslim berdoa memohon kebaikan kepada Allah melainkan Dia memperkenankannya — carilah ia pada saat akhir selepas Asar. (HR. Abu Dawud, An-Nasa\'i)';
+
+  @override
+  String get fridayHadithGuideSheetTitle =>
+      'Panduan Solat Sunat Jumaat: Berdasarkan Hadis';
+
+  @override
+  String get fridayHadithBeforeCardTitle => 'Sebelum Solat Jumaat / Zohor';
+
+  @override
+  String get fridayHadithBeforeCardDesc =>
+      'Di masjid: Solat Tahiyyatul Masjid 2 rakaat ketika masuk, kemudian solat sunat mutlak sehingga imam naik mimbar. Di rumah (Zohor): Solat sunat 4 rakaat sebelum Zohor.';
+
+  @override
+  String get fridayHadithAfterMosqueTitle =>
+      'Selepas Jumaat di Masjid (4 Rakaat)';
+
+  @override
+  String get fridayHadithAfterMosqueDesc =>
+      'Abu Hurairah meriwayatkan bahawa Rasulullah ﷺ bersabda: \'Apabila seseorang daripada kamu selesai solat Jumaat, hendaklah dia solat empat rakaat selepasnya.\' (Sahih Muslim 881)';
+
+  @override
+  String get fridayHadithAfterHomeTitle => 'Selepas Jumaat di Rumah (2 Rakaat)';
+
+  @override
+  String get fridayHadithAfterHomeDesc =>
+      'Ibnu Umar meriwayatkan: \'Nabi ﷺ tidak solat selepas Jumaat sehinggalah pulang, kemudian Baginda solat dua rakaat di rumahnya.\' (Sahih al-Bukhari 937, Sahih Muslim 882)';
+
+  @override
+  String get closeGuideBtn => 'Tutup Panduan';
 }

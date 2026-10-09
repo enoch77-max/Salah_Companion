@@ -7,10 +7,7 @@ class NextPrayerData {
   final String name;
   final DateTime time;
 
-  const NextPrayerData({
-    required this.name,
-    required this.time,
-  });
+  const NextPrayerData({required this.name, required this.time});
 
   @override
   bool operator ==(Object other) =>
@@ -49,19 +46,17 @@ class WidgetService {
   static const String keyDuaArabic = 'widget_dua_arabic';
   static const String keyDuaTranslation = 'widget_dua_translation';
 
-  static const MethodChannel _channel =
-      MethodChannel('com.salahcompanion/widget');
+  static const MethodChannel _channel = MethodChannel(
+    'com.salahcompanion/widget',
+  );
 
   final SharedPreferences? prefs;
   final MethodChannel? _methodChannel;
   final bool? _isAndroidOverride;
 
-  WidgetService({
-    this.prefs,
-    MethodChannel? channel,
-    bool? isAndroid,
-  })  : _methodChannel = channel ?? _channel,
-        _isAndroidOverride = isAndroid;
+  WidgetService({this.prefs, MethodChannel? channel, bool? isAndroid})
+    : _methodChannel = channel ?? _channel,
+      _isAndroidOverride = isAndroid;
 
   bool get _isAndroid {
     if (_isAndroidOverride != null) {
@@ -95,16 +90,32 @@ class WidgetService {
       bool isPrayed(String name) => prayerLogs[name] == 'prayed';
 
       // Rule: If an active prayer period is in progress and NOT YET PRAYED, keep it active on the widget
-      if (fajr != null && sunrise != null && reference.isAfter(fajr) && reference.isBefore(sunrise) && !isPrayed('Fajr')) {
+      if (fajr != null &&
+          sunrise != null &&
+          reference.isAfter(fajr) &&
+          reference.isBefore(sunrise) &&
+          !isPrayed('Fajr')) {
         return NextPrayerData(name: 'Fajr', time: fajr);
       }
-      if (dhuhr != null && asr != null && reference.isAfter(dhuhr) && reference.isBefore(asr) && !isPrayed('Dhuhr')) {
+      if (dhuhr != null &&
+          asr != null &&
+          reference.isAfter(dhuhr) &&
+          reference.isBefore(asr) &&
+          !isPrayed('Dhuhr')) {
         return NextPrayerData(name: 'Dhuhr', time: dhuhr);
       }
-      if (asr != null && maghrib != null && reference.isAfter(asr) && reference.isBefore(maghrib) && !isPrayed('Asr')) {
+      if (asr != null &&
+          maghrib != null &&
+          reference.isAfter(asr) &&
+          reference.isBefore(maghrib) &&
+          !isPrayed('Asr')) {
         return NextPrayerData(name: 'Asr', time: asr);
       }
-      if (maghrib != null && isha != null && reference.isAfter(maghrib) && reference.isBefore(isha) && !isPrayed('Maghrib')) {
+      if (maghrib != null &&
+          isha != null &&
+          reference.isAfter(maghrib) &&
+          reference.isBefore(isha) &&
+          !isPrayed('Maghrib')) {
         return NextPrayerData(name: 'Maghrib', time: maghrib);
       }
       if (isha != null && reference.isAfter(isha) && !isPrayed('Isha')) {
@@ -180,30 +191,66 @@ class WidgetService {
 
     if (allPrayerTimes != null) {
       if (allPrayerTimes.containsKey('Fajr')) {
-        await effectivePrefs.setString(keyFajrTime, formatShortPrayerTime(allPrayerTimes['Fajr']!));
-        await effectivePrefs.setInt(keyFajrMillis, allPrayerTimes['Fajr']!.millisecondsSinceEpoch);
+        await effectivePrefs.setString(
+          keyFajrTime,
+          formatShortPrayerTime(allPrayerTimes['Fajr']!),
+        );
+        await effectivePrefs.setInt(
+          keyFajrMillis,
+          allPrayerTimes['Fajr']!.millisecondsSinceEpoch,
+        );
       }
       if (allPrayerTimes.containsKey('Dhuhr')) {
-        await effectivePrefs.setString(keyDhuhrTime, formatShortPrayerTime(allPrayerTimes['Dhuhr']!));
-        await effectivePrefs.setInt(keyDhuhrMillis, allPrayerTimes['Dhuhr']!.millisecondsSinceEpoch);
+        await effectivePrefs.setString(
+          keyDhuhrTime,
+          formatShortPrayerTime(allPrayerTimes['Dhuhr']!),
+        );
+        await effectivePrefs.setInt(
+          keyDhuhrMillis,
+          allPrayerTimes['Dhuhr']!.millisecondsSinceEpoch,
+        );
       }
       if (allPrayerTimes.containsKey('Asr')) {
-        await effectivePrefs.setString(keyAsrTime, formatShortPrayerTime(allPrayerTimes['Asr']!));
-        await effectivePrefs.setInt(keyAsrMillis, allPrayerTimes['Asr']!.millisecondsSinceEpoch);
+        await effectivePrefs.setString(
+          keyAsrTime,
+          formatShortPrayerTime(allPrayerTimes['Asr']!),
+        );
+        await effectivePrefs.setInt(
+          keyAsrMillis,
+          allPrayerTimes['Asr']!.millisecondsSinceEpoch,
+        );
       }
       if (allPrayerTimes.containsKey('Maghrib')) {
-        await effectivePrefs.setString(keyMaghribTime, formatShortPrayerTime(allPrayerTimes['Maghrib']!));
-        await effectivePrefs.setInt(keyMaghribMillis, allPrayerTimes['Maghrib']!.millisecondsSinceEpoch);
+        await effectivePrefs.setString(
+          keyMaghribTime,
+          formatShortPrayerTime(allPrayerTimes['Maghrib']!),
+        );
+        await effectivePrefs.setInt(
+          keyMaghribMillis,
+          allPrayerTimes['Maghrib']!.millisecondsSinceEpoch,
+        );
       }
       if (allPrayerTimes.containsKey('Isha')) {
-        await effectivePrefs.setString(keyIshaTime, formatShortPrayerTime(allPrayerTimes['Isha']!));
-        await effectivePrefs.setInt(keyIshaMillis, allPrayerTimes['Isha']!.millisecondsSinceEpoch);
+        await effectivePrefs.setString(
+          keyIshaTime,
+          formatShortPrayerTime(allPrayerTimes['Isha']!),
+        );
+        await effectivePrefs.setInt(
+          keyIshaMillis,
+          allPrayerTimes['Isha']!.millisecondsSinceEpoch,
+        );
       }
     }
 
-    if (duaTitle != null) await effectivePrefs.setString(keyDuaTitle, duaTitle);
-    if (duaArabic != null) await effectivePrefs.setString(keyDuaArabic, duaArabic);
-    if (duaTranslation != null) await effectivePrefs.setString(keyDuaTranslation, duaTranslation);
+    if (duaTitle != null) {
+      await effectivePrefs.setString(keyDuaTitle, duaTitle);
+    }
+    if (duaArabic != null) {
+      await effectivePrefs.setString(keyDuaArabic, duaArabic);
+    }
+    if (duaTranslation != null) {
+      await effectivePrefs.setString(keyDuaTranslation, duaTranslation);
+    }
 
     await notifyNativeWidget();
   }
@@ -253,7 +300,9 @@ class WidgetService {
   Future<bool> isPinWidgetSupported() async {
     try {
       if (_isAndroid) {
-        final res = await _methodChannel?.invokeMethod<bool>('isPinWidgetSupported');
+        final res = await _methodChannel?.invokeMethod<bool>(
+          'isPinWidgetSupported',
+        );
         return res ?? false;
       }
     } catch (_) {}
@@ -264,7 +313,10 @@ class WidgetService {
   Future<bool> requestPinWidget(String widgetType) async {
     try {
       if (_isAndroid) {
-        final res = await _methodChannel?.invokeMethod<bool>('requestPinWidget', {'widgetType': widgetType});
+        final res = await _methodChannel?.invokeMethod<bool>(
+          'requestPinWidget',
+          {'widgetType': widgetType},
+        );
         return res ?? false;
       }
     } catch (_) {}
@@ -293,7 +345,9 @@ class WidgetService {
   Future<int> getWidgetCount(String widgetType) async {
     try {
       if (_isAndroid) {
-        final res = await _methodChannel?.invokeMethod<int>('getWidgetCount', {'widgetType': widgetType});
+        final res = await _methodChannel?.invokeMethod<int>('getWidgetCount', {
+          'widgetType': widgetType,
+        });
         if (res != null) return res;
       }
     } catch (_) {}
@@ -305,7 +359,9 @@ class WidgetService {
   Future<bool> isWidgetPinned(String widgetType) async {
     try {
       if (_isAndroid) {
-        final res = await _methodChannel?.invokeMethod<bool>('isWidgetPinned', {'widgetType': widgetType});
+        final res = await _methodChannel?.invokeMethod<bool>('isWidgetPinned', {
+          'widgetType': widgetType,
+        });
         if (res != null) return res;
       }
     } catch (_) {}

@@ -19,7 +19,10 @@ void main() async {
   GoogleFonts.config.allowRuntimeFetching = true;
   AppPreloader.prewarm();
   await AppInfoService.init();
-  assert(AppProvenance.verifyProvenance(), 'Invalid binary provenance signature');
+  assert(
+    AppProvenance.verifyProvenance(),
+    'Invalid binary provenance signature',
+  );
 
   FlutterError.onError = (FlutterErrorDetails details) {
     final stack = details.stack.toString();
@@ -65,12 +68,14 @@ void main() async {
     await notificationService.requestPermissions();
   } catch (_) {}
 
-  runApp(SalahCompanionApp(
-    notificationService: notificationService,
-    initialThemeMode: initialThemeMode,
-    initialLocale: initialLocale,
-    hasCompletedOnboarding: hasCompletedOnboarding,
-  ));
+  runApp(
+    SalahCompanionApp(
+      notificationService: notificationService,
+      initialThemeMode: initialThemeMode,
+      initialLocale: initialLocale,
+      hasCompletedOnboarding: hasCompletedOnboarding,
+    ),
+  );
 }
 
 class SalahCompanionApp extends StatefulWidget {

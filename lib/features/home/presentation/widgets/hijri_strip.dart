@@ -45,10 +45,7 @@ class HijriStrip extends StatelessWidget {
         color: colors.elevatedBackground,
         shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: colors.dividerStrong,
-            width: 1.0,
-          ),
+          side: BorderSide(color: colors.dividerStrong, width: 1.0),
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
@@ -77,7 +74,8 @@ class HijriStrip extends StatelessWidget {
                         child: Text(
                           hijriString,
                           key: const ValueKey('hijri_date_text'),
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(
                                 color: colors.textPrimary,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 13.0,
@@ -96,9 +94,14 @@ class HijriStrip extends StatelessWidget {
               GestureDetector(
                 onTap: isLocationFallback ? onLocationBannerTap : null,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 4.0,
+                  ),
                   decoration: ShapeDecoration(
-                    color: isLocationFallback ? colors.primarySoft : colors.surface,
+                    color: isLocationFallback
+                        ? colors.primarySoft
+                        : colors.surface,
                     shape: ContinuousRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                       side: BorderSide(
@@ -113,17 +116,26 @@ class HijriStrip extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        isLocationFallback ? Icons.location_off_rounded : Icons.location_on_rounded,
+                        isLocationFallback
+                            ? Icons.location_off_rounded
+                            : Icons.location_on_rounded,
                         size: 12,
-                        color: isLocationFallback ? colors.primary : colors.textSecondary,
+                        color: isLocationFallback
+                            ? colors.primary
+                            : colors.textSecondary,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         locationName,
                         key: const ValueKey('location_name_text'),
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              color: isLocationFallback ? colors.primaryText : colors.textSecondary,
-                              fontWeight: isLocationFallback ? FontWeight.w700 : FontWeight.w600,
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: isLocationFallback
+                                  ? colors.primaryText
+                                  : colors.textSecondary,
+                              fontWeight: isLocationFallback
+                                  ? FontWeight.w700
+                                  : FontWeight.w600,
                               fontSize: 11.5,
                             ),
                       ),
@@ -145,13 +157,13 @@ class HijriStrip extends StatelessWidget {
                   color: colors.primarySoft,
                   shape: ContinuousRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
-                    side: BorderSide(
-                      color: colors.primaryGlow,
-                      width: 1.0,
-                    ),
+                    side: BorderSide(color: colors.primaryGlow, width: 1.0),
                   ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10.0,
+                  vertical: 6.0,
+                ),
                 child: Row(
                   children: [
                     Icon(
@@ -162,12 +174,13 @@ class HijriStrip extends StatelessWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        locationStatusMessage ?? 'GPS disabled. Tap to enable location for exact times.',
+                        locationStatusMessage ??
+                            'GPS disabled. Tap to enable location for exact times.',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: colors.primaryText,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 11,
-                            ),
+                          color: colors.primaryText,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11,
+                        ),
                       ),
                     ),
                     Icon(
@@ -192,13 +205,13 @@ class HijriStrip extends StatelessWidget {
                   color: colors.primarySoft,
                   shape: ContinuousRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
-                    side: BorderSide(
-                      color: colors.primaryGlow,
-                      width: 1.0,
-                    ),
+                    side: BorderSide(color: colors.primaryGlow, width: 1.0),
                   ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10.0,
+                  vertical: 5.0,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -212,10 +225,10 @@ class HijriStrip extends StatelessWidget {
                       child: Text(
                         'Using GPS location — device timezone differs',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: colors.primaryText,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 11,
-                            ),
+                          color: colors.primaryText,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 11,
+                        ),
                       ),
                     ),
                   ],

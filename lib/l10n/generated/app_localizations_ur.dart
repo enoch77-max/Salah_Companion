@@ -943,6 +943,9 @@ class AppLocalizationsUr extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'لا الہ الا اللہ';
 
   @override
+  String get dhikrSalawat => 'درود شریف';
+
+  @override
   String get dhikrSubhanAllahTranslation => 'اللہ ہر عیب اور نقص سے پاک ہے';
 
   @override
@@ -959,6 +962,12 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get dhikrLaIlahaIllallahTranslation =>
       'اللہ کے سوا کوئی سچا معبود نہیں ہے';
+
+  @override
+  String get dhikrSalawatTranslation => 'اے اللہ، محمد پر رحمت نازل فرما';
+
+  @override
+  String get doSalawat => 'درود شریف پڑھیں';
 
   @override
   String tasbihNextDhikr(String dhikr) {
@@ -991,43 +1000,211 @@ class AppLocalizationsUr extends AppLocalizations {
   }
 
   @override
-  String get forbiddenTimesNotificationTitle => 'Forbidden Time Notifications';
+  String get forbiddenTimesNotificationTitle => 'ممنوع اوقات کے نوٹیفکیشنز';
 
   @override
   String get forbiddenTimesNotificationSubtitle =>
-      'Alerts for Sunrise, Zenith & Sunset prohibited windows';
+      'نفل نماز کے ممنوع اوقات کے انتباہات';
 
   @override
   String get forbiddenNaflUpcomingSunriseHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNRISE';
+      'آنے والا ممنوع وقت • طلوع آفتاب';
 
   @override
   String forbiddenNaflUpcomingSunriseBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time as the sun rises. Conclude voluntary prayers before this time.';
+    return 'طلوع آفتاب کی وجہ سے $time پر نفل نماز ممنوع ہو جائے گی۔ اس سے پہلے نفل نماز مکمل کر لیں۔';
   }
 
   @override
   String get forbiddenNaflUpcomingZawalHeader =>
-      'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
+      'آنے والا ممنوع وقت • زوال آفتاب';
 
   @override
   String forbiddenNaflUpcomingZawalBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time during solar zenith. Conclude voluntary prayers before this time.';
+    return 'زوال کے وقت $time پر نفل نماز پڑھنا ممنوع ہو جائے گا۔ اس سے پہلے نفل نماز مکمل کر لیں۔';
   }
 
   @override
   String get forbiddenNaflUpcomingSunsetHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNSET';
+      'آنے والا ممنوع وقت • غروب آفتاب';
 
   @override
   String forbiddenNaflUpcomingSunsetBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time before sunset. Conclude voluntary prayers before this time.';
+    return 'غروب آفتاب سے قبل $time پر نفل نماز ممنوع ہو جائے گی۔ اس سے پہلے نفل نماز مکمل کر لیں۔';
   }
 
   @override
-  String get forbiddenNaflConcludedHeader => 'FORBIDDEN TIME CONCLUDED';
+  String get forbiddenNaflConcludedHeader => 'ممنوع وقت ختم ہو گیا';
 
   @override
   String get forbiddenNaflConcludedBody =>
-      'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
+      'نفل نماز کا ممنوع وقت ختم ہو چکا ہے۔ اب نفل نماز ادا کی جا سکتی ہے۔';
+
+  @override
+  String get solarTimingsTitle => 'شمسی اوقات';
+
+  @override
+  String get daylightWindowNote =>
+      'دن کا دورانیہ: طلوعِ آفتاب کے ساتھ فجر کا وقت ختم ہو جاتا ہے۔ غروبِ آفتاب پر مغرب شروع ہوتی ہے۔';
+
+  @override
+  String get prayerStarts => 'شروع';
+
+  @override
+  String get prayerStarted => 'شروع ہوا';
+
+  @override
+  String get prayerEnds => 'ختم';
+
+  @override
+  String get badgeCurrent => 'موجودہ';
+
+  @override
+  String get badgeNext => 'اگلا';
+
+  @override
+  String get shuruqBadge => 'اشراق / طلوع';
+
+  @override
+  String get continueToPrayerTimes => 'نماز کے اوقات پر جائیں';
+
+  @override
+  String tomorrowAt(String time) {
+    return 'کل بوقت $time';
+  }
+
+  @override
+  String get fridayJumuahTitle => 'جمعہ';
+
+  @override
+  String get fridayLocationLabel => 'مقام';
+
+  @override
+  String get fridayAtMosque => 'مسجد میں';
+
+  @override
+  String get fridayAtHome => 'گھر پر';
+
+  @override
+  String get fridaySunnahRulingsTitle => 'جمعہ کی سنتیں اور احکام';
+
+  @override
+  String get fridayBeforeLabel => 'پہلے';
+
+  @override
+  String get fridayAfterLabel => 'بعد';
+
+  @override
+  String get fridayMosqueBeforeDesc =>
+      'تحیۃ المسجد اور خطبہ شروع ہونے تک عمومی نوافل۔';
+
+  @override
+  String get fridayMosqueAfterDesc =>
+      '۴ رکعت سنت (مسجد میں) یا ۲ رکعت سنت (اگر گھر پر ادا کی جائے)۔';
+
+  @override
+  String get fridayHomeBeforeDesc =>
+      'ظہر سے پہلے ۴ رکعت سنت (ان کے لیے جو گھر پر ظہر پڑھ رہے ہوں)۔';
+
+  @override
+  String get fridayHomeAfterDesc =>
+      'ظہر کے بعد ۲ رکعت سنت (ان کے لیے جو گھر پر ظہر پڑھ رہے ہوں)۔';
+
+  @override
+  String get fridayClickToReadFull =>
+      'مستند احادیث اور احکام کی تفصیل دیکھنے کے لیے ٹیپ کریں';
+
+  @override
+  String get fridaySuiteHeader => 'جمعہ کی سنتیں اور خصوصی اعمال';
+
+  @override
+  String get fridayTodayOnly => 'صرف جمعہ کے دن دستیاب';
+
+  @override
+  String get surahKahfTitle => 'سورۃ الکہف';
+
+  @override
+  String get surahKahfBadge => 'دو جمعوں کے درمیان نور';
+
+  @override
+  String get surahKahfHadith =>
+      'جو شخص جمعہ کے دن سورۃ الکہف پڑھے گا، اس کے لیے دونوں جمعوں کے درمیان نور روشن رہے گا۔ (بیہقی)';
+
+  @override
+  String get markAsRead => 'پڑھا ہوا نشان زد کریں';
+
+  @override
+  String get readCompleted => 'مکمل ہو گیا';
+
+  @override
+  String get salawatTitle => 'نبی کریم ﷺ پر کثرت سے درود';
+
+  @override
+  String get salawatBadge => 'براہ راست پیش کیا جاتا ہے';
+
+  @override
+  String get salawatHadith =>
+      'جمعہ کے دن مجھ پر کثرت سے درود بھیجا کرو، کیونکہ تمہارا درود مجھ پر پیش کیا جاتا ہے۔ (ابوداؤد)';
+
+  @override
+  String get salawatCountLabel => 'آج کے پڑھے گئے درود';
+
+  @override
+  String get salawatTapBtn => 'درود شریف پڑھیں (+۱)';
+
+  @override
+  String get fridayEtiquettesTitle => 'جمعہ کی سنتیں اور آداب';
+
+  @override
+  String get fridayEtiquettesRef => 'جمعہ کی مستند سنتیں';
+
+  @override
+  String get fridayGhusl => 'نماز سے قبل غسل کرنا';
+
+  @override
+  String get fridaySiwak => 'مسواک کا استعمال اور خوشبو لگانا';
+
+  @override
+  String get fridayCleanClothes => 'صاف ستھرے اور بہترین لباس پہننا';
+
+  @override
+  String get fridayEarlyMosque => 'خطبہ سننے کے لیے جلدی مسجد پہنچنا';
+
+  @override
+  String get istijabahTitle => 'قبولیت کی گھڑی (ساعۃ الاستجابۃ)';
+
+  @override
+  String get istijabahBadge => 'دعا قبول ہوتی ہے';
+
+  @override
+  String get istijabahHadith =>
+      'جمعہ کے دن ایک ایسی گھڑی ہے جس میں کوئی مسلمان بندہ اللہ سے بھلائی مانگے تو وہ اسے عطا فرماتا ہے — اسے عصر کے بعد آخری گھڑی میں تلاش کرو۔ (ابوداؤد، نسائی)';
+
+  @override
+  String get fridayHadithGuideSheetTitle =>
+      'جمعہ کی سنتوں کی رہنمائی: احادیث کی روشنی میں';
+
+  @override
+  String get fridayHadithBeforeCardTitle => 'جمعہ / ظہر کی نماز سے پہلے';
+
+  @override
+  String get fridayHadithBeforeCardDesc =>
+      'مسجد میں: داخل ہوتے ہی ۲ رکعت تحیۃ المسجد اور امام کے منبر پر جانے تک نوافل۔ گھر پر (ظہر): ظہر سے قبل ۴ رکعت سنت موکدہ۔';
+
+  @override
+  String get fridayHadithAfterMosqueTitle => 'جمعہ کے بعد مسجد میں (۴ رکعت)';
+
+  @override
+  String get fridayHadithAfterMosqueDesc =>
+      'حضرت ابوہریرہ رضی اللہ عنہ سے روایت ہے کہ رسول اللہ ﷺ نے فرمایا: \'جب تم میں سے کوئی جمعہ پڑھ لے تو اس کے بعد چار رکعتیں پڑھے۔\' (صحیح مسلم ۸۸۱)';
+
+  @override
+  String get fridayHadithAfterHomeTitle => 'جمعہ کے بعد گھر پر (۲ رکعت)';
+
+  @override
+  String get fridayHadithAfterHomeDesc =>
+      'حضرت ابن عمر رضی اللہ عنہما سے روایت ہے: \'نبی کریم ﷺ جمعہ کے بعد نماز نہیں پڑھتے تھے یہاں تک کہ واپس تشریف لے آتے، پھر اپنے گھر میں دو رکعتیں پڑھتے تھے۔\' (صحیح بخاری ۹۳۷، صحیح مسلم ۸۸۲)';
+
+  @override
+  String get closeGuideBtn => 'رہنما بند کریں';
 }

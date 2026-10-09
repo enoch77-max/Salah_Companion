@@ -27,8 +27,9 @@ class BatteryService {
       return true;
     }
     try {
-      final result =
-          await channel.invokeMethod<bool>('isIgnoringBatteryOptimizations');
+      final result = await channel.invokeMethod<bool>(
+        'isIgnoringBatteryOptimizations',
+      );
       return result ?? false;
     } on MissingPluginException {
       return true;
@@ -41,11 +42,15 @@ class BatteryService {
   Future<bool> openBatteryOptimizationSettings() async {
     if (_platform != TargetPlatform.android) return false;
     try {
-      final res = await channel.invokeMethod<bool>('openBatteryOptimizationSettings');
+      final res = await channel.invokeMethod<bool>(
+        'openBatteryOptimizationSettings',
+      );
       return res ?? true;
     } catch (_) {
       try {
-        final res = await channel.invokeMethod<bool>('requestIgnoreBatteryOptimizations');
+        final res = await channel.invokeMethod<bool>(
+          'requestIgnoreBatteryOptimizations',
+        );
         return res ?? true;
       } catch (_) {
         return false;
@@ -71,18 +76,19 @@ class BatteryService {
     final existing = await getBatteryState();
 
     if (existing == null) {
-      await db.into(db.batteryOptStateTable).insert(
+      await db
+          .into(db.batteryOptStateTable)
+          .insert(
             BatteryOptStateTableCompanion.insert(
               id: const Value(1),
               lastKnownExempt: Value(isExempt),
             ),
           );
     } else {
-      await (db.update(db.batteryOptStateTable)..where((t) => t.id.equals(1)))
-          .write(
-        BatteryOptStateTableCompanion(
-          lastKnownExempt: Value(isExempt),
-        ),
+      await (db.update(
+        db.batteryOptStateTable,
+      )..where((t) => t.id.equals(1))).write(
+        BatteryOptStateTableCompanion(lastKnownExempt: Value(isExempt)),
       );
     }
 
@@ -91,8 +97,9 @@ class BatteryService {
 
   /// Retrieves the current persisted [BatteryOptStateTableData] row (id = 1).
   Future<BatteryOptStateTableData?> getBatteryState() async {
-    return (db.select(db.batteryOptStateTable)..where((t) => t.id.equals(1)))
-        .getSingleOrNull();
+    return (db.select(
+      db.batteryOptStateTable,
+    )..where((t) => t.id.equals(1))).getSingleOrNull();
   }
 
   /// Determines whether the battery optimization prompt should be shown.
@@ -121,7 +128,9 @@ class BatteryService {
     final existing = await getBatteryState();
 
     if (existing == null) {
-      await db.into(db.batteryOptStateTable).insert(
+      await db
+          .into(db.batteryOptStateTable)
+          .insert(
             BatteryOptStateTableCompanion.insert(
               id: const Value(1),
               lastPromptAt: Value(time),
@@ -129,11 +138,7 @@ class BatteryService {
           );
     } else {
       await (db.update(db.batteryOptStateTable)..where((t) => t.id.equals(1)))
-          .write(
-        BatteryOptStateTableCompanion(
-          lastPromptAt: Value(time),
-        ),
-      );
+          .write(BatteryOptStateTableCompanion(lastPromptAt: Value(time)));
     }
   }
 
@@ -142,7 +147,9 @@ class BatteryService {
     final existing = await getBatteryState();
 
     if (existing == null) {
-      await db.into(db.batteryOptStateTable).insert(
+      await db
+          .into(db.batteryOptStateTable)
+          .insert(
             BatteryOptStateTableCompanion.insert(
               id: const Value(1),
               nagDisabled: Value(disabled),
@@ -150,11 +157,7 @@ class BatteryService {
           );
     } else {
       await (db.update(db.batteryOptStateTable)..where((t) => t.id.equals(1)))
-          .write(
-        BatteryOptStateTableCompanion(
-          nagDisabled: Value(disabled),
-        ),
-      );
+          .write(BatteryOptStateTableCompanion(nagDisabled: Value(disabled)));
     }
   }
 
@@ -170,13 +173,22 @@ class BatteryService {
       return "Go to Settings > Apps > Manage apps > Salah Companion > Enable 'Autostart'. Set Battery saver to 'No restrictions'.";
     } else if (m.contains('huawei') || m.contains('honor')) {
       return "Go to Settings > Apps > Apps > Salah Companion > Power usage details > App launch > Set to 'Manage manually' and enable Auto-launch, Secondary launch, and Run in background.";
-    } else if (m.contains('oppo') || m.contains('realme') || m.contains('oneplus')) {
+    } else if (m.contains('oppo') ||
+        m.contains('realme') ||
+        m.contains('oneplus')) {
       return "Go to Settings > Apps > App management > Salah Companion > Battery usage > Enable 'Allow background activity' and allow auto-launch.";
     } else if (m.contains('vivo') || m.contains('iqoo')) {
       return "Go to Settings > Battery > High background power consumption > Enable Salah Companion. Also check App manager > Autostart.";
-    } else if (m.contains('transsion') || m.contains('infinix') || m.contains('tecno') || m.contains('itel')) {
+    } else if (m.contains('transsion') ||
+        m.contains('infinix') ||
+        m.contains('tecno') ||
+        m.contains('itel')) {
       return "Go to Settings > Apps > Salah Companion > Battery > Select 'Unrestricted'. Also check Phone Master > Auto-start management.";
-    } else if (m.contains('google') || m.contains('pixel') || m.contains('motorola') || m.contains('moto') || m.contains('nothing')) {
+    } else if (m.contains('google') ||
+        m.contains('pixel') ||
+        m.contains('motorola') ||
+        m.contains('moto') ||
+        m.contains('nothing')) {
       return "Go to Settings > Apps > Salah Companion > App battery usage > Select 'Unrestricted'.";
     } else {
       return "Go to Settings > Apps > Salah Companion > Battery > Select 'Unrestricted' or disable Battery Optimization.";

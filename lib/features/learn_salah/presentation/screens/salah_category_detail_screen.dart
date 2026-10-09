@@ -30,21 +30,29 @@ class SalahCategoryDetailScreen extends StatelessWidget {
         title: Text(
           title,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colors.textPrimary,
-              ),
+            fontWeight: FontWeight.bold,
+            color: colors.textPrimary,
+          ),
         ),
       ),
       body: ListView.separated(
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, MediaQuery.of(context).padding.bottom + 24.0),
+        padding: EdgeInsets.fromLTRB(
+          16.0,
+          16.0,
+          16.0,
+          MediaQuery.of(context).padding.bottom + 24.0,
+        ),
         itemCount: items.length,
         separatorBuilder: (context, index) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           final item = items[index];
           return _CategoryItemTile(item: item)
               .animate()
-              .fadeIn(delay: Duration(milliseconds: 50 * index), duration: 350.ms)
+              .fadeIn(
+                delay: Duration(milliseconds: 50 * index),
+                duration: 350.ms,
+              )
               .slideY(begin: 0.05, curve: Curves.easeOutCubic);
         },
       ),
@@ -92,7 +100,9 @@ class _CategoryItemTileState extends State<_CategoryItemTile> {
       shape: ContinuousRectangleBorder(
         borderRadius: BorderRadius.circular(24),
         side: BorderSide(
-          color: _isExpanded ? badgeColor.withValues(alpha: 0.5) : colors.divider,
+          color: _isExpanded
+              ? badgeColor.withValues(alpha: 0.5)
+              : colors.divider,
           width: _isExpanded ? 1.5 : 1.0,
         ),
       ),
@@ -128,7 +138,8 @@ class _CategoryItemTileState extends State<_CategoryItemTile> {
                             Expanded(
                               child: Text(
                                 item.name,
-                                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                style: Theme.of(context).textTheme.titleSmall
+                                    ?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: colors.textPrimary,
                                     ),
@@ -137,7 +148,10 @@ class _CategoryItemTileState extends State<_CategoryItemTile> {
                             AnimatedRotation(
                               turns: _isExpanded ? 0.5 : 0.0,
                               duration: const Duration(milliseconds: 250),
-                              child: Icon(Icons.keyboard_arrow_down_rounded, color: colors.textTertiary),
+                              child: Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                color: colors.textTertiary,
+                              ),
                             ),
                           ],
                         ),
@@ -157,7 +171,8 @@ class _CategoryItemTileState extends State<_CategoryItemTile> {
                         const SizedBox(height: 6),
                         Text(
                           item.description,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
                                 color: colors.textSecondary,
                                 height: 1.35,
                               ),
@@ -181,17 +196,24 @@ class _CategoryItemTileState extends State<_CategoryItemTile> {
                         padding: const EdgeInsets.all(10),
                         decoration: ShapeDecoration(
                           color: badgeColor.withValues(alpha: 0.1),
-                          shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: ContinuousRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.info_outline_rounded, size: 16, color: badgeColor),
+                            Icon(
+                              Icons.info_outline_rounded,
+                              size: 16,
+                              color: badgeColor,
+                            ),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
                                 item.consequenceIfOmitted,
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                style: Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(
                                       color: colors.textPrimary,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -204,7 +226,8 @@ class _CategoryItemTileState extends State<_CategoryItemTile> {
                         const SizedBox(height: 12),
                         Text(
                           'HADITH & SCRIPTURAL PROOF:',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
                                 color: colors.textSecondary,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.8,
@@ -219,7 +242,10 @@ class _CategoryItemTileState extends State<_CategoryItemTile> {
                               color: colors.elevatedBackground,
                               shape: ContinuousRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
-                                side: BorderSide(color: colors.divider, width: 1.0),
+                                side: BorderSide(
+                                  color: colors.divider,
+                                  width: 1.0,
+                                ),
                               ),
                             ),
                             child: Column(
@@ -227,7 +253,8 @@ class _CategoryItemTileState extends State<_CategoryItemTile> {
                               children: [
                                 Text(
                                   ref.citation,
-                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  style: Theme.of(context).textTheme.labelSmall
+                                      ?.copyWith(
                                         color: colors.primary,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -235,7 +262,8 @@ class _CategoryItemTileState extends State<_CategoryItemTile> {
                                 const SizedBox(height: 4),
                                 Text(
                                   ref.fullTextEnglish,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
                                         color: colors.textPrimary,
                                         height: 1.4,
                                       ),
@@ -248,7 +276,9 @@ class _CategoryItemTileState extends State<_CategoryItemTile> {
                     ],
                   ),
                 ),
-                crossFadeState: _isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                crossFadeState: _isExpanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
                 duration: const Duration(milliseconds: 300),
               ),
             ],

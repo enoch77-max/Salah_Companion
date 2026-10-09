@@ -38,6 +38,7 @@ class BatteryOptimizationSheet extends StatelessWidget {
     return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withValues(alpha: 0.5),
       shape: const ContinuousRectangleBorder(
@@ -140,9 +141,7 @@ class BatteryOptimizationSheet extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: appColors.elevatedBackground,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: appColors.dividerStrong,
-                        ),
+                        border: Border.all(color: appColors.dividerStrong),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,

@@ -60,8 +60,8 @@ class MidnightRefreshHandler {
 
       final effectivePrefs = prefs ?? await SharedPreferences.getInstance();
       final effectiveDb = db ?? AppDatabase(NativeDatabase.memory());
-      final effectiveNotif =
-          notificationService ?? NotificationService();
+      final effectiveNotif = notificationService ?? NotificationService();
+      await effectiveNotif.initialize();
       final effectiveLocation =
           locationService ?? LocationService(effectivePrefs);
       final effectiveRepo =
@@ -69,7 +69,8 @@ class MidnightRefreshHandler {
 
       // 1. Recalculate prayer times for tomorrow's date
       final now = DateTime.now();
-      final tomorrow = tomorrowOverride ??
+      final tomorrow =
+          tomorrowOverride ??
           DateTime(now.year, now.month, now.day + 1, 0, 0, 0);
 
       LocationData? location = await effectiveLocation.getCachedLocation();
@@ -81,8 +82,10 @@ class MidnightRefreshHandler {
       final savedMethod = effectivePrefs.getString('calc_method');
       final savedMadhab = effectivePrefs.getString('calc_madhab');
 
-      final params =
-          CalculationMethodMapper.getMethodByName(savedMethod, location.countryCode);
+      final params = CalculationMethodMapper.getMethodByName(
+        savedMethod,
+        location.countryCode,
+      );
       params.madhab = CalculationMethodMapper.getMadhabByName(savedMadhab);
 
       final prayerTimes = calculator.calculatePrayerTimes(
@@ -100,23 +103,37 @@ class MidnightRefreshHandler {
         'Isha': prayerTimes.isha,
       };
 
-      final notifPrayerMaster = effectivePrefs.getBool('notif_enabled_prayer') ?? true;
-      final notifAdhanMaster = effectivePrefs.getBool('notif_enabled_adhan') ?? true;
-      final adhanVoice = effectivePrefs.getString('adhan_voice') ?? 'Makkah (Ali Mulla)';
+      final notifPrayerMaster =
+          effectivePrefs.getBool('notif_enabled_prayer') ?? true;
+      final notifAdhanMaster =
+          effectivePrefs.getBool('notif_enabled_adhan') ?? true;
+      final adhanVoice =
+          effectivePrefs.getString('adhan_voice') ?? 'Makkah (Ali Mulla)';
 
       // Enabled prayers settings from SharedPreferences (master prayer toggle)
       final enabledPrayers = <String, bool>{
-        'Fajr': notifPrayerMaster && (effectivePrefs.getBool('notif_enabled_fajr') ?? true),
+        'Fajr':
+            notifPrayerMaster &&
+            (effectivePrefs.getBool('notif_enabled_fajr') ?? true),
         'Sunrise': false,
-        'Dhuhr': notifPrayerMaster && (effectivePrefs.getBool('notif_enabled_dhuhr') ?? true),
-        'Asr': notifPrayerMaster && (effectivePrefs.getBool('notif_enabled_asr') ?? true),
-        'Maghrib': notifPrayerMaster && (effectivePrefs.getBool('notif_enabled_maghrib') ?? true),
-        'Isha': notifPrayerMaster && (effectivePrefs.getBool('notif_enabled_isha') ?? true),
+        'Dhuhr':
+            notifPrayerMaster &&
+            (effectivePrefs.getBool('notif_enabled_dhuhr') ?? true),
+        'Asr':
+            notifPrayerMaster &&
+            (effectivePrefs.getBool('notif_enabled_asr') ?? true),
+        'Maghrib':
+            notifPrayerMaster &&
+            (effectivePrefs.getBool('notif_enabled_maghrib') ?? true),
+        'Isha':
+            notifPrayerMaster &&
+            (effectivePrefs.getBool('notif_enabled_isha') ?? true),
       };
 
       // 2. Check optional featured content override (Remote Config / static JSON URL).
       // Falls back silently to DailyContentRepository.resolveTodayContent if offline or timeout.
-      final overrideUrl = featuredOverrideUrl ??
+      final overrideUrl =
+          featuredOverrideUrl ??
           effectivePrefs.getString('featured_content_override_url');
 
       DailyContentItem? resolvedPick;
@@ -125,7 +142,8 @@ class MidnightRefreshHandler {
         resolvedPick = await _fetchFeaturedOverride(overrideUrl);
       }
 
-      final seed = installationSeedOverride ??
+      final seed =
+          installationSeedOverride ??
           effectivePrefs.getString('installation_seed') ??
           'salah_companion_default_seed';
 
@@ -156,7 +174,8 @@ class MidnightRefreshHandler {
       }
 
       // 3. Reschedule prayer and daily reflection notifications
-      final savedLangCode = effectivePrefs.getString('selected_language_code') ?? 'en';
+      final savedLangCode =
+          effectivePrefs.getString('selected_language_code') ?? 'en';
       AppLocalizations? localizations;
       try {
         localizations = lookupAppLocalizations(Locale(savedLangCode));
@@ -170,14 +189,26 @@ class MidnightRefreshHandler {
         localizations: localizations,
       );
 
+      // Forbidden times notifications
+      final forbiddenEnabled =
+          effectivePrefs.getBool('notif_enabled_forbidden_times') ?? true;
+      await effectiveNotif.scheduleForbiddenTimesNotifications(
+        sunrise: prayerTimes.sunrise,
+        dhuhr: prayerTimes.dhuhr,
+        maghrib: prayerTimes.maghrib,
+        enabled: forbiddenEnabled,
+        localizations: localizations,
+      );
+
       // Reflection notification settings from SharedPreferences
       final reflectionEnabled =
           effectivePrefs.getBool('notif_enabled_daily_reflection') ?? true;
       final reflectionDelayMins =
           effectivePrefs.getInt('daily_reflection_time_mins_post_fajr') ?? 30;
 
-      final reflectionTime =
-          prayerTimes.fajr.add(Duration(minutes: reflectionDelayMins));
+      final reflectionTime = prayerTimes.fajr.add(
+        Duration(minutes: reflectionDelayMins),
+      );
       await effectiveNotif.scheduleDailyReflectionNotification(
         content: resolvedPick,
         scheduledTime: reflectionTime,
@@ -195,18 +226,18 @@ class MidnightRefreshHandler {
     try {
       final client = httpClient ?? HttpClient();
       client.connectionTimeout = const Duration(seconds: 5);
-      final request = await client.getUrl(Uri.parse(url)).timeout(
-            const Duration(seconds: 5),
-          );
+      final request = await client
+          .getUrl(Uri.parse(url))
+          .timeout(const Duration(seconds: 5));
       final response = await request.close().timeout(
-            const Duration(seconds: 5),
-          );
+        const Duration(seconds: 5),
+      );
 
       if (response.statusCode == 200) {
-        final responseBody =
-            await response.transform(utf8.decoder).join().timeout(
-                  const Duration(seconds: 5),
-                );
+        final responseBody = await response
+            .transform(utf8.decoder)
+            .join()
+            .timeout(const Duration(seconds: 5));
         final jsonMap = jsonDecode(responseBody) as Map<String, dynamic>;
         return DailyContentItem.fromJson(jsonMap);
       }
@@ -232,14 +263,12 @@ class BackgroundService {
   final Workmanager _workmanager;
 
   BackgroundService([Workmanager? workmanager])
-      : _workmanager = workmanager ?? Workmanager();
+    : _workmanager = workmanager ?? Workmanager();
 
   /// Initializes [Workmanager] with [callbackDispatcher].
   Future<void> initialize() async {
     try {
-      await _workmanager.initialize(
-        callbackDispatcher,
-      );
+      await _workmanager.initialize(callbackDispatcher);
     } catch (_) {
       // Gracefully handle platform exceptions when background services are restricted
     }
@@ -254,9 +283,7 @@ class BackgroundService {
         tag: midnightTaskTag,
         frequency: const Duration(hours: 24),
         existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
-        constraints: Constraints(
-          networkType: NetworkType.notRequired,
-        ),
+        constraints: Constraints(networkType: NetworkType.notRequired),
       );
     } catch (_) {
       // Gracefully handle periodic work registration failure under OS restrictions

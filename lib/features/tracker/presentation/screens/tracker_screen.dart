@@ -29,11 +29,7 @@ class TrackerScreen extends StatefulWidget {
   final AppDatabase? database;
   final List<PrayerLogsTableData>? initialLogs;
 
-  const TrackerScreen({
-    super.key,
-    this.database,
-    this.initialLogs,
-  });
+  const TrackerScreen({super.key, this.database, this.initialLogs});
 
   @override
   State<TrackerScreen> createState() => _TrackerScreenState();
@@ -123,13 +119,23 @@ class _TrackerScreenState extends State<TrackerScreen> {
     }).toList();
 
     final weeklyTotal = weeklyLogs.length;
-    final weeklyPrayed = weeklyLogs.where((l) => l.status.toLowerCase() == 'prayed').length;
-    final weeklyMissed = weeklyLogs.where((l) => l.status.toLowerCase() == 'missed').length;
-    final weeklyRate = weeklyTotal == 0 ? 0.0 : (weeklyPrayed / weeklyTotal).clamp(0.0, 1.0);
+    final weeklyPrayed = weeklyLogs
+        .where((l) => l.status.toLowerCase() == 'prayed')
+        .length;
+    final weeklyMissed = weeklyLogs
+        .where((l) => l.status.toLowerCase() == 'missed')
+        .length;
+    final weeklyRate = weeklyTotal == 0
+        ? 0.0
+        : (weeklyPrayed / weeklyTotal).clamp(0.0, 1.0);
 
     final monthlyTotal = _logs.length;
-    final monthlyPrayed = _logs.where((l) => l.status.toLowerCase() == 'prayed').length;
-    final monthlyRate = monthlyTotal == 0 ? 0.0 : (monthlyPrayed / monthlyTotal).clamp(0.0, 1.0);
+    final monthlyPrayed = _logs
+        .where((l) => l.status.toLowerCase() == 'prayed')
+        .length;
+    final monthlyRate = monthlyTotal == 0
+        ? 0.0
+        : (monthlyPrayed / monthlyTotal).clamp(0.0, 1.0);
 
     final prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
     final prayerTotalCount = <String, int>{for (var p in prayers) p: 0};
@@ -157,15 +163,16 @@ class _TrackerScreenState extends State<TrackerScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: colors.textPrimary),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: colors.textPrimary,
+          ),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
       body: SafeArea(
         child: _isLoading
-            ? Center(
-                child: CircularProgressIndicator(color: colors.primary),
-              )
+            ? Center(child: CircularProgressIndicator(color: colors.primary))
             : SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -174,7 +181,8 @@ class _TrackerScreenState extends State<TrackerScreen> {
                     // Apple Display Title
                     Text(
                       l10n?.prayerTracker ?? 'Prayer Tracker',
-                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                      style: Theme.of(context).textTheme.displayMedium
+                          ?.copyWith(
                             color: colors.textPrimary,
                             fontWeight: FontWeight.w800,
                             fontSize: 32,
@@ -199,7 +207,8 @@ class _TrackerScreenState extends State<TrackerScreen> {
                         children: [
                           Text(
                             'COMPLETION OVERVIEW',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
                                   color: colors.textSecondary,
                                   letterSpacing: 1.2,
                                   fontWeight: FontWeight.bold,
@@ -210,9 +219,15 @@ class _TrackerScreenState extends State<TrackerScreen> {
                             children: [
                               Expanded(
                                 child: _StatSummaryCard(
-                                  title: l10n?.trackerWeeklyRate ?? 'Weekly Rate',
+                                  title:
+                                      l10n?.trackerWeeklyRate ?? 'Weekly Rate',
                                   value: '${(weeklyRate * 100).toInt()}%',
-                                  subtitle: l10n?.trackerPrayersRatio(weeklyPrayed.toString(), weeklyTotal.toString()) ?? '$weeklyPrayed / $weeklyTotal Prayers',
+                                  subtitle:
+                                      l10n?.trackerPrayersRatio(
+                                        weeklyPrayed.toString(),
+                                        weeklyTotal.toString(),
+                                      ) ??
+                                      '$weeklyPrayed / $weeklyTotal Prayers',
                                   progress: weeklyRate,
                                   color: colors.success,
                                 ),
@@ -220,9 +235,16 @@ class _TrackerScreenState extends State<TrackerScreen> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: _StatSummaryCard(
-                                  title: l10n?.trackerMonthlyRate ?? 'Monthly Rate',
+                                  title:
+                                      l10n?.trackerMonthlyRate ??
+                                      'Monthly Rate',
                                   value: '${(monthlyRate * 100).toInt()}%',
-                                  subtitle: l10n?.trackerPrayersRatio(monthlyPrayed.toString(), monthlyTotal.toString()) ?? '$monthlyPrayed / $monthlyTotal Prayers',
+                                  subtitle:
+                                      l10n?.trackerPrayersRatio(
+                                        monthlyPrayed.toString(),
+                                        monthlyTotal.toString(),
+                                      ) ??
+                                      '$monthlyPrayed / $monthlyTotal Prayers',
                                   progress: monthlyRate,
                                   color: colors.primary,
                                 ),
@@ -257,7 +279,8 @@ class _TrackerScreenState extends State<TrackerScreen> {
                                   'Weekly Performance',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  style: Theme.of(context).textTheme.titleLarge
+                                      ?.copyWith(
                                         color: colors.textPrimary,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -267,9 +290,15 @@ class _TrackerScreenState extends State<TrackerScreen> {
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  _LegendDot(color: colors.success, label: l10n?.statusPrayed ?? 'Prayed'),
+                                  _LegendDot(
+                                    color: colors.success,
+                                    label: l10n?.statusPrayed ?? 'Prayed',
+                                  ),
                                   const SizedBox(width: 12),
-                                  _LegendDot(color: colors.missed, label: l10n?.statusMissed ?? 'Missed'),
+                                  _LegendDot(
+                                    color: colors.missed,
+                                    label: l10n?.statusMissed ?? 'Missed',
+                                  ),
                                 ],
                               ),
                             ],
@@ -285,15 +314,11 @@ class _TrackerScreenState extends State<TrackerScreen> {
                                 children: [
                                   Expanded(
                                     flex: (weeklyRate * 100).toInt(),
-                                    child: Container(
-                                      color: colors.success,
-                                    ),
+                                    child: Container(color: colors.success),
                                   ),
                                   Expanded(
                                     flex: ((1.0 - weeklyRate) * 100).toInt(),
-                                    child: Container(
-                                      color: colors.missed,
-                                    ),
+                                    child: Container(color: colors.missed),
                                   ),
                                 ],
                               ),
@@ -305,14 +330,16 @@ class _TrackerScreenState extends State<TrackerScreen> {
                             children: [
                               Text(
                                 '$weeklyPrayed ${l10n?.statusPrayed ?? 'Prayed'}',
-                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                style: Theme.of(context).textTheme.labelMedium
+                                    ?.copyWith(
                                       color: colors.successText,
                                       fontWeight: FontWeight.bold,
                                     ),
                               ),
                               Text(
                                 '$weeklyMissed ${l10n?.statusMissed ?? 'Missed'}',
-                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                style: Theme.of(context).textTheme.labelMedium
+                                    ?.copyWith(
                                       color: colors.missedText,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -331,10 +358,10 @@ class _TrackerScreenState extends State<TrackerScreen> {
                       child: Text(
                         'PRAYER BREAKDOWN',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: colors.textSecondary,
-                              letterSpacing: 1.2,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          color: colors.textSecondary,
+                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
 
@@ -353,7 +380,9 @@ class _TrackerScreenState extends State<TrackerScreen> {
                           final prayed = prayerPrayedCount[prayer] ?? 0;
                           final missed = prayerMissedCount[prayer] ?? 0;
                           final total = prayerTotalCount[prayer] ?? 0;
-                          final rate = total == 0 ? 0.0 : (prayed / total).clamp(0.0, 1.0);
+                          final rate = total == 0
+                              ? 0.0
+                              : (prayed / total).clamp(0.0, 1.0);
                           final badgeColor = _getSquircleBadgeColor(prayer);
                           final iconData = _getPrayerIcon(prayer);
                           final isLast = prayer == 'Isha';
@@ -380,58 +409,88 @@ class _TrackerScreenState extends State<TrackerScreen> {
                                     const SizedBox(width: 14),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Expanded(
                                                 child: Text(
-                                                  _localizeTrackerPrayerName(context, prayer),
+                                                  _localizeTrackerPrayerName(
+                                                    context,
+                                                    prayer,
+                                                  ),
                                                   maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                                        color: colors.textPrimary,
-                                                        fontWeight: FontWeight.bold,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleMedium
+                                                      ?.copyWith(
+                                                        color:
+                                                            colors.textPrimary,
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                       ),
                                                 ),
                                               ),
                                               const SizedBox(width: 8),
                                               Text(
                                                 '${(rate * 100).toInt()}% Completion',
-                                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .labelMedium
+                                                    ?.copyWith(
                                                       color: colors.primaryText,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                               ),
                                             ],
                                           ),
                                           const SizedBox(height: 8),
                                           ClipRRect(
-                                            borderRadius: BorderRadius.circular(6),
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
                                             child: LinearProgressIndicator(
                                               value: rate,
                                               minHeight: 8,
-                                              backgroundColor: colors.missedSoft,
-                                              valueColor: AlwaysStoppedAnimation<Color>(colors.success),
+                                              backgroundColor:
+                                                  colors.missedSoft,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    colors.success,
+                                                  ),
                                             ),
                                           ),
                                           const SizedBox(height: 6),
                                           Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
                                                 'Prayed: $prayed',
-                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall
+                                                    ?.copyWith(
                                                       color: colors.successText,
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                     ),
                                               ),
                                               Text(
                                                 'Missed: $missed',
-                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall
+                                                    ?.copyWith(
                                                       color: colors.missedText,
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                     ),
                                               ),
                                             ],
@@ -500,9 +559,9 @@ class _StatSummaryCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: colors.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
+              color: colors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
@@ -518,9 +577,9 @@ class _StatSummaryCard extends StatelessWidget {
             subtitle,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: colors.textTertiary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelSmall?.copyWith(color: colors.textTertiary),
           ),
         ],
       ),
@@ -543,18 +602,15 @@ class _LegendDot extends StatelessWidget {
         Container(
           width: 8,
           height: 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
         Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: colors.textSecondary,
-                fontWeight: FontWeight.w600,
-              ),
+            color: colors.textSecondary,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     );

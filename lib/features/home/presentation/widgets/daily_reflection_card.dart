@@ -57,7 +57,8 @@ class DailyReflectionCard extends StatelessWidget {
     // ignore: deprecated_member_use
     Share.share(
       text.toString(),
-      subject: '${content.type == DailyContentType.hadith ? "Hadith" : "Ayah"} Reflection — ${content.reference}',
+      subject:
+          '${content.type == DailyContentType.hadith ? "Hadith" : "Ayah"} Reflection — ${content.reference}',
     );
   }
 
@@ -69,10 +70,11 @@ class DailyReflectionCard extends StatelessWidget {
     final langCode = Localizations.localeOf(context).languageCode;
     final localizedTranslation = content.getLocalizedTranslation(langCode);
 
-    final TextStyle arabicTextStyle = (isHadith
-            ? AppTypography.hadithStyle(color: colors.textPrimary)
-            : AppTypography.quranicStyle(color: colors.textPrimary))
-        .copyWith(height: 1.7, fontSize: 18.0);
+    final TextStyle arabicTextStyle =
+        (isHadith
+                ? AppTypography.hadithStyle(color: colors.textPrimary)
+                : AppTypography.quranicStyle(color: colors.textPrimary))
+            .copyWith(height: 1.7, fontSize: 18.0);
 
     final TextStyle translationTextStyle = AppTypography.quoteTranslationStyle(
       color: colors.textPrimary,
@@ -86,10 +88,7 @@ class DailyReflectionCard extends StatelessWidget {
         color: colors.paperBackground,
         shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(18),
-          side: BorderSide(
-            color: colors.dividerStrong,
-            width: 1.0,
-          ),
+          side: BorderSide(color: colors.dividerStrong, width: 1.0),
         ),
       ),
       child: Stack(
@@ -120,9 +119,7 @@ class DailyReflectionCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (onRefresh != null)
-                      AnimatedRefreshButton(
-                        onRefresh: onRefresh!,
-                      ),
+                      AnimatedRefreshButton(onRefresh: onRefresh!),
                     IconButton(
                       onPressed: shareCallback,
                       icon: Icon(
@@ -146,98 +143,106 @@ class DailyReflectionCard extends StatelessWidget {
                     ),
                   ],
                 ),
-            const SizedBox(height: 2),
+                const SizedBox(height: 2),
 
-            // Arabic Text (RTL)
-            Directionality(
-              textDirection: TextDirection.rtl,
-              child: Text(
-                content.arabicText,
-                textAlign: TextAlign.center,
-                style: arabicTextStyle,
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // Hairline Gradient Divider
-            Container(
-              height: 1,
-              width: double.infinity,
-              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    colors.divider.withValues(alpha: 0.0),
-                    colors.dividerStrong,
-                    colors.divider.withValues(alpha: 0.0),
-                  ],
+                // Arabic Text (RTL)
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Text(
+                    content.arabicText,
+                    textAlign: TextAlign.center,
+                    style: arabicTextStyle,
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 10),
+                const SizedBox(height: 10),
 
-            // Translation Text (Lora italic)
-            Text(
-              localizedTranslation,
-              textAlign: TextAlign.center,
-              style: translationTextStyle,
-            ),
-            const SizedBox(height: 12),
-
-            // Footer Row: Citation & Grade Badge
-            Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                Text(
-                  content.getLocalizedSource(langCode),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: colors.textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-                if (isHadith && content.grade != null && content.grade!.trim().isNotEmpty) ...[
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: ShapeDecoration(
-                      color: emeraldGreen.withValues(alpha: 0.12),
-                      shape: ContinuousRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                        side: BorderSide(
-                          color: emeraldGreen.withValues(alpha: 0.3),
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.check_circle_rounded,
-                          size: 12,
-                          color: emeraldGreen,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          content.grade!.trim(),
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: emeraldGreen,
-                          ),
-                        ),
+                // Hairline Gradient Divider
+                Container(
+                  height: 1,
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        colors.divider.withValues(alpha: 0.0),
+                        colors.dividerStrong,
+                        colors.divider.withValues(alpha: 0.0),
                       ],
                     ),
                   ),
-                ],
+                ),
+                const SizedBox(height: 10),
+
+                // Translation Text (Lora italic)
+                Text(
+                  localizedTranslation,
+                  textAlign: TextAlign.center,
+                  style: translationTextStyle,
+                ),
+                const SizedBox(height: 12),
+
+                // Footer Row: Citation & Grade Badge
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    Text(
+                      content.getLocalizedSource(langCode),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: colors.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (isHadith &&
+                        content.grade != null &&
+                        content.grade!.trim().isNotEmpty) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: ShapeDecoration(
+                          color: emeraldGreen.withValues(alpha: 0.12),
+                          shape: ContinuousRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            side: BorderSide(
+                              color: emeraldGreen.withValues(alpha: 0.3),
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.check_circle_rounded,
+                              size: 12,
+                              color: emeraldGreen,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              content.grade!.trim(),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: emeraldGreen,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
         ],
       ),
     );
@@ -270,9 +275,10 @@ class _AnimatedFavoriteButtonState extends State<AnimatedFavoriteButton>
       vsync: this,
       duration: const Duration(milliseconds: 140),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.85).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.85,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
   @override
@@ -296,7 +302,9 @@ class _AnimatedFavoriteButtonState extends State<AnimatedFavoriteButton>
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final iconColor = widget.isFavorited ? colors.primary : colors.textSecondary;
+    final iconColor = widget.isFavorited
+        ? colors.primary
+        : colors.textSecondary;
 
     return Semantics(
       button: true,
@@ -309,10 +317,7 @@ class _AnimatedFavoriteButtonState extends State<AnimatedFavoriteButton>
         onTap: widget.onToggle,
         behavior: HitTestBehavior.opaque,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minWidth: 44,
-            minHeight: 44,
-          ),
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           child: Center(
             child: AnimatedBuilder(
               animation: _scaleAnimation,
@@ -325,7 +330,9 @@ class _AnimatedFavoriteButtonState extends State<AnimatedFavoriteButton>
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Icon(
-                  widget.isFavorited ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                  widget.isFavorited
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_border_rounded,
                   key: const ValueKey('save_icon'),
                   color: iconColor,
                   size: 24,
@@ -342,10 +349,7 @@ class _AnimatedFavoriteButtonState extends State<AnimatedFavoriteButton>
 class AnimatedRefreshButton extends StatefulWidget {
   final VoidCallback onRefresh;
 
-  const AnimatedRefreshButton({
-    super.key,
-    required this.onRefresh,
-  });
+  const AnimatedRefreshButton({super.key, required this.onRefresh});
 
   @override
   State<AnimatedRefreshButton> createState() => _AnimatedRefreshButtonState();
@@ -398,10 +402,7 @@ class _AnimatedRefreshButtonState extends State<AnimatedRefreshButton>
         ),
         tooltip: 'Refresh quote',
         splashRadius: 20,
-        constraints: const BoxConstraints(
-          minWidth: 44,
-          minHeight: 44,
-        ),
+        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
       ),
     );
   }

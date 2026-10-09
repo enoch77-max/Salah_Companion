@@ -1836,6 +1836,12 @@ abstract class AppLocalizations {
   /// **'La ilaha illallah'**
   String get dhikrLaIlahaIllallah;
 
+  /// No description provided for @dhikrSalawat.
+  ///
+  /// In en, this message translates to:
+  /// **'Salawat'**
+  String get dhikrSalawat;
+
   /// No description provided for @dhikrSubhanAllahTranslation.
   ///
   /// In en, this message translates to:
@@ -1865,6 +1871,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There is no deity except Allah'**
   String get dhikrLaIlahaIllallahTranslation;
+
+  /// No description provided for @dhikrSalawatTranslation.
+  ///
+  /// In en, this message translates to:
+  /// **'O Allah, send blessings upon Muhammad'**
+  String get dhikrSalawatTranslation;
+
+  /// No description provided for @doSalawat.
+  ///
+  /// In en, this message translates to:
+  /// **'Do Salawat'**
+  String get doSalawat;
 
   /// Button label to switch to next dhikr
   ///
@@ -1923,7 +1941,7 @@ abstract class AppLocalizations {
   /// Subtitle for forbidden time notification toggle in settings
   ///
   /// In en, this message translates to:
-  /// **'Alerts for Sunrise, Zenith & Sunset prohibited windows'**
+  /// **'Alert for prohibited nafl time'**
   String get forbiddenTimesNotificationSubtitle;
 
   /// Header for upcoming sunrise forbidden nafl time
@@ -1973,6 +1991,312 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.'**
   String get forbiddenNaflConcludedBody;
+
+  /// Title for the solar timings bottom sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Solar Timings'**
+  String get solarTimingsTitle;
+
+  /// Educational daylight window note in solar timings sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Daylight Window: Fajr ends promptly at sunrise. Maghrib begins at sunset.'**
+  String get daylightWindowNote;
+
+  /// Tag indicating prayer start time
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get prayerStarts;
+
+  /// Tag indicating prayer has already started
+  ///
+  /// In en, this message translates to:
+  /// **'Started'**
+  String get prayerStarted;
+
+  /// Tag indicating prayer end time
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get prayerEnds;
+
+  /// Badge for currently active prayer
+  ///
+  /// In en, this message translates to:
+  /// **'CURRENT'**
+  String get badgeCurrent;
+
+  /// Badge for next upcoming prayer
+  ///
+  /// In en, this message translates to:
+  /// **'NEXT'**
+  String get badgeNext;
+
+  /// Badge for sunrise (Shuruq) row
+  ///
+  /// In en, this message translates to:
+  /// **'Shuruq'**
+  String get shuruqBadge;
+
+  /// CTA button to dismiss reflection and continue to prayer times
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to Prayer Times'**
+  String get continueToPrayerTimes;
+
+  /// Prayer start time label for tomorrow
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow at {time}'**
+  String tomorrowAt(String time);
+
+  /// Title for Friday Jumu'ah prayer
+  ///
+  /// In en, this message translates to:
+  /// **'Jumu\'ah'**
+  String get fridayJumuahTitle;
+
+  /// Label for prayer location toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get fridayLocationLabel;
+
+  /// Option for praying Jumu'ah at the mosque
+  ///
+  /// In en, this message translates to:
+  /// **'At Mosque'**
+  String get fridayAtMosque;
+
+  /// Option for praying Dhuhr at home on Friday
+  ///
+  /// In en, this message translates to:
+  /// **'At Home'**
+  String get fridayAtHome;
+
+  /// Title for the Friday Sunnah prayer rulings card
+  ///
+  /// In en, this message translates to:
+  /// **'Friday Sunnah Rulings'**
+  String get fridaySunnahRulingsTitle;
+
+  /// Label indicating sunnah prayers before the main prayer
+  ///
+  /// In en, this message translates to:
+  /// **'Before'**
+  String get fridayBeforeLabel;
+
+  /// Label indicating sunnah prayers after the main prayer
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get fridayAfterLabel;
+
+  /// Description for voluntary prayers before Jumu'ah at mosque
+  ///
+  /// In en, this message translates to:
+  /// **'Tahiyyat al-Masjid & general voluntary prayers until Khutbah begins.'**
+  String get fridayMosqueBeforeDesc;
+
+  /// Description for Sunnah prayers after Jumu'ah at mosque
+  ///
+  /// In en, this message translates to:
+  /// **'4 Sunnah Rak\'ahs (at mosque) or 2 Sunnah Rak\'ahs (if prayed at home).'**
+  String get fridayMosqueAfterDesc;
+
+  /// Description for Sunnah prayers before Dhuhr at home
+  ///
+  /// In en, this message translates to:
+  /// **'4 Sunnah Rak\'ahs before Dhuhr (for those praying Dhuhr at home).'**
+  String get fridayHomeBeforeDesc;
+
+  /// Description for Sunnah prayers after Dhuhr at home
+  ///
+  /// In en, this message translates to:
+  /// **'2 Sunnah Rak\'ahs after Dhuhr (for those praying Dhuhr at home).'**
+  String get fridayHomeAfterDesc;
+
+  /// Hint text to tap and read authentic hadiths and rulings
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to view authentic rulings and hadith references'**
+  String get fridayClickToReadFull;
+
+  /// Header for Friday companion suite actions
+  ///
+  /// In en, this message translates to:
+  /// **'FRIDAY SUNNAH & SPECIAL DEEDS'**
+  String get fridaySuiteHeader;
+
+  /// Badge indicating feature is active on Friday
+  ///
+  /// In en, this message translates to:
+  /// **'Available on Friday'**
+  String get fridayTodayOnly;
+
+  /// Title for Surah Al-Kahf card
+  ///
+  /// In en, this message translates to:
+  /// **'Surah Al-Kahf'**
+  String get surahKahfTitle;
+
+  /// Badge highlight for Surah Al-Kahf
+  ///
+  /// In en, this message translates to:
+  /// **'Light Between Two Fridays'**
+  String get surahKahfBadge;
+
+  /// Hadith text about reciting Surah Al-Kahf on Friday
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever recites Surah Al-Kahf on Friday will have a light shining for him between the two Fridays. (Al-Bayhaqi)'**
+  String get surahKahfHadith;
+
+  /// Button to mark recitation as completed
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Read'**
+  String get markAsRead;
+
+  /// Status badge when recitation is completed
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get readCompleted;
+
+  /// Title for Salawat counter card
+  ///
+  /// In en, this message translates to:
+  /// **'Abundant Salawat upon the Prophet ﷺ'**
+  String get salawatTitle;
+
+  /// Badge for Salawat card
+  ///
+  /// In en, this message translates to:
+  /// **'Presented Directly'**
+  String get salawatBadge;
+
+  /// Hadith text encouraging Salawat on Friday
+  ///
+  /// In en, this message translates to:
+  /// **'Increase your supplications for blessings upon me on Friday, for your supplications are presented to me. (Abu Dawud)'**
+  String get salawatHadith;
+
+  /// Label for daily salawat count
+  ///
+  /// In en, this message translates to:
+  /// **'Recitations Today'**
+  String get salawatCountLabel;
+
+  /// Tap button to increment salawat count
+  ///
+  /// In en, this message translates to:
+  /// **'Send Salawat (+1)'**
+  String get salawatTapBtn;
+
+  /// Title for Friday etiquettes checklist card
+  ///
+  /// In en, this message translates to:
+  /// **'Sunnahs & Etiquettes of Friday'**
+  String get fridayEtiquettesTitle;
+
+  /// Subtitle / reference for Friday etiquettes
+  ///
+  /// In en, this message translates to:
+  /// **'Authentic Traditions of Friday'**
+  String get fridayEtiquettesRef;
+
+  /// Friday etiquette: Ghusl before prayer
+  ///
+  /// In en, this message translates to:
+  /// **'Ghusl (Ritual Bath) before prayer'**
+  String get fridayGhusl;
+
+  /// Friday etiquette: Siwak and perfume
+  ///
+  /// In en, this message translates to:
+  /// **'Using the Siwak (Tooth-stick) & perfume'**
+  String get fridaySiwak;
+
+  /// Friday etiquette: Clean garments
+  ///
+  /// In en, this message translates to:
+  /// **'Wearing one\'s best and cleanest garments'**
+  String get fridayCleanClothes;
+
+  /// Friday etiquette: Arriving early to mosque
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving early to the mosque for Khutbah'**
+  String get fridayEarlyMosque;
+
+  /// Title for Sa'at al-Istijabah reminder card
+  ///
+  /// In en, this message translates to:
+  /// **'Hour of Response (Sa\'at al-Istijabah)'**
+  String get istijabahTitle;
+
+  /// Badge for Sa'at al-Istijabah
+  ///
+  /// In en, this message translates to:
+  /// **'Supplication Accepted'**
+  String get istijabahBadge;
+
+  /// Hadith text about the hour of response on Friday
+  ///
+  /// In en, this message translates to:
+  /// **'On Friday there is an hour when no Muslim servant asks Allah for something good but He grants it to him — seek it in the last hour after Asr. (Abu Dawud, An-Nasa\'i)'**
+  String get istijabahHadith;
+
+  /// Title of the bottom sheet modal for Friday hadith guide
+  ///
+  /// In en, this message translates to:
+  /// **'Sunnah Prayers of Friday: Hadith Guide'**
+  String get fridayHadithGuideSheetTitle;
+
+  /// Header for prayers before Jumu'ah/Dhuhr in the guide
+  ///
+  /// In en, this message translates to:
+  /// **'Before Jumu\'ah / Dhuhr Prayer'**
+  String get fridayHadithBeforeCardTitle;
+
+  /// Detailed explanation of prayers before Jumu'ah/Dhuhr
+  ///
+  /// In en, this message translates to:
+  /// **'At the mosque: When you enter, pray Tahiyyat al-Masjid (2 Rak\'ahs), then voluntary prayers until the Imam ascends the pulpit. At home (Dhuhr): Pray 4 Rak\'ahs Sunnah Mu\'akkadah before Dhuhr.'**
+  String get fridayHadithBeforeCardDesc;
+
+  /// Card title for Sunnah after Jumu'ah at the mosque
+  ///
+  /// In en, this message translates to:
+  /// **'After Jumu\'ah at the Mosque (4 Rak\'ahs)'**
+  String get fridayHadithAfterMosqueTitle;
+
+  /// Hadith citation for 4 Rak'ahs after Jumu'ah at the mosque
+  ///
+  /// In en, this message translates to:
+  /// **'Abu Hurairah reported: The Messenger of Allah ﷺ said: \'When one of you prays Jumu\'ah, let him pray four Rak\'ahs after it.\' (Sahih Muslim 881)'**
+  String get fridayHadithAfterMosqueDesc;
+
+  /// Card title for Sunnah after Jumu'ah at home
+  ///
+  /// In en, this message translates to:
+  /// **'After Jumu\'ah at Home (2 Rak\'ahs)'**
+  String get fridayHadithAfterHomeTitle;
+
+  /// Hadith citation for 2 Rak'ahs after Jumu'ah at home
+  ///
+  /// In en, this message translates to:
+  /// **'Ibn Umar reported: \'The Prophet ﷺ would not pray after Jumu\'ah until he departed, and then he would pray two Rak\'ahs in his house.\' (Sahih al-Bukhari 937, Sahih Muslim 882)'**
+  String get fridayHadithAfterHomeDesc;
+
+  /// Button to close the hadith guide sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Close Guide'**
+  String get closeGuideBtn;
 }
 
 class _AppLocalizationsDelegate

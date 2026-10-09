@@ -22,14 +22,16 @@ LazyDatabase _openConnection() {
   });
 }
 
-@DriftDatabase(tables: [
-  PrayerLogsTable,
-  BatteryOptStateTable,
-  DailyContentCacheTable,
-  DailyContentShownLogTable,
-  FavoriteDailyContentTable,
-  AppMetadataTable,
-])
+@DriftDatabase(
+  tables: [
+    PrayerLogsTable,
+    BatteryOptStateTable,
+    DailyContentCacheTable,
+    DailyContentShownLogTable,
+    FavoriteDailyContentTable,
+    AppMetadataTable,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   static AppDatabase? _instance;
 

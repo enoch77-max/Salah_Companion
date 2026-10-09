@@ -107,9 +107,12 @@ class PrayerTimesCalculator {
     );
 
     if (now.isBefore(todayTimes.fajr)) {
-      return DateTime(now.year, now.month, now.day).subtract(const Duration(days: 1));
+      return DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(const Duration(days: 1));
     }
     return DateTime(now.year, now.month, now.day);
   }
 }
-

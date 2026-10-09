@@ -10,7 +10,9 @@ class GeomagneticCalculator {
   static const double _wgs84SemiMinorKm =
       _wgs84SemiMajorKm * (1.0 - _wgs84Flattening);
   static const double _wgs84EccentricitySq =
-      1.0 - (_wgs84SemiMinorKm * _wgs84SemiMinorKm) / (_wgs84SemiMajorKm * _wgs84SemiMajorKm);
+      1.0 -
+      (_wgs84SemiMinorKm * _wgs84SemiMinorKm) /
+          (_wgs84SemiMajorKm * _wgs84SemiMajorKm);
   static const double _referenceRadiusKm = 6371.2;
 
   /// WMM2025 Gauss Coefficients (Epoch 2025.0, degrees n=1..6)
@@ -54,8 +56,10 @@ class GeomagneticCalculator {
     DateTime? date,
   }) {
     final targetDate = date ?? DateTime.now();
-    final yearFraction = targetDate.year +
-        (targetDate.difference(DateTime(targetDate.year, 1, 1)).inDays / 365.25);
+    final yearFraction =
+        targetDate.year +
+        (targetDate.difference(DateTime(targetDate.year, 1, 1)).inDays /
+            365.25);
     final dt = yearFraction - 2025.0;
 
     final latRad = latitude * math.pi / 180.0;
@@ -65,7 +69,8 @@ class GeomagneticCalculator {
     // 1. Convert WGS84 Geodetic Coordinates to Geocentric Coordinates
     final sinLat = math.sin(latRad);
     final cosLat = math.cos(latRad);
-    final rc = _wgs84SemiMajorKm /
+    final rc =
+        _wgs84SemiMajorKm /
         math.sqrt(1.0 - _wgs84EccentricitySq * sinLat * sinLat);
     final xp = (rc + altKm) * cosLat;
     final zp = (rc * (1.0 - _wgs84EccentricitySq) + altKm) * sinLat;
@@ -79,9 +84,13 @@ class GeomagneticCalculator {
 
     const int maxDegree = 6;
     final p = List.generate(
-        maxDegree + 1, (_) => List<double>.filled(maxDegree + 1, 0.0));
+      maxDegree + 1,
+      (_) => List<double>.filled(maxDegree + 1, 0.0),
+    );
     final dp = List.generate(
-        maxDegree + 1, (_) => List<double>.filled(maxDegree + 1, 0.0));
+      maxDegree + 1,
+      (_) => List<double>.filled(maxDegree + 1, 0.0),
+    );
 
     p[0][0] = 1.0;
     dp[0][0] = 0.0;
@@ -97,16 +106,23 @@ class GeomagneticCalculator {
         if (n == m) {
           final double k = math.sqrt((2 * n - 1) / (2 * n));
           p[n][n] = k * sinColat * p[n - 1][n - 1];
-          dp[n][n] = k * (cosColat * p[n - 1][n - 1] + sinColat * dp[n - 1][n - 1]);
+          dp[n][n] =
+              k * (cosColat * p[n - 1][n - 1] + sinColat * dp[n - 1][n - 1]);
         } else if (n == m + 1) {
           final double k = math.sqrt(2 * n - 1);
           p[n][m] = k * cosColat * p[n - 1][m];
           dp[n][m] = k * (-sinColat * p[n - 1][m] + cosColat * dp[n - 1][m]);
         } else {
-          final double k1 = math.sqrt(((2 * n - 1) * (2 * n - 3)) / ((n - m) * (n + m)));
-          final double k2 = math.sqrt(((n + m - 1) * (n - m - 1)) / ((n - m) * (n + m)));
+          final double k1 = math.sqrt(
+            ((2 * n - 1) * (2 * n - 3)) / ((n - m) * (n + m)),
+          );
+          final double k2 = math.sqrt(
+            ((n + m - 1) * (n - m - 1)) / ((n - m) * (n + m)),
+          );
           p[n][m] = k1 * cosColat * p[n - 1][m] - k2 * p[n - 2][m];
-          dp[n][m] = k1 * (-sinColat * p[n - 1][m] + cosColat * dp[n - 1][m]) - k2 * dp[n - 2][m];
+          dp[n][m] =
+              k1 * (-sinColat * p[n - 1][m] + cosColat * dp[n - 1][m]) -
+              k2 * dp[n - 2][m];
         }
       }
     }

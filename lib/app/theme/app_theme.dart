@@ -20,11 +20,7 @@ abstract final class AppTheme {
   /// Soft diffuse shadow per PRD Section 5 & Apple Design.
   static List<BoxShadow> softShadow(Color shadowColor) {
     return [
-      BoxShadow(
-        color: shadowColor,
-        blurRadius: 24,
-        offset: const Offset(0, 8),
-      ),
+      BoxShadow(color: shadowColor, blurRadius: 24, offset: const Offset(0, 8)),
     ];
   }
 
@@ -40,7 +36,9 @@ abstract final class AppTheme {
       statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       systemNavigationBarColor: colors.background,
       systemNavigationBarDividerColor: Colors.transparent,
-      systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+      systemNavigationBarIconBrightness: isDark
+          ? Brightness.light
+          : Brightness.dark,
       systemNavigationBarContrastEnforced: false,
     );
   }
@@ -166,9 +164,7 @@ abstract final class AppTheme {
         }),
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
-      extensions: const [
-        customColors,
-      ],
+      extensions: const [customColors],
     );
   }
 
@@ -287,9 +283,7 @@ abstract final class AppTheme {
         }),
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
-      extensions: const [
-        customColors,
-      ],
+      extensions: const [customColors],
     );
   }
 }

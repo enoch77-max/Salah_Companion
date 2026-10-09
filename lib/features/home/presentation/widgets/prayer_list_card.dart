@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_theme.dart';
-import '../../../../app/theme/app_typography.dart';
 import '../../../../core/services/app_haptics.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../l10n/generated/app_localizations.dart';
@@ -76,16 +77,24 @@ class PrayerItem {
 class PrayerListCard extends StatefulWidget {
   final List<PrayerItem>? prayers;
   final Function(int index, PrayerStatus newStatus)? onStatusChanged;
+
   /// Sunrise DateTime for computing the forbidden nafl window (sunrise → sunrise+20min).
   final DateTime? sunriseDateTime;
+
   /// Dhuhr DateTime for computing the zawal forbidden window (dhuhr-10min → dhuhr).
   final DateTime? dhuhrDateTime;
+
   /// Maghrib (sunset) DateTime for computing the sunset forbidden window (maghrib-20min → maghrib).
   final DateTime? maghribDateTime;
+
   /// Optional override for testing dynamic forbidden nafl card
   final DateTime? nowOverride;
+
   /// Service managing local notifications
   final NotificationService? notificationService;
+
+  /// Optional override for Friday Jumu'ah mode.
+  final bool? isFriday;
 
   const PrayerListCard({
     super.key,
@@ -96,15 +105,36 @@ class PrayerListCard extends StatefulWidget {
     this.maghribDateTime,
     this.nowOverride,
     this.notificationService,
+    this.isFriday,
   });
 
   static const List<PrayerItem> defaultPrayers = [
     PrayerItem(name: 'Fajr', time: '04:45 AM', status: PrayerStatus.prayed),
     PrayerItem(name: 'Sunrise', time: '06:05 AM', isSunrise: true),
-    PrayerItem(name: 'Dhuhr', time: '12:15 PM', status: PrayerStatus.pending, isNext: true),
-    PrayerItem(name: 'Asr', time: '03:30 PM', status: PrayerStatus.pending, isFuture: true),
-    PrayerItem(name: 'Maghrib', time: '06:20 PM', status: PrayerStatus.pending, isFuture: true),
-    PrayerItem(name: 'Isha', time: '07:50 PM', status: PrayerStatus.pending, isFuture: true),
+    PrayerItem(
+      name: 'Dhuhr',
+      time: '12:15 PM',
+      status: PrayerStatus.pending,
+      isNext: true,
+    ),
+    PrayerItem(
+      name: 'Asr',
+      time: '03:30 PM',
+      status: PrayerStatus.pending,
+      isFuture: true,
+    ),
+    PrayerItem(
+      name: 'Maghrib',
+      time: '06:20 PM',
+      status: PrayerStatus.pending,
+      isFuture: true,
+    ),
+    PrayerItem(
+      name: 'Isha',
+      time: '07:50 PM',
+      status: PrayerStatus.pending,
+      isFuture: true,
+    ),
   ];
 
   @override
@@ -113,6 +143,7 @@ class PrayerListCard extends StatefulWidget {
 
 class _PrayerListCardState extends State<PrayerListCard> {
   late List<PrayerItem> _items;
+  bool _isFridayMosqueMode = true;
 
   @override
   void initState() {
@@ -120,6 +151,43 @@ class _PrayerListCardState extends State<PrayerListCard> {
     _items = widget.prayers != null
         ? List.from(widget.prayers!)
         : List.from(PrayerListCard.defaultPrayers);
+    _loadFridayLocationPreference();
+  }
+
+  Future<void> _loadFridayLocationPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString('friday_prayer_location');
+    if (saved != null && mounted) {
+      setState(() {
+        _isFridayMosqueMode = (saved != 'home');
+      });
+    }
+  }
+
+  Future<void> _setFridayLocation(bool isMosque) async {
+    AppHaptics.selection();
+    setState(() {
+      _isFridayMosqueMode = isMosque;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('friday_prayer_location', isMosque ? 'mosque' : 'home');
+  }
+
+  bool get _effectiveIsFriday {
+    if (widget.isFriday != null) return widget.isFriday!;
+    if (widget.nowOverride != null) {
+      return widget.nowOverride!.weekday == DateTime.friday;
+    }
+    if (widget.dhuhrDateTime != null) {
+      return widget.dhuhrDateTime!.weekday == DateTime.friday;
+    }
+    if (widget.sunriseDateTime != null) {
+      return widget.sunriseDateTime!.weekday == DateTime.friday;
+    }
+    if (widget.maghribDateTime != null) {
+      return widget.maghribDateTime!.weekday == DateTime.friday;
+    }
+    return false;
   }
 
   @override
@@ -135,15 +203,19 @@ class _PrayerListCardState extends State<PrayerListCard> {
     if (item.isFuture) {
       AppHaptics.light();
       final l10n = AppLocalizations.of(context);
-      final localizedName = _localizePrayerName(context, item.name);
-      final message = l10n?.prayerNotStartedYet(localizedName, item.time) ??
+      final isFridayDhuhr =
+          _effectiveIsFriday && item.name.toLowerCase() == 'dhuhr';
+      final localizedName = isFridayDhuhr
+          ? (_isFridayMosqueMode
+              ? (l10n?.fridayJumuahTitle ?? "Jumu'ah")
+              : (l10n?.prayerDhuhr ?? 'Dhuhr'))
+          : _localizePrayerName(context, item.name);
+      final message =
+          l10n?.prayerNotStartedYet(localizedName, item.time) ??
           '$localizedName prayer time has not started yet (${item.time})';
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          duration: const Duration(seconds: 2),
-        ),
+        SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
       );
       return;
     }
@@ -173,10 +245,7 @@ class _PrayerListCardState extends State<PrayerListCard> {
         color: colors.elevatedBackground,
         shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: BorderSide(
-            color: colors.dividerStrong,
-            width: 1.0,
-          ),
+          side: BorderSide(color: colors.dividerStrong, width: 1.0),
         ),
       ),
       padding: const EdgeInsets.all(16.0),
@@ -189,31 +258,42 @@ class _PrayerListCardState extends State<PrayerListCard> {
             child: Text(
               AppLocalizations.of(context)?.todaysPrayers ?? "TODAY'S PRAYERS",
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: colors.textSecondary,
-                    letterSpacing: 1.2,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: colors.textSecondary,
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(height: 12),
           Builder(
             builder: (context) {
-              final displayItems = _items.where((item) => !item.isSunrise && item.name != 'Sunrise').toList();
-              final hasCurrentUnprayed = displayItems.any((i) => i.isCurrent && i.status != PrayerStatus.prayed);
+              final displayItems = _items
+                  .where((item) => !item.isSunrise && item.name != 'Sunrise')
+                  .toList();
+              final hasCurrentUnprayed = displayItems.any(
+                (i) => i.isCurrent && i.status != PrayerStatus.prayed,
+              );
               return ListView.separated(
                 padding: EdgeInsets.zero,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
+                clipBehavior: Clip.none,
                 itemCount: displayItems.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 8),
+                separatorBuilder: (context, index) => const SizedBox(height: 6),
                 itemBuilder: (context, index) {
                   final item = displayItems[index];
-                  final realIndex = _items.indexWhere((i) => i.name == item.name);
+                  final realIndex = _items.indexWhere(
+                    (i) => i.name == item.name,
+                  );
                   return _PrayerRowItem(
                     key: ValueKey('prayer_row_${item.name}'),
                     item: item,
                     hasCurrentUnprayed: hasCurrentUnprayed,
-                    onToggle: () => _handleToggle(realIndex >= 0 ? realIndex : index),
+                    isFriday: _effectiveIsFriday,
+                    isFridayMosqueMode: _isFridayMosqueMode,
+                    onFridayLocationChanged: _setFridayLocation,
+                    onToggle: () =>
+                        _handleToggle(realIndex >= 0 ? realIndex : index),
                   );
                 },
               );
@@ -262,22 +342,25 @@ class _SunnahInfo {
   final String label;
   final String importance;
 
-  const _SunnahInfo({
-    required this.label,
-    required this.importance,
-  });
+  const _SunnahInfo({required this.label, required this.importance});
 }
 
 class _PrayerRowItem extends StatefulWidget {
   final PrayerItem item;
   final bool hasCurrentUnprayed;
   final VoidCallback onToggle;
+  final bool isFriday;
+  final bool isFridayMosqueMode;
+  final ValueChanged<bool>? onFridayLocationChanged;
 
   const _PrayerRowItem({
     super.key,
     required this.item,
     this.hasCurrentUnprayed = false,
     required this.onToggle,
+    this.isFriday = false,
+    this.isFridayMosqueMode = true,
+    this.onFridayLocationChanged,
   });
 
   @override
@@ -332,9 +415,10 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
       vsync: this,
       duration: const Duration(milliseconds: 100),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.97,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
   @override
@@ -355,12 +439,20 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
     _controller.reverse();
   }
 
-  IconData _getPrayerIcon(String name, bool isSunrise) {
+  IconData _getPrayerIcon(
+    String name,
+    bool isSunrise, [
+    bool isFriday = false,
+    bool isMosqueMode = true,
+  ]) {
     if (isSunrise) return Icons.wb_sunny_rounded;
     switch (name.toLowerCase()) {
       case 'fajr':
         return Icons.wb_twilight_rounded;
       case 'dhuhr':
+        if (isFriday && isMosqueMode) {
+          return Icons.mosque_rounded;
+        }
         return Icons.wb_sunny_rounded;
       case 'asr':
         return Icons.wb_cloudy_rounded;
@@ -446,6 +538,89 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
         ? !isPrayed
         : (item.isNext && !widget.hasCurrentUnprayed && !isPrayed);
     final sunnahInfo = _getSunnahInfo(context, item.name);
+    final isFridayDhuhr =
+        widget.isFriday && item.name.toLowerCase() == 'dhuhr';
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final List<BoxShadow>? selectedShadows = isSelected
+        ? (isDark
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.40),
+                    blurRadius: 6,
+                    spreadRadius: 0,
+                    offset: Offset.zero,
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.32),
+                    blurRadius: 16,
+                    spreadRadius: 2,
+                    offset: Offset.zero,
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.22),
+                    blurRadius: 32,
+                    spreadRadius: 4,
+                    offset: Offset.zero,
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.12),
+                    blurRadius: 54,
+                    spreadRadius: 6,
+                    offset: Offset.zero,
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFFD4A574).withValues(alpha: 0.18),
+                    blurRadius: 14,
+                    spreadRadius: 0,
+                    offset: Offset.zero,
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: const Color(0xFF78716C).withValues(alpha: 0.16),
+                    blurRadius: 6,
+                    spreadRadius: 0,
+                    offset: Offset.zero,
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFF78716C).withValues(alpha: 0.14),
+                    blurRadius: 16,
+                    spreadRadius: 2,
+                    offset: Offset.zero,
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFF78716C).withValues(alpha: 0.09),
+                    blurRadius: 32,
+                    spreadRadius: 4,
+                    offset: Offset.zero,
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFF78716C).withValues(alpha: 0.05),
+                    blurRadius: 54,
+                    spreadRadius: 6,
+                    offset: Offset.zero,
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFF0F766E).withValues(alpha: 0.10),
+                    blurRadius: 14,
+                    spreadRadius: 0,
+                    offset: Offset.zero,
+                  ),
+                ])
+        : null;
+
+    final double cardOpacity;
+    if (isSelected) {
+      cardOpacity = 1.0;
+    } else if (isPrayed) {
+      cardOpacity = 0.45;
+    } else if (item.isNext) {
+      cardOpacity = 0.85;
+    } else {
+      cardOpacity = 0.70;
+    }
 
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -456,67 +631,93 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOutCubic,
+          margin: EdgeInsets.symmetric(horizontal: isSelected ? 0.0 : 8.0),
           decoration: ShapeDecoration(
             color: isSelected
-                ? (isPrayed ? colors.surface.withValues(alpha: 0.35) : colors.paperBackground)
-                : (isPrayed ? colors.surface.withValues(alpha: 0.35) : colors.surface),
+                ? (isDark ? colors.surfaceHover : colors.surface)
+                : (isPrayed
+                      ? colors.surface.withValues(alpha: 0.35)
+                      : colors.surface),
             shape: ContinuousRectangleBorder(
               borderRadius: BorderRadius.circular(20),
               side: BorderSide(
                 color: isSelected
-                    ? (isPrayed ? colors.divider.withValues(alpha: 0.4) : colors.primary.withValues(alpha: 0.6))
-                    : (isPrayed ? colors.divider.withValues(alpha: 0.4) : colors.divider),
-                width: isSelected ? 1.8 : 1.0,
+                    ? (isDark
+                          ? const Color(0xFFD4A574)
+                          : const Color(0xFF0F766E))
+                    : (isPrayed
+                          ? colors.divider.withValues(alpha: isDark ? 0.4 : 0.6)
+                          : (item.isNext
+                                ? (isDark
+                                      ? const Color(
+                                          0xFFF59E0B,
+                                        ).withValues(alpha: 0.35)
+                                      : const Color(
+                                          0xFFB45309,
+                                        ).withValues(alpha: 0.35))
+                                : colors.divider)),
+                width: 1.0,
               ),
             ),
-            shadows: isSelected && !isPrayed
-                ? [
-                    BoxShadow(
-                      color: colors.primary.withValues(alpha: 0.12),
-                      blurRadius: 12,
-                      spreadRadius: 1,
-                      offset: const Offset(0, 3),
-                    ),
-                  ]
-                : null,
+            shadows: selectedShadows,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+          padding: EdgeInsets.symmetric(
+            horizontal: isSelected ? 14.0 : 11.0,
+            vertical: isSelected ? 10.0 : 7.0,
+          ),
           child: AnimatedOpacity(
             duration: const Duration(milliseconds: 220),
             curve: Curves.easeOutCubic,
-            opacity: isPrayed ? 0.60 : 1.0,
+            opacity: cardOpacity,
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Squircle Icon Badge
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 220),
-                      curve: Curves.easeOutCubic,
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: isPrayed ? colors.success.withValues(alpha: 0.20) : squircleColor,
-                        borderRadius: BorderRadius.circular(13),
-                        boxShadow: isSelected && !isPrayed
-                            ? [
-                                BoxShadow(
-                                  color: squircleColor.withValues(alpha: 0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                )
-                              ]
-                            : null,
-                      ),
-                      child: Icon(
-                        isPrayed ? Icons.check_rounded : _getPrayerIcon(item.name, item.isSunrise),
-                        key: ValueKey('icon_${item.name}_${item.status.name}'),
-                        size: 20,
-                        color: isPrayed ? colors.successText : Colors.white,
-                      )
-                          .animate(key: ValueKey('anim_icon_${item.name}_${item.status.name}'))
+                // Squircle Icon Badge
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  width: isSelected ? 40 : 34,
+                  height: isSelected ? 40 : 34,
+                  decoration: BoxDecoration(
+                    color: isPrayed
+                        ? colors.success.withValues(alpha: 0.20)
+                        : squircleColor,
+                    borderRadius: BorderRadius.circular(isSelected ? 13 : 11),
+                    boxShadow: isSelected && !isPrayed
+                        ? [
+                            BoxShadow(
+                              color: squircleColor.withValues(alpha: 0.35),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child:
+                      Icon(
+                            isPrayed
+                                ? Icons.check_rounded
+                                : _getPrayerIcon(
+                                    item.name,
+                                    item.isSunrise,
+                                    widget.isFriday,
+                                    widget.isFridayMosqueMode,
+                                  ),
+                            key: ValueKey(
+                              'icon_${item.name}_${item.status.name}_${widget.isFridayMosqueMode}',
+                            ),
+                            size: isSelected ? 20 : 17,
+                            color: isPrayed ? colors.successText : Colors.white,
+                          )
+                          .animate(
+                            key: ValueKey(
+                              'anim_icon_${item.name}_${item.status.name}_${widget.isFridayMosqueMode}',
+                            ),
+                          )
                           .scale(
                             begin: const Offset(0.5, 0.5),
                             end: const Offset(1.0, 1.0),
@@ -524,127 +725,195 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
                             curve: Curves.elasticOut,
                           )
                           .fade(duration: 150.ms),
-                    ),
-                    const SizedBox(width: 14),
+                ),
+                SizedBox(width: isSelected ? 12 : 10),
 
-                    // Middle Column: Salah Name & Start/End Time Subtitle
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  _localizePrayerName(context, item.name),
-                                  maxLines: 1,
-                                  softWrap: false,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        color: isPrayed ? colors.textSecondary : colors.textPrimary,
-                                        fontWeight: isSelected ? FontWeight.w800 : (isPrayed ? FontWeight.w500 : FontWeight.w600),
-                                        fontSize: isSelected ? 17.5 : 16.5,
-                                      ),
+                // Middle Column: Salah Name & Start/End Time Subtitle
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              isFridayDhuhr
+                                  ? (widget.isFridayMosqueMode
+                                      ? (l10n?.fridayJumuahTitle ?? "Jumu'ah")
+                                      : (l10n?.prayerDhuhr ?? 'Dhuhr'))
+                                  : _localizePrayerName(context, item.name),
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    color: isPrayed
+                                        ? colors.textSecondary
+                                        : colors.textPrimary,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w800
+                                        : (isPrayed
+                                              ? FontWeight.w500
+                                              : FontWeight.w700),
+                                    fontSize: isSelected ? 17.5 : 15.0,
+                                    letterSpacing: -0.2,
+                                  ),
+                            ),
+                            if (isSelected && !isPrayed) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                  vertical: 1.5,
                                 ),
-                                if (isSelected && !isPrayed) ...[
-                                  const SizedBox(width: 6),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: item.isCurrent
-                                          ? colors.primary.withValues(alpha: 0.22)
-                                          : colors.primary.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(6),
-                                      border: item.isCurrent
-                                          ? Border.all(color: colors.primary.withValues(alpha: 0.4), width: 1.0)
-                                          : null,
-                                    ),
-                                    child: Text(
-                                      item.isCurrent ? 'CURRENT' : 'NEXT',
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? const Color(
+                                          0xFFD4A574,
+                                        ).withValues(alpha: 0.18)
+                                      : const Color(
+                                          0xFF0F766E,
+                                        ).withValues(alpha: 0.10),
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(
+                                    color: isDark
+                                        ? const Color(
+                                            0xFFD4A574,
+                                          ).withValues(alpha: 0.45)
+                                        : const Color(
+                                            0xFF0F766E,
+                                          ).withValues(alpha: 0.35),
+                                    width: 1.0,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (item.isCurrent) ...[
+                                      Container(
+                                        width: 4,
+                                        height: 4,
+                                        decoration: BoxDecoration(
+                                          color: isDark
+                                              ? const Color(0xFFD4A574)
+                                              : const Color(0xFF0F766E),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 3.5),
+                                    ],
+                                    Text(
+                                      item.isCurrent
+                                          ? (l10n?.badgeCurrent ?? 'CURRENT')
+                                          : (l10n?.badgeNext ?? 'NEXT'),
                                       style: TextStyle(
-                                        fontSize: 9.5,
+                                        fontSize: 8.5,
                                         fontWeight: FontWeight.w800,
-                                        color: colors.primary,
+                                        color: isDark
+                                            ? const Color(0xFFE8C9A0)
+                                            : const Color(0xFF0F766E),
                                         letterSpacing: 0.5,
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: _TimeCapsulePill(
-                              startTime: item.time,
-                              endTime: item.endTime,
-                              isSunrise: item.isSunrise,
-                              isPrayed: isPrayed,
-                              isCurrent: item.isCurrent,
-                              isNext: item.isNext,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    // Right: Status Toggle Pill Button
-                    if (!item.isSunrise)
-                      Semantics(
-                        button: true,
-                        label: '${item.name} status: $statusLabel',
-                        child: InkWell(
-                          key: ValueKey('toggle_button_${item.name}'),
-                          onTap: widget.onToggle,
-                          borderRadius: BorderRadius.circular(14),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.easeOutCubic,
-                            decoration: ShapeDecoration(
-                              color: isPrayed ? colors.surface.withValues(alpha: 0.4) : badgeBg,
-                              shape: ContinuousRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                side: BorderSide(
-                                  color: isSelected
-                                      ? (isPrayed ? colors.divider.withValues(alpha: 0.3) : colors.primary.withValues(alpha: 0.4))
-                                      : (isPrayed ? colors.divider.withValues(alpha: 0.3) : colors.dividerStrong),
-                                  width: 1,
+                                  ],
                                 ),
                               ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      _TimeCapsulePill(
+                        startTime: item.time,
+                        endTime: item.endTime,
+                        isSunrise: item.isSunrise,
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(width: isSelected ? 12 : 10),
+
+                // Right: Status Toggle Pill Button
+                if (!item.isSunrise)
+                  Semantics(
+                    button: true,
+                    label: '${item.name} status: $statusLabel',
+                    child: InkWell(
+                      key: ValueKey('toggle_button_${item.name}'),
+                      onTap: widget.onToggle,
+                      borderRadius: BorderRadius.circular(isSelected ? 11 : 10),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeOutCubic,
+                        decoration: ShapeDecoration(
+                          color: isPrayed
+                              ? colors.surface.withValues(alpha: 0.4)
+                              : badgeBg,
+                          shape: ContinuousRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              isSelected ? 11 : 10,
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Row(
-                                key: ValueKey('status_row_${item.name}_${item.status.name}'),
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    statusIcon,
-                                    size: 14,
-                                    color: isPrayed ? colors.textSecondary : badgeText,
+                            side: BorderSide(
+                              color: isSelected
+                                  ? (isPrayed
+                                        ? colors.divider.withValues(alpha: 0.3)
+                                        : colors.primary.withValues(alpha: 0.4))
+                                  : (isPrayed
+                                        ? colors.divider.withValues(alpha: 0.3)
+                                        : colors.dividerStrong),
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isSelected ? 11.0 : 9.0,
+                          vertical: isSelected ? 6.0 : 5.0,
+                        ),
+                        child:
+                            FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Row(
+                                    key: ValueKey(
+                                      'status_row_${item.name}_${item.status.name}',
+                                    ),
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        statusIcon,
+                                        size: isSelected ? 12 : 11,
+                                        color: isPrayed
+                                            ? colors.textSecondary
+                                            : badgeText,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        statusLabel,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall
+                                            ?.copyWith(
+                                              color: isPrayed
+                                                  ? colors.textSecondary
+                                                  : badgeText,
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: isSelected
+                                                  ? 11.5
+                                                  : 10.5,
+                                            ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    statusLabel,
-                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                          color: isPrayed ? colors.textSecondary : badgeText,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 12,
-                                        ),
+                                )
+                                .animate(
+                                  key: ValueKey(
+                                    'anim_status_row_${item.name}_${item.status.name}',
                                   ),
-                                ],
-                              ),
-                            )
-                                .animate(key: ValueKey('anim_status_row_${item.name}_${item.status.name}'))
+                                )
                                 .scale(
                                   begin: const Offset(0.85, 0.85),
                                   end: const Offset(1.0, 1.0),
@@ -652,89 +921,659 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
                                   curve: Curves.easeOutBack,
                                 )
                                 .fade(duration: 150.ms),
-                          ),
-                        ),
-                      )
-                  else
-                    Container(
-                      decoration: ShapeDecoration(
-                        color: colors.surfaceHover,
-                        shape: ContinuousRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                      child: Text(
-                        'Shuruq',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: colors.textTertiary,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 12,
-                            ),
                       ),
                     ),
-                ],
-              ),
-
-              // Sunnah Section (on selected prayer card)
-              if (isSelected && !item.isSunrise) ...[
-                const SizedBox(height: 12),
-                Container(
-                  decoration: ShapeDecoration(
-                    color: colors.surface.withValues(alpha: 0.6),
-                    shape: ContinuousRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      side: BorderSide(
-                        color: colors.dividerStrong,
-                        width: 1,
+                  )
+                else
+                  Container(
+                    decoration: ShapeDecoration(
+                      color: colors.surfaceHover,
+                      shape: ContinuousRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 8.0,
+                    ),
+                    child: Text(
+                      l10n?.shuruqBadge ?? 'Shuruq',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: colors.textTertiary,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
                       ),
                     ),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.menu_book_rounded,
-                        size: 16,
-                        color: colors.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n?.sunnahPrayerHeader ?? 'SUNNAH PRAYER',
-                              style: TextStyle(
-                                fontSize: 9.5,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.8,
-                                color: colors.textTertiary,
-                              ),
-                            ),
-                            const SizedBox(height: 1),
-                            Text(
-                              sunnahInfo.label,
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w600,
-                                color: colors.textPrimary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              ],
+            ),
+            if (isSelected && !item.isSunrise) ...[
+              const SizedBox(height: 7.0),
+              if (isFridayDhuhr) ...[
+                _buildFridayLocationSelector(context, colors, l10n, isDark),
+                const SizedBox(height: 6.0),
+                _buildCompactFridaySunnahCard(context, colors, l10n, isDark),
+              ] else ...[
+                _buildStandardSunnahStrip(context, colors, sunnahInfo, isDark),
               ],
             ],
-          ),
+          ],
         ),
       ),
     ),
-  );
+  ),
+);
+  }
+
+  Widget _buildStandardSunnahStrip(
+    BuildContext context,
+    AppCustomColors colors,
+    _SunnahInfo sunnahInfo,
+    bool isDark,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10.0,
+        vertical: 4.5,
+      ),
+      decoration: BoxDecoration(
+        color: isDark
+            ? const Color(0xFFD4A574).withValues(alpha: 0.14)
+            : const Color(0xFF0F766E).withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDark
+              ? const Color(0xFFD4A574).withValues(alpha: 0.35)
+              : const Color(0xFF0F766E).withValues(alpha: 0.25),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.menu_book_rounded,
+            size: 13,
+            color: isDark ? const Color(0xFFE8C9A0) : const Color(0xFF0F766E),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              sunnahInfo.label,
+              softWrap: true,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: isDark
+                    ? const Color(0xFFE8C9A0)
+                    : const Color(0xFF0F766E),
+                letterSpacing: 0.1,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFridayLocationSelector(
+    BuildContext context,
+    AppCustomColors colors,
+    AppLocalizations? l10n,
+    bool isDark,
+  ) {
+    final isMosque = widget.isFridayMosqueMode;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+      decoration: BoxDecoration(
+        color: isDark
+            ? colors.surface.withValues(alpha: 0.45)
+            : colors.surfaceHover.withValues(alpha: 0.65),
+        borderRadius: BorderRadius.circular(9),
+        border: Border.all(
+          color: colors.divider.withValues(alpha: isDark ? 0.35 : 0.5),
+          width: 0.8,
+        ),
+      ),
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 6.0,
+        runSpacing: 5.0,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.place_outlined,
+                size: 13,
+                color: colors.textSecondary,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                l10n?.fridayLocationLabel ?? 'Location',
+                softWrap: true,
+                style: TextStyle(
+                  fontSize: 11.0,
+                  fontWeight: FontWeight.w700,
+                  color: colors.textSecondary,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Mosque Capsule
+              _buildLocationCapsule(
+                label: l10n?.fridayAtMosque ?? 'At Mosque',
+                icon: Icons.mosque_rounded,
+                isActive: isMosque,
+                isDark: isDark,
+                colors: colors,
+                onTap: () {
+                  if (!isMosque) {
+                    widget.onFridayLocationChanged?.call(true);
+                  }
+                },
+              ),
+              const SizedBox(width: 6),
+              // Home Capsule
+              _buildLocationCapsule(
+                label: l10n?.fridayAtHome ?? 'At Home',
+                icon: Icons.home_rounded,
+                isActive: !isMosque,
+                isDark: isDark,
+                colors: colors,
+                onTap: () {
+                  if (isMosque) {
+                    widget.onFridayLocationChanged?.call(false);
+                  }
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLocationCapsule({
+    required String label,
+    required IconData icon,
+    required bool isActive,
+    required bool isDark,
+    required AppCustomColors colors,
+    required VoidCallback onTap,
+  }) {
+    final activeBg = isDark
+        ? const Color(0xFFD4A574).withValues(alpha: 0.22)
+        : const Color(0xFF0F766E).withValues(alpha: 0.12);
+    final activeBorder = isDark
+        ? const Color(0xFFD4A574).withValues(alpha: 0.60)
+        : const Color(0xFF0F766E).withValues(alpha: 0.40);
+    final activeColor =
+        isDark ? const Color(0xFFE8C9A0) : const Color(0xFF0F766E);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(7),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 3.5),
+        decoration: BoxDecoration(
+          color: isActive ? activeBg : Colors.transparent,
+          borderRadius: BorderRadius.circular(7),
+          border: Border.all(
+            color: isActive
+                ? activeBorder
+                : colors.divider.withValues(alpha: isDark ? 0.35 : 0.5),
+            width: 0.8,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 11.5,
+              color: isActive ? activeColor : colors.textTertiary,
+            ),
+            const SizedBox(width: 3.5),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10.0,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                color: isActive ? activeColor : colors.textTertiary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactFridaySunnahCard(
+    BuildContext context,
+    AppCustomColors colors,
+    AppLocalizations? l10n,
+    bool isDark,
+  ) {
+    final isMosque = widget.isFridayMosqueMode;
+    final beforeDesc = isMosque
+        ? (l10n?.fridayMosqueBeforeDesc ??
+            'Tahiyyat al-Masjid & general voluntary prayers until Khutbah begins.')
+        : (l10n?.fridayHomeBeforeDesc ??
+            '4 Sunnah Rak\'ahs before Dhuhr (for those praying Dhuhr at home).');
+    final afterDesc = isMosque
+        ? (l10n?.fridayMosqueAfterDesc ??
+            '4 Sunnah Rak\'ahs (at mosque) or 2 Sunnah Rak\'ahs (if prayed at home).')
+        : (l10n?.fridayHomeAfterDesc ??
+            '2 Sunnah Rak\'ahs after Dhuhr (for those praying Dhuhr at home).');
+
+    final cardBg = isDark
+        ? const Color(0xFFD4A574).withValues(alpha: 0.12)
+        : const Color(0xFF0F766E).withValues(alpha: 0.07);
+    final cardBorder = isDark
+        ? const Color(0xFFD4A574).withValues(alpha: 0.32)
+        : const Color(0xFF0F766E).withValues(alpha: 0.22);
+    final accentColor =
+        isDark ? const Color(0xFFE8C9A0) : const Color(0xFF0F766E);
+
+    return InkWell(
+      onTap: () => _showHadithGuideSheet(context),
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7.5),
+        decoration: BoxDecoration(
+          color: cardBg,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: cardBorder, width: 1.0),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header Row: Icon + Title + Open In New Icon
+            Row(
+              children: [
+                Icon(
+                  Icons.menu_book_rounded,
+                  size: 13,
+                  color: accentColor,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    l10n?.fridaySunnahRulingsTitle ?? 'Friday Sunnah Rulings',
+                    softWrap: true,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: accentColor,
+                      letterSpacing: 0.1,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.open_in_new_rounded,
+                  size: 12,
+                  color: accentColor.withValues(alpha: 0.75),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6.0),
+
+            // Row 1: BEFORE
+            _buildSunnahDescRow(
+              badgeText: l10n?.fridayBeforeLabel ?? 'Before',
+              description: beforeDesc,
+              isDark: isDark,
+              accentColor: accentColor,
+              colors: colors,
+            ),
+            const SizedBox(height: 5.0),
+
+            // Row 2: AFTER
+            _buildSunnahDescRow(
+              badgeText: l10n?.fridayAfterLabel ?? 'After',
+              description: afterDesc,
+              isDark: isDark,
+              accentColor: accentColor,
+              colors: colors,
+            ),
+            const SizedBox(height: 6.0),
+
+            // Hairline subtle divider
+            Container(
+              height: 0.5,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.10)
+                  : colors.divider.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 4.5),
+
+            // Centered bottom prompt: "Tap to view authentic rulings and hadith references"
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Text(
+                    l10n?.fridayClickToReadFull ??
+                        'Tap to view authentic rulings and hadith references',
+                    textAlign: TextAlign.center,
+                    softWrap: true,
+                    style: TextStyle(
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w600,
+                      color: accentColor,
+                      letterSpacing: 0.1,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 3),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 10,
+                  color: accentColor,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSunnahDescRow({
+    required String badgeText,
+    required String description,
+    required bool isDark,
+    required Color accentColor,
+    required AppCustomColors colors,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1.5),
+          decoration: BoxDecoration(
+            color: isDark
+                ? const Color(0xFFD4A574).withValues(alpha: 0.20)
+                : const Color(0xFF0F766E).withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: isDark
+                  ? const Color(0xFFD4A574).withValues(alpha: 0.40)
+                  : const Color(0xFF0F766E).withValues(alpha: 0.30),
+              width: 0.8,
+            ),
+          ),
+          child: Text(
+            badgeText,
+            style: TextStyle(
+              fontSize: 8.5,
+              fontWeight: FontWeight.w800,
+              color: accentColor,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            description,
+            softWrap: true,
+            style: TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w500,
+              color: colors.textPrimary,
+              height: 1.25,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showHadithGuideSheet(BuildContext context) {
+    AppHaptics.selection();
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => const _FridayHadithGuideSheet(),
+    );
+  }
 }
+
+/// Authentic Friday Hadith Guide modal bottom sheet with modern borderless depth
+/// and pure typography. Displays authentic hadiths for Before Jumu'ah,
+/// After Jumu'ah at Mosque, and After Jumu'ah at Home.
+class _FridayHadithGuideSheet extends StatelessWidget {
+  const _FridayHadithGuideSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Bottom sheet tonal invariant from learnings.md:
+    // In dark mode: background #0D0F14, cards recessed #06080C.
+    // In light mode: background #F5EBE4, cards warmer lighter #FFF7F2.
+    final sheetBg = isDark ? const Color(0xFF0D0F14) : const Color(0xFFF5EBE4);
+    final cardBg = isDark ? const Color(0xFF06080C) : const Color(0xFFFFF7F2);
+    final accentGoldOrEmerald =
+        isDark ? const Color(0xFFD4A574) : const Color(0xFF0F766E);
+    final accentText =
+        isDark ? const Color(0xFFE8C9A0) : const Color(0xFF0F766E);
+
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+      child: Container(
+        decoration: ShapeDecoration(
+          color: sheetBg,
+          shape: const ContinuousRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(32),
+              topRight: Radius.circular(32),
+            ),
+          ),
+        ),
+        padding: EdgeInsets.fromLTRB(
+          18,
+          12,
+          18,
+          MediaQuery.paddingOf(context).bottom + 16,
+        ),
+        child: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Top drag handle
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white24 : colors.dividerStrong,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Sheet Header: Squircle icon + Title + Close icon
+                Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: accentGoldOrEmerald.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        Icons.menu_book_rounded,
+                        size: 18,
+                        color: accentText,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        l10n?.fridayHadithGuideSheetTitle ??
+                            'Sunnah Prayers of Friday: Hadith Guide',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15.0,
+                              color: colors.textPrimary,
+                            ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 20),
+                      color: colors.textSecondary,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Card 1: Before Jumu'ah / Dhuhr Prayer
+                _buildHadithCard(
+                  title: l10n?.fridayHadithBeforeCardTitle ??
+                      'Before Jumu\'ah / Dhuhr Prayer',
+                  desc: l10n?.fridayHadithBeforeCardDesc ??
+                      'At the mosque: When you enter, pray Tahiyyat al-Masjid (2 Rak\'ahs), then voluntary prayers until the Imam ascends the pulpit. At home (Dhuhr): Pray 4 Rak\'ahs Sunnah Mu\'akkadah before Dhuhr.',
+                  icon: Icons.wb_sunny_rounded,
+                  cardBg: cardBg,
+                  accentColor: accentText,
+                  colors: colors,
+                ),
+                const SizedBox(height: 10),
+
+                // Card 2: After Jumu'ah at Mosque (4 Rak'ahs)
+                _buildHadithCard(
+                  title: l10n?.fridayHadithAfterMosqueTitle ??
+                      'After Jumu\'ah at the Mosque (4 Rak\'ahs)',
+                  desc: l10n?.fridayHadithAfterMosqueDesc ??
+                      'Abu Hurairah reported: The Messenger of Allah ﷺ said: \'When one of you prays Jumu\'ah, let him pray four Rak\'ahs after it.\' (Sahih Muslim 881)',
+                  icon: Icons.mosque_rounded,
+                  cardBg: cardBg,
+                  accentColor: accentText,
+                  colors: colors,
+                  isHadithQuote: true,
+                ),
+                const SizedBox(height: 10),
+
+                // Card 3: After Jumu'ah at Home (2 Rak'ahs)
+                _buildHadithCard(
+                  title: l10n?.fridayHadithAfterHomeTitle ??
+                      'After Jumu\'ah at Home (2 Rak\'ahs)',
+                  desc: l10n?.fridayHadithAfterHomeDesc ??
+                      'Ibn Umar reported: \'The Prophet ﷺ would not pray after Jumu\'ah until he departed, and then he would pray two Rak\'ahs in his house.\' (Sahih al-Bukhari 937, Sahih Muslim 882)',
+                  icon: Icons.home_rounded,
+                  cardBg: cardBg,
+                  accentColor: accentText,
+                  colors: colors,
+                  isHadithQuote: true,
+                ),
+                const SizedBox(height: 18),
+
+                // Centered Close Guide Button (No checkmark icon!)
+                SizedBox(
+                  height: 48,
+                  child: FilledButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: accentGoldOrEmerald,
+                      foregroundColor:
+                          isDark ? const Color(0xFF12151C) : Colors.white,
+                      elevation: 0,
+                      shape: ContinuousRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      l10n?.closeGuideBtn ?? 'Close Guide',
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? const Color(0xFF12151C) : Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHadithCard({
+    required String title,
+    required String desc,
+    required IconData icon,
+    required Color cardBg,
+    required Color accentColor,
+    required AppCustomColors colors,
+    bool isHadithQuote = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(14.0),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 15, color: accentColor),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 13.0,
+                    fontWeight: FontWeight.w700,
+                    color: colors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 7),
+          Text(
+            desc,
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w400,
+              fontStyle: isHadithQuote ? FontStyle.italic : FontStyle.normal,
+              color: colors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// Dynamic event-driven note at the bottom of Today's Prayers card highlighting
@@ -761,6 +1600,7 @@ class _ForbiddenNaflNote extends StatefulWidget {
 }
 
 enum _ForbiddenWindowType { sunrise, zawal, sunset }
+
 enum _ForbiddenWindowPhase { upcoming, active, concluded }
 
 class _ForbiddenWindowInfo {
@@ -830,7 +1670,8 @@ class _ForbiddenNaflNoteState extends State<_ForbiddenNaflNote>
 
   Future<void> _checkAndTriggerActiveNotification() async {
     final activeWindow = _resolveActiveWindow();
-    if (activeWindow != null && activeWindow.phase == _ForbiddenWindowPhase.active) {
+    if (activeWindow != null &&
+        activeWindow.phase == _ForbiddenWindowPhase.active) {
       if (_lastNotifiedWindowType != activeWindow.type) {
         _lastNotifiedWindowType = activeWindow.type;
         final prefs = await SharedPreferences.getInstance();
@@ -940,15 +1781,14 @@ class _ForbiddenNaflNoteState extends State<_ForbiddenNaflNote>
         .subtract(const Duration(minutes: 10));
     allTransitions.add(tomorrowSunriseAppear);
 
-    final futureTransitions = allTransitions
-        .where((t) => t.isAfter(now))
-        .toList()
-      ..sort();
+    final futureTransitions =
+        allTransitions.where((t) => t.isAfter(now)).toList()..sort();
 
     if (futureTransitions.isNotEmpty) {
       final nextTransition = futureTransitions.first;
       // Add a 50ms buffer to guarantee the clock is strictly at or past the milestone
-      final delay = nextTransition.difference(now) + const Duration(milliseconds: 50);
+      final delay =
+          nextTransition.difference(now) + const Duration(milliseconds: 50);
       _eventTimer = Timer(delay, () {
         if (mounted) {
           setState(() {});
@@ -982,24 +1822,33 @@ class _ForbiddenNaflNoteState extends State<_ForbiddenNaflNote>
         shouldPulse = true;
         switch (activeWindow.type) {
           case _ForbiddenWindowType.sunrise:
-            headerText = l10n?.forbiddenNaflSunriseHeader ?? 'FORBIDDEN NAFL TIME • SUNRISE';
-            bodyText = l10n?.forbiddenNaflSunriseBody(
+            headerText =
+                l10n?.forbiddenNaflSunriseHeader ??
+                'FORBIDDEN NAFL TIME • SUNRISE';
+            bodyText =
+                l10n?.forbiddenNaflSunriseBody(
                   _formatTime(activeWindow.start),
                   _formatTime(activeWindow.end),
                 ) ??
                 'Sun is rising (${_formatTime(activeWindow.start)} – ${_formatTime(activeWindow.end)}). Voluntary (Nafl) prayers are prohibited until the sun is fully risen. (Sahih Muslim 831)';
             break;
           case _ForbiddenWindowType.zawal:
-            headerText = l10n?.forbiddenNaflZawalHeader ?? 'FORBIDDEN NAFL TIME • ZENITH (ZAWAL)';
-            bodyText = l10n?.forbiddenNaflZawalBody(
+            headerText =
+                l10n?.forbiddenNaflZawalHeader ??
+                'FORBIDDEN NAFL TIME • ZENITH (ZAWAL)';
+            bodyText =
+                l10n?.forbiddenNaflZawalBody(
                   _formatTime(activeWindow.start),
                   _formatTime(activeWindow.end),
                 ) ??
                 'Sun is at its zenith (${_formatTime(activeWindow.start)} – ${_formatTime(activeWindow.end)}). Nafl prayers are prohibited during this midday peak. (Sahih Muslim 831)';
             break;
           case _ForbiddenWindowType.sunset:
-            headerText = l10n?.forbiddenNaflSunsetHeader ?? 'FORBIDDEN NAFL TIME • SUNSET';
-            bodyText = l10n?.forbiddenNaflSunsetBody(
+            headerText =
+                l10n?.forbiddenNaflSunsetHeader ??
+                'FORBIDDEN NAFL TIME • SUNSET';
+            bodyText =
+                l10n?.forbiddenNaflSunsetBody(
                   _formatTime(activeWindow.start),
                   _formatTime(activeWindow.end),
                 ) ??
@@ -1014,18 +1863,33 @@ class _ForbiddenNaflNoteState extends State<_ForbiddenNaflNote>
         shouldPulse = false;
         switch (activeWindow.type) {
           case _ForbiddenWindowType.sunrise:
-            headerText = l10n?.forbiddenNaflUpcomingSunriseHeader ?? 'UPCOMING FORBIDDEN TIME • SUNRISE';
-            bodyText = l10n?.forbiddenNaflUpcomingSunriseBody(_formatTime(activeWindow.start)) ??
+            headerText =
+                l10n?.forbiddenNaflUpcomingSunriseHeader ??
+                'UPCOMING FORBIDDEN TIME • SUNRISE';
+            bodyText =
+                l10n?.forbiddenNaflUpcomingSunriseBody(
+                  _formatTime(activeWindow.start),
+                ) ??
                 'Voluntary (Nafl) prayers become prohibited at ${_formatTime(activeWindow.start)} as the sun rises. Conclude voluntary prayers before this time.';
             break;
           case _ForbiddenWindowType.zawal:
-            headerText = l10n?.forbiddenNaflUpcomingZawalHeader ?? 'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
-            bodyText = l10n?.forbiddenNaflUpcomingZawalBody(_formatTime(activeWindow.start)) ??
+            headerText =
+                l10n?.forbiddenNaflUpcomingZawalHeader ??
+                'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
+            bodyText =
+                l10n?.forbiddenNaflUpcomingZawalBody(
+                  _formatTime(activeWindow.start),
+                ) ??
                 'Voluntary (Nafl) prayers become prohibited at ${_formatTime(activeWindow.start)} during solar zenith. Conclude voluntary prayers before this time.';
             break;
           case _ForbiddenWindowType.sunset:
-            headerText = l10n?.forbiddenNaflUpcomingSunsetHeader ?? 'UPCOMING FORBIDDEN TIME • SUNSET';
-            bodyText = l10n?.forbiddenNaflUpcomingSunsetBody(_formatTime(activeWindow.start)) ??
+            headerText =
+                l10n?.forbiddenNaflUpcomingSunsetHeader ??
+                'UPCOMING FORBIDDEN TIME • SUNSET';
+            bodyText =
+                l10n?.forbiddenNaflUpcomingSunsetBody(
+                  _formatTime(activeWindow.start),
+                ) ??
                 'Voluntary (Nafl) prayers become prohibited at ${_formatTime(activeWindow.start)} before sunset. Conclude voluntary prayers before this time.';
             break;
         }
@@ -1035,22 +1899,24 @@ class _ForbiddenNaflNoteState extends State<_ForbiddenNaflNote>
         accentColor = colors.success;
         iconData = Icons.check_circle_outline_rounded;
         shouldPulse = false;
-        headerText = l10n?.forbiddenNaflConcludedHeader ?? 'FORBIDDEN TIME CONCLUDED';
-        bodyText = l10n?.forbiddenNaflConcludedBody ??
+        headerText =
+            l10n?.forbiddenNaflConcludedHeader ?? 'FORBIDDEN TIME CONCLUDED';
+        bodyText =
+            l10n?.forbiddenNaflConcludedBody ??
             'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
         break;
     }
 
-    Widget noteIcon = Icon(
-      iconData,
-      size: 16,
-      color: accentColor,
-    );
+    Widget noteIcon = Icon(iconData, size: 16, color: accentColor);
 
     if (shouldPulse) {
       noteIcon = noteIcon
           .animate(onPlay: (c) => c.repeat(reverse: true))
-          .fade(begin: 0.4, end: 1.0, duration: const Duration(milliseconds: 800));
+          .fade(
+            begin: 0.4,
+            end: 1.0,
+            duration: const Duration(milliseconds: 800),
+          );
     }
 
     return Padding(
@@ -1070,10 +1936,7 @@ class _ForbiddenNaflNoteState extends State<_ForbiddenNaflNote>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 2.0),
-              child: noteIcon,
-            ),
+            Padding(padding: const EdgeInsets.only(top: 2.0), child: noteIcon),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -1113,128 +1976,83 @@ class _TimeCapsulePill extends StatelessWidget {
   final String startTime;
   final String? endTime;
   final bool isSunrise;
-  final bool isPrayed;
-  final bool isCurrent;
-  final bool isNext;
 
   const _TimeCapsulePill({
     required this.startTime,
     this.endTime,
     this.isSunrise = false,
-    this.isPrayed = false,
-    this.isCurrent = false,
-    this.isNext = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasEndTime = !isSunrise && endTime != null && endTime!.isNotEmpty;
 
-    // Dynamic contrast & prominence styling:
-    // 1. Prayed: Both start and end time are grayed.
-    // 2. Current active (unprayed): Start time is grayed, End time is brighter (critical cutoff time).
-    // 3. Next upcoming (unprayed): Start time is brighter (next target time), End time is gray.
-    // 4. Other (future/default): Both start and end time are gray.
-    final Color startLabelColor;
-    final Color startTimeColor;
-    final FontWeight startTimeWeight;
-    final Color endLabelColor;
-    final Color endTimeColor;
-    final FontWeight endTimeWeight;
-
-    if (isPrayed) {
-      startLabelColor = colors.textTertiary;
-      startTimeColor = colors.textTertiary;
-      startTimeWeight = FontWeight.w600;
-      endLabelColor = colors.textTertiary;
-      endTimeColor = colors.textTertiary;
-      endTimeWeight = FontWeight.w600;
-    } else if (isCurrent) {
-      startLabelColor = colors.textTertiary;
-      startTimeColor = colors.textSecondary;
-      startTimeWeight = FontWeight.w600;
-      endLabelColor = colors.textSecondary;
-      endTimeColor = colors.textPrimary;
-      endTimeWeight = FontWeight.bold;
-    } else if (isNext) {
-      startLabelColor = colors.textSecondary;
-      startTimeColor = colors.textPrimary.withValues(alpha: 0.92);
-      startTimeWeight = FontWeight.w700;
-      endLabelColor = colors.textTertiary;
-      endTimeColor = colors.textSecondary;
-      endTimeWeight = FontWeight.w600;
-    } else {
-      startLabelColor = colors.textTertiary;
-      startTimeColor = colors.textSecondary;
-      startTimeWeight = FontWeight.w600;
-      endLabelColor = colors.textTertiary;
-      endTimeColor = colors.textSecondary;
-      endTimeWeight = FontWeight.w600;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: isCurrent && !isPrayed
-            ? colors.primary.withValues(alpha: 0.08)
-            : colors.surface.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isCurrent && !isPrayed
-              ? colors.primary.withValues(alpha: 0.3)
-              : colors.dividerStrong.withValues(alpha: 0.4),
-          width: 0.8,
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.5),
+        decoration: BoxDecoration(
+          color: isDark ? colors.surfaceHover : const Color(0xFFFCF2EB),
+          borderRadius: BorderRadius.circular(9999),
+          border: Border.all(
+            color: isDark ? colors.divider : const Color(0xFFEAE1DA),
+            width: 1.0,
+          ),
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            '${AppLocalizations.of(context)?.timeStart ?? 'Start'} ',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: startLabelColor,
-            ),
-          ),
-          Text(
-            startTime,
-            style: AppTypography.timerStyle(
-              color: startTimeColor,
-              fontSize: 10.5,
-              fontWeight: startTimeWeight,
-            ),
-          ),
-          if (hasEndTime) ...[
-            const SizedBox(width: 5),
-            Container(
-              width: 0.8,
-              height: 10,
-              color: colors.dividerStrong.withValues(alpha: 0.45),
-            ),
-            const SizedBox(width: 5),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
             Text(
-              '${AppLocalizations.of(context)?.timeEnd ?? 'End'} ',
+              '${AppLocalizations.of(context)?.timeStart ?? 'Start'} ',
               style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: endLabelColor,
+                fontSize: 9.5,
+                fontWeight: FontWeight.w500,
+                color: isDark ? colors.textTertiary : const Color(0xFF53433A),
               ),
             ),
             Text(
-              endTime!,
-              style: AppTypography.timerStyle(
-                color: endTimeColor,
-                fontSize: 10.5,
-                fontWeight: endTimeWeight,
+              startTime,
+              style: TextStyle(
+                fontSize: 10.0,
+                fontWeight: FontWeight.w700,
+                color: isDark ? colors.textPrimary : const Color(0xFF1F1B17),
               ),
             ),
+            if (hasEndTime) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.5),
+                child: Container(
+                  width: 1,
+                  height: 8.0,
+                  color: isDark
+                      ? colors.dividerStrong.withValues(alpha: 0.45)
+                      : const Color(0xFFD6CBC3),
+                ),
+              ),
+              Text(
+                '${AppLocalizations.of(context)?.timeEnd ?? 'End'} ',
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? colors.textTertiary : const Color(0xFF53433A),
+                ),
+              ),
+              Text(
+                endTime!,
+                style: TextStyle(
+                  fontSize: 10.0,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? colors.textPrimary : const Color(0xFF1F1B17),
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
 }
-

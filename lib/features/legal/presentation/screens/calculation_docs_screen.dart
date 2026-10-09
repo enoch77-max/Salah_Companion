@@ -23,9 +23,9 @@ class CalculationDocsScreen extends StatelessWidget {
         title: Text(
           'Calculation Accuracy & FAQ',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
+            color: colors.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: SafeArea(
@@ -37,18 +37,18 @@ class CalculationDocsScreen extends StatelessWidget {
               Text(
                 'Understanding Prayer Times',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.2,
-                    ),
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.2,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
                 'Learn how astronomical calculations work, why minor 1–3 minute differences happen between sources like Google or local mosques, and how to configure 100% accurate settings.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: colors.textSecondary,
-                      height: 1.5,
-                    ),
+                  color: colors.textSecondary,
+                  height: 1.5,
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -57,7 +57,8 @@ class CalculationDocsScreen extends StatelessWidget {
                 context,
                 icon: Icons.help_outline_rounded,
                 iconColor: const Color(0xFF0EA5E9),
-                question: 'Why do prayer times differ by a few minutes from Google or local mosques?',
+                question:
+                    'Why do prayer times differ by a few minutes from Google or local mosques?',
                 answer:
                     'Prayer times are computed using solar elevation formulas. Variations of 1 to 3 minutes occur due to 4 factors:\n\n'
                     '1. Regional Calculation Methods: Different Islamic authorities use slightly different twilight angles for Fajr (e.g. 18.5° for Umm Al-Qura vs 18° for MWL) and Isha (e.g. 90-min fixed delay vs 17° angle).\n'
@@ -95,9 +96,9 @@ class CalculationDocsScreen extends StatelessWidget {
               Center(
                 child: Text(
                   'Salah Companion • Open & Transparent',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: colors.textTertiary,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: colors.textTertiary),
                 ),
               ),
               const SizedBox(height: 20),
@@ -145,9 +146,9 @@ class CalculationDocsScreen extends StatelessWidget {
                   child: Text(
                     question,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -156,9 +157,9 @@ class CalculationDocsScreen extends StatelessWidget {
             Text(
               answer,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colors.textSecondary,
-                    height: 1.5,
-                  ),
+                color: colors.textSecondary,
+                height: 1.5,
+              ),
             ),
           ],
         ),

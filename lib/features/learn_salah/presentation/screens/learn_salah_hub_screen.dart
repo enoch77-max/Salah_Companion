@@ -40,9 +40,9 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
         title: Text(
           l10n?.learnSalah ?? 'Learn Salah',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colors.textPrimary,
-              ),
+            fontWeight: FontWeight.bold,
+            color: colors.textPrimary,
+          ),
         ),
         actions: [
           IconButton(
@@ -58,112 +58,136 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Container(
-                decoration: ShapeDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      colors.primary.withValues(alpha: 0.15),
-                      colors.primarySoft.withValues(alpha: 0.05),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  shape: ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                    side: BorderSide(
-                      color: colors.primary.withValues(alpha: 0.3),
-                      width: 1.5,
-                    ),
-                  ),
-                  shadows: [
-                    BoxShadow(
-                      color: colors.primary.withValues(alpha: 0.08),
-                      blurRadius: 16,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: ShapeDecoration(
-                              color: colors.primary.withValues(alpha: 0.15),
-                              shape: ContinuousRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+              child:
+                  Container(
+                        decoration: ShapeDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              colors.primary.withValues(alpha: 0.15),
+                              colors.primarySoft.withValues(alpha: 0.05),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          shape: ContinuousRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
+                            side: BorderSide(
+                              color: colors.primary.withValues(alpha: 0.3),
+                              width: 1.5,
+                            ),
+                          ),
+                          shadows: [
+                            BoxShadow(
+                              color: colors.primary.withValues(alpha: 0.08),
+                              blurRadius: 16,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(20.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: ShapeDecoration(
+                                      color: colors.primary.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      shape: ContinuousRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      l10n?.learnSalahAuthenticBadge ??
+                                          'AUTHENTIC SUNNAH GUIDE',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall
+                                          ?.copyWith(
+                                            color: colors.primary,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 1.1,
+                                          ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    l10n?.learnSalahProphetQuoteTitle ??
+                                        'Pray as the Prophet ﷺ Prayed',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                          color: colors.textPrimary,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    SalahGuideData.propheticHadithQuote,
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: colors.textSecondary,
+                                          fontStyle: FontStyle.italic,
+                                          height: 1.4,
+                                        ),
+                                  ),
+                                ],
                               ),
                             ),
-                            child: Text(
-                              l10n?.learnSalahAuthenticBadge ?? 'AUTHENTIC SUNNAH GUIDE',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: colors.primary,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.1,
+                            const SizedBox(width: 12),
+                            Container(
+                              width: 90,
+                              height: 110,
+                              decoration: ShapeDecoration(
+                                shape: ContinuousRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: BorderSide(
+                                    color: colors.primary.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                    width: 1.0,
                                   ),
+                                ),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: Image.asset(
+                                'assets/images/salah/sheikh_banner.webp',
+                                width: 90,
+                                height: 110,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const PostureAvatarWidget(
+                                      postureKey: 'qiyam_chest',
+                                      width: 90,
+                                      height: 110,
+                                    ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            l10n?.learnSalahProphetQuoteTitle ?? 'Pray as the Prophet ﷺ Prayed',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: colors.textPrimary,
-                                ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            SalahGuideData.propheticHadithQuote,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: colors.textSecondary,
-                                  fontStyle: FontStyle.italic,
-                                  height: 1.4,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      width: 90,
-                      height: 110,
-                      decoration: ShapeDecoration(
-                        shape: ContinuousRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(
-                            color: colors.primary.withValues(alpha: 0.3),
-                            width: 1.0,
-                          ),
+                          ],
                         ),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Image.asset(
-                        'assets/images/salah/sheikh_banner.png',
-                        width: 90,
-                        height: 110,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const PostureAvatarWidget(
-                          postureKey: 'qiyam_chest',
-                          width: 90,
-                          height: 110,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.08, curve: Curves.easeOutCubic),
+                      )
+                      .animate()
+                      .fadeIn(duration: 400.ms)
+                      .slideY(begin: 0.08, curve: Curves.easeOutCubic),
             ),
           ),
 
           // 2. Search Bar
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 4.0,
+              ),
               child: Container(
                 decoration: ShapeDecoration(
                   color: colors.surface,
@@ -180,12 +204,23 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                     });
                   },
                   decoration: InputDecoration(
-                    hintText: l10n?.learnSalahSearchPlaceholder ?? 'Search posture, step, or Hadith proof...',
-                    hintStyle: TextStyle(color: colors.textTertiary, fontSize: 14),
-                    prefixIcon: Icon(Icons.search_rounded, color: colors.textSecondary),
+                    hintText:
+                        l10n?.learnSalahSearchPlaceholder ??
+                        'Search posture, step, or Hadith proof...',
+                    hintStyle: TextStyle(
+                      color: colors.textTertiary,
+                      fontSize: 14,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: colors.textSecondary,
+                    ),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
-                            icon: Icon(Icons.clear_rounded, color: colors.textSecondary),
+                            icon: Icon(
+                              Icons.clear_rounded,
+                              color: colors.textSecondary,
+                            ),
                             onPressed: () {
                               _searchController.clear();
                               setState(() {
@@ -195,7 +230,10 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                           )
                         : null,
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
                 ),
               ),
@@ -209,137 +247,168 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
               child: Text(
                 l10n?.learnSalahLearningModules ?? 'LEARNING MODULES',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colors.textSecondary,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                    ),
+                  color: colors.textSecondary,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
               ),
             ),
           ),
 
           // 4. Main Category Modules List
           SliverPadding(
-            padding: EdgeInsets.fromLTRB(16.0, 0, 16.0, MediaQuery.of(context).padding.bottom + 32.0),
+            padding: EdgeInsets.fromLTRB(
+              16.0,
+              0,
+              16.0,
+              MediaQuery.of(context).padding.bottom + 32.0,
+            ),
             sliver: SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  // Module 1: Step-by-Step Guide
-                  _ModuleCard(
-                    title: l10n?.learnSalahStepByStepTitle ?? 'Step-by-Step Prophetic Guide',
-                    subtitle: l10n?.learnSalahStepByStepSubtitle ?? '10 Sequential steps with 2D postures & proofs',
-                    badgeText: 'FULL GUIDE',
-                    icon: Icons.directions_walk_rounded,
-                    accentColor: const Color(0xFF10B981), // Emerald Teal
-                    postureKey: 'raf_al_yadayn',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SalahStepByStepScreen(),
+              delegate: SliverChildListDelegate([
+                // Module 1: Step-by-Step Guide
+                _ModuleCard(
+                  title:
+                      l10n?.learnSalahStepByStepTitle ??
+                      'Step-by-Step Prophetic Guide',
+                  subtitle:
+                      l10n?.learnSalahStepByStepSubtitle ??
+                      '10 Sequential steps with 2D postures & proofs',
+                  badgeText: 'FULL GUIDE',
+                  icon: Icons.directions_walk_rounded,
+                  accentColor: const Color(0xFF10B981), // Emerald Teal
+                  postureKey: 'raf_al_yadayn',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SalahStepByStepScreen(),
+                      ),
+                    );
+                  },
+                ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
+
+                const SizedBox(height: 12),
+
+                // Module 2: The 14 Pillars
+                _ModuleCard(
+                  title:
+                      l10n?.learnSalahPillarsTitle ??
+                      'The 14 Pillars of Salah (Arkan)',
+                  subtitle:
+                      l10n?.learnSalahPillarsSubtitle ??
+                      'Must-do essential foundations of prayer',
+                  badgeText: '14 PILLARS',
+                  icon: Icons.account_balance_rounded,
+                  accentColor: const Color(0xFFD97706), // Warm Amber
+                  postureKey: 'ruku',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SalahCategoryDetailScreen(
+                          title:
+                              l10n?.learnSalahPillarsTitle ??
+                              '14 Pillars of Salah (Arkan)',
+                          category: SalahRuleCategory.pillar,
+                          items: SalahGuideData.pillars,
                         ),
-                      );
-                    },
-                  ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
+                      ),
+                    );
+                  },
+                ).animate().fadeIn(delay: 150.ms, duration: 400.ms),
 
-                  const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
-                  // Module 2: The 14 Pillars
-                  _ModuleCard(
-                    title: l10n?.learnSalahPillarsTitle ?? 'The 14 Pillars of Salah (Arkan)',
-                    subtitle: l10n?.learnSalahPillarsSubtitle ?? 'Must-do essential foundations of prayer',
-                    badgeText: '14 PILLARS',
-                    icon: Icons.account_balance_rounded,
-                    accentColor: const Color(0xFFD97706), // Warm Amber
-                    postureKey: 'ruku',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SalahCategoryDetailScreen(
-                            title: l10n?.learnSalahPillarsTitle ?? '14 Pillars of Salah (Arkan)',
-                            category: SalahRuleCategory.pillar,
-                            items: SalahGuideData.pillars,
-                          ),
+                // Module 3: The 8 Obligations
+                _ModuleCard(
+                  title:
+                      l10n?.learnSalahObligationsTitle ??
+                      'The 8 Obligations (Waajibaat)',
+                  subtitle:
+                      l10n?.learnSalahObligationsSubtitle ??
+                      'Mandatory acts compensated by Sujood as-Sahw',
+                  badgeText: '8 OBLIGATIONS',
+                  icon: Icons.task_alt_rounded,
+                  accentColor: const Color(0xFF0EA5E9), // Ocean Blue
+                  postureKey: 'sujood',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SalahCategoryDetailScreen(
+                          title:
+                              l10n?.learnSalahObligationsTitle ??
+                              '8 Obligations of Salah (Waajibaat)',
+                          category: SalahRuleCategory.obligation,
+                          items: SalahGuideData.obligations,
                         ),
-                      );
-                    },
-                  ).animate().fadeIn(delay: 150.ms, duration: 400.ms),
+                      ),
+                    );
+                  },
+                ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
 
-                  const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
-                  // Module 3: The 8 Obligations
-                  _ModuleCard(
-                    title: l10n?.learnSalahObligationsTitle ?? 'The 8 Obligations (Waajibaat)',
-                    subtitle: l10n?.learnSalahObligationsSubtitle ?? 'Mandatory acts compensated by Sujood as-Sahw',
-                    badgeText: '8 OBLIGATIONS',
-                    icon: Icons.task_alt_rounded,
-                    accentColor: const Color(0xFF0EA5E9), // Ocean Blue
-                    postureKey: 'sujood',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SalahCategoryDetailScreen(
-                            title: l10n?.learnSalahObligationsTitle ?? '8 Obligations of Salah (Waajibaat)',
-                            category: SalahRuleCategory.obligation,
-                            items: SalahGuideData.obligations,
-                          ),
+                // Module 4: Sunnah Practices
+                _ModuleCard(
+                  title:
+                      l10n?.learnSalahSunanTitle ?? 'Sunnah Practices (Sunan)',
+                  subtitle:
+                      l10n?.learnSalahSunanSubtitle ??
+                      'Verbal & action Sunnahs of Prophet Muhammad ﷺ',
+                  badgeText: 'SUNNAH ACTS',
+                  icon: Icons.auto_awesome_rounded,
+                  accentColor: const Color(0xFF8B5CF6), // Royal Purple
+                  postureKey: 'tashahhud_finger',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SalahCategoryDetailScreen(
+                          title:
+                              l10n?.learnSalahSunanTitle ??
+                              'Sunnah Practices of Salah',
+                          category: SalahRuleCategory.sunnahAction,
+                          items:
+                              SalahGuideData.pillars, // Handled inside detail
                         ),
-                      );
-                    },
-                  ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
+                      ),
+                    );
+                  },
+                ).animate().fadeIn(delay: 250.ms, duration: 400.ms),
 
-                  const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
-                  // Module 4: Sunnah Practices
-                  _ModuleCard(
-                    title: l10n?.learnSalahSunanTitle ?? 'Sunnah Practices (Sunan)',
-                    subtitle: l10n?.learnSalahSunanSubtitle ?? 'Verbal & action Sunnahs of Prophet Muhammad ﷺ',
-                    badgeText: 'SUNNAH ACTS',
-                    icon: Icons.auto_awesome_rounded,
-                    accentColor: const Color(0xFF8B5CF6), // Royal Purple
-                    postureKey: 'tashahhud_finger',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SalahCategoryDetailScreen(
-                            title: l10n?.learnSalahSunanTitle ?? 'Sunnah Practices of Salah',
-                            category: SalahRuleCategory.sunnahAction,
-                            items: SalahGuideData.pillars, // Handled inside detail
-                          ),
+                // Module 5: Errors to Avoid
+                _ModuleCard(
+                  title:
+                      l10n?.learnSalahInvalidatorsTitle ??
+                      'Invalidators of Salah (Mubtilaat)',
+                  subtitle:
+                      l10n?.learnSalahInvalidatorsSubtitle ??
+                      'Things that break or invalidate your prayer',
+                  badgeText: 'ERRORS TO AVOID',
+                  icon: Icons.warning_amber_rounded,
+                  accentColor: const Color(0xFFEF4444), // Coral Red
+                  postureKey: 'taslim',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SalahCategoryDetailScreen(
+                          title:
+                              l10n?.learnSalahInvalidatorsTitle ??
+                              'Invalidators of Salah (Mubtilaat)',
+                          category: SalahRuleCategory.errorToAvoid,
+                          items: SalahGuideData.errorsToAvoid,
                         ),
-                      );
-                    },
-                  ).animate().fadeIn(delay: 250.ms, duration: 400.ms),
+                      ),
+                    );
+                  },
+                ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
 
-                  const SizedBox(height: 12),
-
-                  // Module 5: Errors to Avoid
-                  _ModuleCard(
-                    title: l10n?.learnSalahInvalidatorsTitle ?? 'Invalidators of Salah (Mubtilaat)',
-                    subtitle: l10n?.learnSalahInvalidatorsSubtitle ?? 'Things that break or invalidate your prayer',
-                    badgeText: 'ERRORS TO AVOID',
-                    icon: Icons.warning_amber_rounded,
-                    accentColor: const Color(0xFFEF4444), // Coral Red
-                    postureKey: 'taslim',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SalahCategoryDetailScreen(
-                            title: l10n?.learnSalahInvalidatorsTitle ?? 'Invalidators of Salah (Mubtilaat)',
-                            category: SalahRuleCategory.errorToAvoid,
-                            items: SalahGuideData.errorsToAvoid,
-                          ),
-                        ),
-                      );
-                    },
-                  ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
-
-                  const SizedBox(height: 32),
-                ],
-              ),
+                const SizedBox(height: 32),
+              ]),
             ),
           ),
         ],
@@ -400,10 +469,7 @@ class _ModuleCard extends StatelessWidget {
       color: colors.surface,
       shape: ContinuousRectangleBorder(
         borderRadius: BorderRadius.circular(24),
-        side: BorderSide(
-          color: colors.divider,
-          width: 1.0,
-        ),
+        side: BorderSide(color: colors.divider, width: 1.0),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -426,7 +492,10 @@ class _ModuleCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: ShapeDecoration(
                         color: accentColor.withValues(alpha: 0.12),
                         shape: ContinuousRectangleBorder(
@@ -436,35 +505,32 @@ class _ModuleCard extends StatelessWidget {
                       child: Text(
                         badgeText,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: accentColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 10,
-                              letterSpacing: 0.8,
-                            ),
+                          color: accentColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                          letterSpacing: 0.8,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       title,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: colors.textPrimary,
-                          ),
+                        fontWeight: FontWeight.w700,
+                        color: colors.textPrimary,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colors.textSecondary,
-                          ),
+                        color: colors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: colors.textTertiary,
-              ),
+              Icon(Icons.chevron_right_rounded, color: colors.textTertiary),
             ],
           ),
         ),

@@ -2,7 +2,9 @@ import 'package:flutter/services.dart';
 
 /// Service managing native display refresh rate capabilities (unlocking 90Hz, 120Hz, 144Hz, 165Hz).
 class DisplayService {
-  static const MethodChannel _channel = MethodChannel('com.salahcompanion/display');
+  static const MethodChannel _channel = MethodChannel(
+    'com.salahcompanion/display',
+  );
 
   static final DisplayService _instance = DisplayService._internal();
   factory DisplayService() => _instance;

@@ -20,10 +20,7 @@ class DuaHandsIcon extends StatelessWidget {
       height: size,
       child: CustomPaint(
         size: Size(size, size),
-        painter: _OpenBookIconPainter(
-          color: color,
-          isSelected: isSelected,
-        ),
+        painter: _OpenBookIconPainter(color: color, isSelected: isSelected),
       ),
     );
   }
@@ -33,10 +30,7 @@ class _OpenBookIconPainter extends CustomPainter {
   final Color color;
   final bool isSelected;
 
-  _OpenBookIconPainter({
-    required this.color,
-    required this.isSelected,
-  });
+  _OpenBookIconPainter({required this.color, required this.isSelected});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -57,7 +51,9 @@ class _OpenBookIconPainter extends CustomPainter {
       ..isAntiAlias = true;
 
     final paintInnerLines = Paint()
-      ..color = isSelected ? Colors.white.withValues(alpha: 0.65) : color.withValues(alpha: 0.7)
+      ..color = isSelected
+          ? Colors.white.withValues(alpha: 0.65)
+          : color.withValues(alpha: 0.7)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.1
       ..strokeCap = StrokeCap.round
@@ -92,21 +88,41 @@ class _OpenBookIconPainter extends CustomPainter {
     }
 
     // Spine Line in Center
-    canvas.drawLine(
-      Offset(cx, h * 0.28),
-      Offset(cx, h * 0.76),
-      paintStroke,
-    );
+    canvas.drawLine(Offset(cx, h * 0.28), Offset(cx, h * 0.76), paintStroke);
 
     // Left Page Text Lines
-    canvas.drawLine(Offset(cx - w * 0.35, h * 0.38), Offset(cx - w * 0.10, h * 0.40), paintInnerLines);
-    canvas.drawLine(Offset(cx - w * 0.35, h * 0.50), Offset(cx - w * 0.10, h * 0.52), paintInnerLines);
-    canvas.drawLine(Offset(cx - w * 0.30, h * 0.62), Offset(cx - w * 0.10, h * 0.63), paintInnerLines);
+    canvas.drawLine(
+      Offset(cx - w * 0.35, h * 0.38),
+      Offset(cx - w * 0.10, h * 0.40),
+      paintInnerLines,
+    );
+    canvas.drawLine(
+      Offset(cx - w * 0.35, h * 0.50),
+      Offset(cx - w * 0.10, h * 0.52),
+      paintInnerLines,
+    );
+    canvas.drawLine(
+      Offset(cx - w * 0.30, h * 0.62),
+      Offset(cx - w * 0.10, h * 0.63),
+      paintInnerLines,
+    );
 
     // Right Page Text Lines
-    canvas.drawLine(Offset(cx + w * 0.10, h * 0.40), Offset(cx + w * 0.35, h * 0.38), paintInnerLines);
-    canvas.drawLine(Offset(cx + w * 0.10, h * 0.52), Offset(cx + w * 0.35, h * 0.50), paintInnerLines);
-    canvas.drawLine(Offset(cx + w * 0.10, h * 0.63), Offset(cx + w * 0.30, h * 0.62), paintInnerLines);
+    canvas.drawLine(
+      Offset(cx + w * 0.10, h * 0.40),
+      Offset(cx + w * 0.35, h * 0.38),
+      paintInnerLines,
+    );
+    canvas.drawLine(
+      Offset(cx + w * 0.10, h * 0.52),
+      Offset(cx + w * 0.35, h * 0.50),
+      paintInnerLines,
+    );
+    canvas.drawLine(
+      Offset(cx + w * 0.10, h * 0.63),
+      Offset(cx + w * 0.30, h * 0.62),
+      paintInnerLines,
+    );
 
     // Center Ribbon Bookmark hanging at bottom
     final ribbonPath = Path()

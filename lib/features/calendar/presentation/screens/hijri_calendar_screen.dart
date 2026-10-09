@@ -153,14 +153,16 @@ class HijriCalendarScreen extends StatefulWidget {
       day: 1,
       title: 'First Day of Dhu al-Hijjah',
       arabicTitle: 'أول عشر ذي الحجة',
-      description: 'Beginning of the 10 most beloved days of good deeds to Allah.',
+      description:
+          'Beginning of the 10 most beloved days of good deeds to Allah.',
     ),
     IslamicOccasion(
       month: 12,
       day: 9,
       title: 'Day of Arafah',
       arabicTitle: 'يوم عرفة',
-      description: 'The pinnacle day of Hajj pilgrimage and recommended fasting.',
+      description:
+          'The pinnacle day of Hajj pilgrimage and recommended fasting.',
     ),
     IslamicOccasion(
       month: 12,
@@ -261,7 +263,9 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
         _selectedBaseDate = DateTime(newYear, newMonth, 1);
         _updateHijriDate();
       } else {
-        _selectedBaseDate = _selectedBaseDate.add(Duration(days: increment * 30));
+        _selectedBaseDate = _selectedBaseDate.add(
+          Duration(days: increment * 30),
+        );
         _updateHijriDate();
       }
     });
@@ -269,7 +273,11 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
 
   int _getHijriFirstWeekday() {
     try {
-      final gDate = _currentHijri.hijriToGregorian(_currentHijri.hYear, _currentHijri.hMonth, 1);
+      final gDate = _currentHijri.hijriToGregorian(
+        _currentHijri.hYear,
+        _currentHijri.hMonth,
+        1,
+      );
       return gDate.weekday % 7;
     } catch (_) {
       return 0;
@@ -282,7 +290,9 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
     final l10n = AppLocalizations.of(context);
     final now = DateTime.now();
 
-    final todayHijri = HijriCalendarConfig.fromGregorian(now.add(Duration(days: _offset)));
+    final todayHijri = HijriCalendarConfig.fromGregorian(
+      now.add(Duration(days: _offset)),
+    );
 
     // Active calendar calculations depending on mode
     final int daysInMonth;
@@ -296,12 +306,18 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
       daysInMonth = DateTime(year, month + 1, 0).day;
       firstDayWeekday = DateTime(year, month, 1).weekday % 7;
       monthDisplayTitle = '${_gregorianMonths[month - 1]} $year';
-      monthDisplaySubtitle = 'Today: ${now.day} ${_gregorianMonths[now.month - 1]} $year';
+      monthDisplaySubtitle =
+          'Today: ${now.day} ${_gregorianMonths[now.month - 1]} $year';
     } else {
-      daysInMonth = _currentHijri.getDaysInMonth(_currentHijri.hYear, _currentHijri.hMonth);
+      daysInMonth = _currentHijri.getDaysInMonth(
+        _currentHijri.hYear,
+        _currentHijri.hMonth,
+      );
       firstDayWeekday = _getHijriFirstWeekday();
-      monthDisplayTitle = '${_currentHijri.getLongMonthName()} ${_currentHijri.hYear} AH';
-      monthDisplaySubtitle = '${_currentHijri.hDay} ${_currentHijri.getLongMonthName()}';
+      monthDisplayTitle =
+          '${_currentHijri.getLongMonthName()} ${_currentHijri.hYear} AH';
+      monthDisplaySubtitle =
+          '${_currentHijri.hDay} ${_currentHijri.getLongMonthName()}';
     }
 
     // Occasions for Key Islamic Occasions section
@@ -312,594 +328,696 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
       final month = _selectedBaseDate.month;
       for (int d = 1; d <= daysInMonth; d++) {
         final gDate = DateTime(year, month, d);
-        final hDate = HijriCalendarConfig.fromGregorian(gDate.add(Duration(days: _offset)));
+        final hDate = HijriCalendarConfig.fromGregorian(
+          gDate.add(Duration(days: _offset)),
+        );
         for (final occasion in HijriCalendarScreen.occasions) {
           if (occasion.month == hDate.hMonth && occasion.day == hDate.hDay) {
-            currentMonthOccasions.add(_OccasionItemDisplay(
-              occasion: occasion,
-              gregorianDay: d,
-              gregorianMonthName: _gregorianMonths[month - 1],
-              hijriMonthName: hDate.getLongMonthName(),
-              hijriDay: hDate.hDay,
-            ));
+            currentMonthOccasions.add(
+              _OccasionItemDisplay(
+                occasion: occasion,
+                gregorianDay: d,
+                gregorianMonthName: _gregorianMonths[month - 1],
+                hijriMonthName: hDate.getLongMonthName(),
+                hijriDay: hDate.hDay,
+              ),
+            );
           }
         }
       }
     } else {
-      final occurrences = HijriCalendarScreen.occasions
-          .where((o) => o.month == _currentHijri.hMonth)
-          .toList()
-        ..sort((a, b) => a.day.compareTo(b.day));
+      final occurrences =
+          HijriCalendarScreen.occasions
+              .where((o) => o.month == _currentHijri.hMonth)
+              .toList()
+            ..sort((a, b) => a.day.compareTo(b.day));
       for (final occasion in occurrences) {
-        currentMonthOccasions.add(_OccasionItemDisplay(
-          occasion: occasion,
-          hijriMonthName: _currentHijri.getLongMonthName(),
-          hijriDay: occasion.day,
-        ));
+        currentMonthOccasions.add(
+          _OccasionItemDisplay(
+            occasion: occasion,
+            hijriMonthName: _currentHijri.getLongMonthName(),
+            hijriDay: occasion.day,
+          ),
+        );
       }
     }
 
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
-    final navBarInset = 58.0 + (bottomPadding > 0 ? 8.0 + bottomPadding : 12.0) + 16.0;
+    final navBarInset =
+        58.0 + (bottomPadding > 0 ? 8.0 + bottomPadding : 12.0) + 16.0;
 
     return Scaffold(
       backgroundColor: colors.background,
       body: SafeArea(
+        bottom: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+          padding: EdgeInsets.fromLTRB(16.0, 20.0, 16.0, navBarInset),
           child: RepaintBoundary(
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Display Title
-              Text(
-                _isGregorian ? 'English Calendar' : (l10n?.navCalendar ?? 'Hijri Calendar'),
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 32,
-                      letterSpacing: -0.2,
-                    ),
-              ),
-              const SizedBox(height: 16),
-
-              // ─── APPLE-STYLE CALENDAR MODE SEGMENTED TOGGLE ──────────────────────
-              Container(
-                height: 46,
-                padding: const EdgeInsets.all(4),
-                decoration: ShapeDecoration(
-                  color: colors.surface,
-                  shape: ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: colors.divider, width: 1.0),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Display Title
+                Text(
+                  _isGregorian
+                      ? 'English Calendar'
+                      : (l10n?.navCalendar ?? 'Hijri Calendar'),
+                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 32,
+                    letterSpacing: -0.2,
                   ),
                 ),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final itemWidth = (constraints.maxWidth) / 2;
-                    return Stack(
-                      children: [
-                        // Animated sliding pill background
-                        AnimatedPositioned(
-                          duration: const Duration(milliseconds: 220),
-                          curve: Curves.easeOutCubic,
-                          left: _isGregorian ? itemWidth : 0,
-                          top: 0,
-                          bottom: 0,
-                          width: itemWidth,
-                          child: Container(
-                            decoration: ShapeDecoration(
-                              color: colors.primarySoft,
-                              shape: ContinuousRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(color: colors.primary.withValues(alpha: 0.5), width: 1.0),
-                              ),
-                              shadows: [
-                                BoxShadow(
-                                  color: colors.primary.withValues(alpha: 0.1),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        // Toggle Buttons
-                        Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                key: const ValueKey('calendar_mode_hijri'),
-                                onTap: () {
-                                  if (_isGregorian) {
-                                    setState(() {
-                                      _isGregorian = false;
-                                      _updateHijriDate();
-                                    });
-                                    _saveModePreference(false);
-                                  }
-                                },
-                                behavior: HitTestBehavior.opaque,
-                                child: Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.nights_stay_rounded,
-                                        size: 15,
-                                        color: !_isGregorian ? colors.primaryText : colors.textSecondary,
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Flexible(
-                                        child: Text(
-                                          'Hijri Calendar',
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: !_isGregorian ? colors.primaryText : colors.textSecondary,
-                                            fontWeight: !_isGregorian ? FontWeight.bold : FontWeight.w600,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: GestureDetector(
-                                key: const ValueKey('calendar_mode_gregorian'),
-                                onTap: () {
-                                  if (!_isGregorian) {
-                                    setState(() {
-                                      _isGregorian = true;
-                                      _updateHijriDate();
-                                    });
-                                    _saveModePreference(true);
-                                  }
-                                },
-                                behavior: HitTestBehavior.opaque,
-                                child: Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.calendar_month_rounded,
-                                        size: 15,
-                                        color: _isGregorian ? colors.primaryText : colors.textSecondary,
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Flexible(
-                                        child: Text(
-                                          'English Calendar',
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: _isGregorian ? colors.primaryText : colors.textSecondary,
-                                            fontWeight: _isGregorian ? FontWeight.bold : FontWeight.w600,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
+                const SizedBox(height: 16),
 
-              const SizedBox(height: 16),
-
-              // Moon Sighting Offset Selector Card
-              Container(
-                decoration: ShapeDecoration(
-                  color: colors.surface,
-                  shape: ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    side: BorderSide(color: colors.divider, width: 1.0),
-                  ),
-                ),
-                padding: const EdgeInsets.all(18.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'MOON-SIGHTING ADJUSTMENT',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: colors.textSecondary,
-                                  letterSpacing: 1.2,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _offset == 0
-                              ? 'Default (0d)'
-                              : '${_offset > 0 ? '+' : ''}$_offset day${_offset.abs() > 1 ? 's' : ''}',
-                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                color: colors.primaryText,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ],
+                // ─── APPLE-STYLE CALENDAR MODE SEGMENTED TOGGLE ──────────────────────
+                Container(
+                  height: 46,
+                  padding: const EdgeInsets.all(4),
+                  decoration: ShapeDecoration(
+                    color: colors.surface,
+                    shape: ContinuousRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: colors.divider, width: 1.0),
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [-2, -1, 0, 1, 2].map((offsetValue) {
-                        final isSelected = _offset == offsetValue;
-                        final label = offsetValue == 0
-                            ? '0'
-                            : offsetValue > 0
-                                ? '+$offsetValue'
-                                : '$offsetValue';
-                        return Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                            child: Semantics(
-                              button: true,
-                              selected: isSelected,
-                              label: 'Hijri offset $label',
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  key: ValueKey('offset_chip_$offsetValue'),
-                                  onTap: () => _setOffset(offsetValue),
+                  ),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final itemWidth = (constraints.maxWidth) / 2;
+                      return Stack(
+                        children: [
+                          // Animated sliding pill background
+                          AnimatedPositioned(
+                            duration: const Duration(milliseconds: 220),
+                            curve: Curves.easeOutCubic,
+                            left: _isGregorian ? itemWidth : 0,
+                            top: 0,
+                            bottom: 0,
+                            width: itemWidth,
+                            child: Container(
+                              decoration: ShapeDecoration(
+                                color: colors.primarySoft,
+                                shape: ContinuousRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 150),
-                                    padding: const EdgeInsets.symmetric(vertical: 10),
-                                    alignment: Alignment.center,
-                                    decoration: ShapeDecoration(
-                                      color: isSelected
-                                          ? colors.primary.withValues(alpha: 0.18)
-                                          : colors.elevatedBackground,
-                                      shape: ContinuousRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                        side: BorderSide(
-                                          color: isSelected ? colors.primary : colors.divider,
-                                          width: isSelected ? 1.5 : 1.0,
+                                  side: BorderSide(
+                                    color: colors.primary.withValues(
+                                      alpha: 0.5,
+                                    ),
+                                    width: 1.0,
+                                  ),
+                                ),
+                                shadows: [
+                                  BoxShadow(
+                                    color: colors.primary.withValues(
+                                      alpha: 0.1,
+                                    ),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          // Toggle Buttons
+                          Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  key: const ValueKey('calendar_mode_hijri'),
+                                  onTap: () {
+                                    if (_isGregorian) {
+                                      setState(() {
+                                        _isGregorian = false;
+                                        _updateHijriDate();
+                                      });
+                                      _saveModePreference(false);
+                                    }
+                                  },
+                                  behavior: HitTestBehavior.opaque,
+                                  child: Center(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.nights_stay_rounded,
+                                          size: 15,
+                                          color: !_isGregorian
+                                              ? colors.primaryText
+                                              : colors.textSecondary,
                                         ),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      label,
-                                      style: TextStyle(
-                                        color: isSelected ? colors.primary : colors.primaryText.withValues(alpha: 0.85),
-                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Calendar Month Header & Navigation Card
-              Container(
-                decoration: ShapeDecoration(
-                  color: colors.surface,
-                  shape: ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    side: BorderSide(color: colors.divider, width: 1.0),
-                  ),
-                ),
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          key: const ValueKey('prev_month_button'),
-                          icon: Icon(Icons.chevron_left_rounded, color: colors.textPrimary),
-                          onPressed: () => _changeMonth(-1),
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                monthDisplayTitle,
-                                textAlign: TextAlign.center,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      color: colors.textPrimary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                              ),
-                              Text(
-                                monthDisplaySubtitle,
-                                textAlign: TextAlign.center,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: colors.primaryText,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          key: const ValueKey('next_month_button'),
-                          icon: Icon(Icons.chevron_right_rounded, color: colors.textPrimary),
-                          onPressed: () => _changeMonth(1),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    // Days of week header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d) {
-                        return SizedBox(
-                          width: 38,
-                          child: Text(
-                            d,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: colors.textSecondary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 12),
-                    // Grid of Days
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: firstDayWeekday + daysInMonth,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 7,
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 8,
-                      ),
-                      itemBuilder: (context, index) {
-                        if (index < firstDayWeekday) {
-                          return const SizedBox.shrink();
-                        }
-
-                        final dayNumber = index - firstDayWeekday + 1;
-                        final bool isToday;
-                        final bool hasOccasion;
-
-                        if (_isGregorian) {
-                          final gDate = DateTime(_selectedBaseDate.year, _selectedBaseDate.month, dayNumber);
-                          isToday = gDate.year == now.year && gDate.month == now.month && dayNumber == now.day;
-                          final hDate = HijriCalendarConfig.fromGregorian(gDate.add(Duration(days: _offset)));
-                          hasOccasion = HijriCalendarScreen.occasions.any(
-                            (o) => o.month == hDate.hMonth && o.day == hDate.hDay,
-                          );
-                        } else {
-                          isToday = _currentHijri.hMonth == todayHijri.hMonth &&
-                              _currentHijri.hYear == todayHijri.hYear &&
-                              dayNumber == todayHijri.hDay;
-                          hasOccasion = HijriCalendarScreen.occasions.any(
-                            (o) => o.month == _currentHijri.hMonth && o.day == dayNumber,
-                          );
-                        }
-
-                        return Container(
-                          decoration: ShapeDecoration(
-                            color: isToday
-                                ? colors.primary
-                                : hasOccasion
-                                    ? colors.primarySoft
-                                    : colors.elevatedBackground,
-                            shape: ContinuousRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              side: BorderSide(
-                                color: isToday
-                                    ? colors.primary
-                                    : hasOccasion
-                                        ? colors.primary.withValues(alpha: 0.5)
-                                        : colors.divider,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '$dayNumber',
-                                  style: TextStyle(
-                                    color: isToday
-                                        ? Colors.black
-                                        : hasOccasion
-                                            ? colors.primaryText
-                                            : colors.textPrimary,
-                                    fontWeight: isToday || hasOccasion ? FontWeight.bold : FontWeight.normal,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                if (hasOccasion)
-                                  Container(
-                                    width: 4,
-                                    height: 4,
-                                    margin: const EdgeInsets.only(top: 2),
-                                    decoration: BoxDecoration(
-                                      color: isToday ? Colors.black : colors.primary,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Islamic Occasions Section Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: Text(
-                  'KEY ISLAMIC OCCASIONS',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: colors.textSecondary,
-                        letterSpacing: 1.2,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              currentMonthOccasions.isEmpty
-                  ? Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: ShapeDecoration(
-                        color: colors.surface,
-                        shape: ContinuousRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(color: colors.divider, width: 1.0),
-                        ),
-                      ),
-                      child: Text(
-                        _isGregorian
-                            ? 'No major Islamic occasions in this Gregorian month.'
-                            : 'No major occasions in this Hijri month.',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: colors.textSecondary,
-                            ),
-                      ),
-                    )
-                  : Container(
-                      decoration: ShapeDecoration(
-                        color: colors.surface,
-                        shape: ContinuousRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          side: BorderSide(color: colors.divider, width: 1.0),
-                        ),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Column(
-                        children: currentMonthOccasions.map((item) {
-                          final occasion = item.occasion;
-                          final isLast = item == currentMonthOccasions.last;
-                          return Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 38,
-                                      height: 38,
-                                      decoration: BoxDecoration(
-                                        color: colors.primarySoft,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Icon(
-                                        Icons.event_seat_rounded,
-                                        color: colors.primary,
-                                        size: 20,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 14),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  occasion.getLocalizedTitle(context),
-                                                  maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                                        color: colors.textPrimary,
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                item.dateBadge,
-                                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                                      color: colors.primaryText,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Text(
-                                            item.subtitle,
-                                            style: AppTypography.quranicStyle(
-                                              fontSize: 16,
-                                              color: colors.primary,
+                                        const SizedBox(width: 6),
+                                        Flexible(
+                                          child: Text(
+                                            'Hijri Calendar',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: !_isGregorian
+                                                  ? colors.primaryText
+                                                  : colors.textSecondary,
+                                              fontWeight: !_isGregorian
+                                                  ? FontWeight.bold
+                                                  : FontWeight.w600,
+                                              fontSize: 13,
                                             ),
                                           ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            occasion.description,
-                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                  color: colors.textSecondary,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                              if (!isLast)
-                                Divider(
-                                  height: 1,
-                                  thickness: 1.0,
-                                  indent: 0,
-                                  endIndent: 0,
-                                  color: colors.divider,
+                              Expanded(
+                                child: GestureDetector(
+                                  key: const ValueKey(
+                                    'calendar_mode_gregorian',
+                                  ),
+                                  onTap: () {
+                                    if (!_isGregorian) {
+                                      setState(() {
+                                        _isGregorian = true;
+                                        _updateHijriDate();
+                                      });
+                                      _saveModePreference(true);
+                                    }
+                                  },
+                                  behavior: HitTestBehavior.opaque,
+                                  child: Center(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_month_rounded,
+                                          size: 15,
+                                          color: _isGregorian
+                                              ? colors.primaryText
+                                              : colors.textSecondary,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Flexible(
+                                          child: Text(
+                                            'English Calendar',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: _isGregorian
+                                                  ? colors.primaryText
+                                                  : colors.textSecondary,
+                                              fontWeight: _isGregorian
+                                                  ? FontWeight.bold
+                                                  : FontWeight.w600,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
+                              ),
                             ],
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Moon Sighting Offset Selector Card
+                Container(
+                  decoration: ShapeDecoration(
+                    color: colors.surface,
+                    shape: ContinuousRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      side: BorderSide(color: colors.divider, width: 1.0),
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(18.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'MOON-SIGHTING ADJUSTMENT',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    color: colors.textSecondary,
+                                    letterSpacing: 1.2,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _offset == 0
+                                ? 'Default (0d)'
+                                : '${_offset > 0 ? '+' : ''}$_offset day${_offset.abs() > 1 ? 's' : ''}',
+                            style: Theme.of(context).textTheme.labelMedium
+                                ?.copyWith(
+                                  color: colors.primaryText,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [-2, -1, 0, 1, 2].map((offsetValue) {
+                          final isSelected = _offset == offsetValue;
+                          final label = offsetValue == 0
+                              ? '0'
+                              : offsetValue > 0
+                              ? '+$offsetValue'
+                              : '$offsetValue';
+                          return Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 2.0,
+                              ),
+                              child: Semantics(
+                                button: true,
+                                selected: isSelected,
+                                label: 'Hijri offset $label',
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    key: ValueKey('offset_chip_$offsetValue'),
+                                    onTap: () => _setOffset(offsetValue),
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: AnimatedContainer(
+                                      duration: const Duration(
+                                        milliseconds: 150,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                      ),
+                                      alignment: Alignment.center,
+                                      decoration: ShapeDecoration(
+                                        color: isSelected
+                                            ? colors.primary.withValues(
+                                                alpha: 0.18,
+                                              )
+                                            : colors.elevatedBackground,
+                                        shape: ContinuousRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          side: BorderSide(
+                                            color: isSelected
+                                                ? colors.primary
+                                                : colors.divider,
+                                            width: isSelected ? 1.5 : 1.0,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        label,
+                                        style: TextStyle(
+                                          color: isSelected
+                                              ? colors.primary
+                                              : colors.primaryText.withValues(
+                                                  alpha: 0.85,
+                                                ),
+                                          fontWeight: isSelected
+                                              ? FontWeight.bold
+                                              : FontWeight.w600,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                           );
                         }).toList(),
                       ),
-                    ),
+                    ],
+                  ),
+                ),
 
-              SizedBox(height: navBarInset),
-            ],
+                const SizedBox(height: 20),
+
+                // Calendar Month Header & Navigation Card
+                Container(
+                  decoration: ShapeDecoration(
+                    color: colors.surface,
+                    shape: ContinuousRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      side: BorderSide(color: colors.divider, width: 1.0),
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            key: const ValueKey('prev_month_button'),
+                            icon: Icon(
+                              Icons.chevron_left_rounded,
+                              color: colors.textPrimary,
+                            ),
+                            onPressed: () => _changeMonth(-1),
+                          ),
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  monthDisplayTitle,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.titleLarge
+                                      ?.copyWith(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                ),
+                                Text(
+                                  monthDisplaySubtitle,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: colors.primaryText,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            key: const ValueKey('next_month_button'),
+                            icon: Icon(
+                              Icons.chevron_right_rounded,
+                              color: colors.textPrimary,
+                            ),
+                            onPressed: () => _changeMonth(1),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      // Days of week header
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d) {
+                          return SizedBox(
+                            width: 38,
+                            child: Text(
+                              d,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    color: colors.textSecondary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 12),
+                      // Grid of Days
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: firstDayWeekday + daysInMonth,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 7,
+                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 8,
+                            ),
+                        itemBuilder: (context, index) {
+                          if (index < firstDayWeekday) {
+                            return const SizedBox.shrink();
+                          }
+
+                          final dayNumber = index - firstDayWeekday + 1;
+                          final bool isToday;
+                          final bool hasOccasion;
+
+                          if (_isGregorian) {
+                            final gDate = DateTime(
+                              _selectedBaseDate.year,
+                              _selectedBaseDate.month,
+                              dayNumber,
+                            );
+                            isToday =
+                                gDate.year == now.year &&
+                                gDate.month == now.month &&
+                                dayNumber == now.day;
+                            final hDate = HijriCalendarConfig.fromGregorian(
+                              gDate.add(Duration(days: _offset)),
+                            );
+                            hasOccasion = HijriCalendarScreen.occasions.any(
+                              (o) =>
+                                  o.month == hDate.hMonth &&
+                                  o.day == hDate.hDay,
+                            );
+                          } else {
+                            isToday =
+                                _currentHijri.hMonth == todayHijri.hMonth &&
+                                _currentHijri.hYear == todayHijri.hYear &&
+                                dayNumber == todayHijri.hDay;
+                            hasOccasion = HijriCalendarScreen.occasions.any(
+                              (o) =>
+                                  o.month == _currentHijri.hMonth &&
+                                  o.day == dayNumber,
+                            );
+                          }
+
+                          return Container(
+                            decoration: ShapeDecoration(
+                              color: isToday
+                                  ? colors.primary
+                                  : hasOccasion
+                                  ? colors.primarySoft
+                                  : colors.elevatedBackground,
+                              shape: ContinuousRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                side: BorderSide(
+                                  color: isToday
+                                      ? colors.primary
+                                      : hasOccasion
+                                      ? colors.primary.withValues(alpha: 0.5)
+                                      : colors.divider,
+                                  width: 1.0,
+                                ),
+                              ),
+                            ),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '$dayNumber',
+                                    style: TextStyle(
+                                      color: isToday
+                                          ? Colors.black
+                                          : hasOccasion
+                                          ? colors.primaryText
+                                          : colors.textPrimary,
+                                      fontWeight: isToday || hasOccasion
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  if (hasOccasion)
+                                    Container(
+                                      width: 4,
+                                      height: 4,
+                                      margin: const EdgeInsets.only(top: 2),
+                                      decoration: BoxDecoration(
+                                        color: isToday
+                                            ? Colors.black
+                                            : colors.primary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Islamic Occasions Section Header
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: Text(
+                    'KEY ISLAMIC OCCASIONS',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: colors.textSecondary,
+                      letterSpacing: 1.2,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                currentMonthOccasions.isEmpty
+                    ? Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: ShapeDecoration(
+                          color: colors.surface,
+                          shape: ContinuousRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: BorderSide(color: colors.divider, width: 1.0),
+                          ),
+                        ),
+                        child: Text(
+                          _isGregorian
+                              ? 'No major Islamic occasions in this Gregorian month.'
+                              : 'No major occasions in this Hijri month.',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: colors.textSecondary),
+                        ),
+                      )
+                    : Container(
+                        decoration: ShapeDecoration(
+                          color: colors.surface,
+                          shape: ContinuousRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            side: BorderSide(color: colors.divider, width: 1.0),
+                          ),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Column(
+                          children: currentMonthOccasions.map((item) {
+                            final occasion = item.occasion;
+                            final isLast = item == currentMonthOccasions.last;
+                            return Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 38,
+                                        height: 38,
+                                        decoration: BoxDecoration(
+                                          color: colors.primarySoft,
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          Icons.event_seat_rounded,
+                                          color: colors.primary,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    occasion.getLocalizedTitle(
+                                                      context,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleMedium
+                                                        ?.copyWith(
+                                                          color: colors
+                                                              .textPrimary,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  item.dateBadge,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .labelSmall
+                                                      ?.copyWith(
+                                                        color:
+                                                            colors.primaryText,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              item.subtitle,
+                                              style: AppTypography.quranicStyle(
+                                                fontSize: 16,
+                                                color: colors.primary,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              occasion.description,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall
+                                                  ?.copyWith(
+                                                    color: colors.textSecondary,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (!isLast)
+                                  Divider(
+                                    height: 1,
+                                    thickness: 1.0,
+                                    indent: 0,
+                                    endIndent: 0,
+                                    color: colors.divider,
+                                  ),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      ),
+
+                SizedBox(height: navBarInset),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
 

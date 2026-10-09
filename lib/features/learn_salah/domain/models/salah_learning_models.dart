@@ -15,7 +15,8 @@ enum SalahRuleCategory {
 class ScripturalReference {
   final String title;
   final String bookOrSurah;
-  final String citation; // e.g. "Sahih al-Bukhari 756" or "Surah Al-Baqarah 2:238"
+  final String
+  citation; // e.g. "Sahih al-Bukhari 756" or "Surah Al-Baqarah 2:238"
   final String fullTextEnglish;
   final String? fullTextArabic;
   final String? narrator;
@@ -46,7 +47,8 @@ class SalahStep {
   final String detailedInstruction;
   final List<String> keyActionPoints;
   final List<ScripturalReference> references;
-  final String ruleTypeBadgeText; // "PILLAR (FARD)", "OBLIGATION (WAJIB)", "SUNNAH", "PREREQUISITE"
+  final String
+  ruleTypeBadgeText; // "PILLAR (FARD)", "OBLIGATION (WAJIB)", "SUNNAH", "PREREQUISITE"
 
   const SalahStep({
     required this.stepNumber,

@@ -51,7 +51,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.didChangeDependencies();
     final currentLocale = Localizations.maybeLocaleOf(context);
     if (currentLocale != null) {
-      _selectedLanguage = LanguageRegistry.getLanguage(currentLocale.languageCode);
+      _selectedLanguage = LanguageRegistry.getLanguage(
+        currentLocale.languageCode,
+      );
     }
   }
 
@@ -160,7 +162,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     )
                   else
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: colors.primarySoft,
                         borderRadius: BorderRadius.circular(12),
@@ -186,7 +191,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         height: 6,
                         width: isCurrent ? 20 : 6,
                         decoration: BoxDecoration(
-                          color: isCurrent ? colors.primary : colors.dividerStrong,
+                          color: isCurrent
+                              ? colors.primary
+                              : colors.dividerStrong,
                           borderRadius: BorderRadius.circular(3),
                         ),
                       );
@@ -204,7 +211,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       scale: _isSkipPressed ? 0.92 : 1.0,
                       duration: const Duration(milliseconds: 100),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: colors.surface,
                           borderRadius: BorderRadius.circular(14),
@@ -246,24 +256,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
 
                   // Stage 1: Dedicated Multi-Slide Visual Feature Showcase
-                  _buildPageWrapper(
-                    const VisualFeatureShowcaseStep(),
-                  ),
+                  _buildPageWrapper(const VisualFeatureShowcaseStep()),
 
                   // Stage 2: Trust & Privacy Manifesto
-                  _buildPageWrapper(
-                    const TrustManifestoStep(),
-                  ),
+                  _buildPageWrapper(const TrustManifestoStep()),
 
                   // Stage 3: Contextual Permission Priming
-                  _buildPageWrapper(
-                    const PermissionPrimingStep(),
-                  ),
+                  _buildPageWrapper(const PermissionPrimingStep()),
 
                   // Stage 4: Spiritual Dedication & Bismillah
-                  _buildPageWrapper(
-                    const SpiritualDedicationStep(),
-                  ),
+                  _buildPageWrapper(const SpiritualDedicationStep()),
                 ],
               ),
             ),
@@ -287,12 +289,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         scale: _isBackPressed ? 0.94 : 1.0,
                         duration: const Duration(milliseconds: 100),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 16,
+                          ),
                           decoration: ShapeDecoration(
                             color: colors.surface,
                             shape: ContinuousRectangleBorder(
                               borderRadius: BorderRadius.circular(24),
-                              side: BorderSide(color: colors.divider, width: 1.2),
+                              side: BorderSide(
+                                color: colors.divider,
+                                width: 1.2,
+                              ),
                             ),
                           ),
                           child: Row(
@@ -333,7 +341,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         duration: const Duration(milliseconds: 100),
                         child: Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 16,
+                          ),
                           decoration: ShapeDecoration(
                             color: colors.primary,
                             shape: ContinuousRectangleBorder(
@@ -355,7 +366,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   fit: BoxFit.scaleDown,
                                   child: Text(
                                     _currentPage == _totalStages - 1
-                                        ? (l10n?.onboardingBeginJourney ?? 'Bismillah • Get Started')
+                                        ? (l10n?.onboardingBeginJourney ??
+                                              'Bismillah • Get Started')
                                         : (l10n?.onboardingNext ?? 'Continue'),
                                     maxLines: 1,
                                     style: TextStyle(

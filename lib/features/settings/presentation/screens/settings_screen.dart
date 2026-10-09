@@ -96,7 +96,8 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObserver {
+class _SettingsScreenState extends State<SettingsScreen>
+    with WidgetsBindingObserver {
   late String _calculationMethod;
   late String _madhab;
   late String _adhanVoice;
@@ -139,24 +140,30 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    final initialCode = widget.currentLocale?.languageCode ??
+    final initialCode =
+        widget.currentLocale?.languageCode ??
         LanguageRegistry.resolveDeviceLanguage().code;
     _selectedLanguage = LanguageRegistry.getLanguage(initialCode);
 
-    _calculationMethod = widget.initialCalculationMethod ?? 'Umm Al-Qura (Saudi Arabia)';
+    _calculationMethod =
+        widget.initialCalculationMethod ?? 'Umm Al-Qura (Saudi Arabia)';
     _madhab = widget.initialMadhab ?? 'Shafi / Standard';
     _adhanVoice = widget.initialAdhanVoice ?? 'Makkah (Ali Mulla)';
 
-    _prayerNotificationsEnabled = widget.initialPrayerNotificationsEnabled ?? true;
+    _prayerNotificationsEnabled =
+        widget.initialPrayerNotificationsEnabled ?? true;
     _adhanAudioEnabled = widget.initialAdhanAudioEnabled ?? true;
     _preAdhanReminder = widget.initialPreAdhanReminder ?? true;
     _hapticFeedback = widget.initialHapticFeedback ?? true;
-    _forbiddenTimesNotificationsEnabled = widget.initialForbiddenTimesNotifications ?? true;
+    _forbiddenTimesNotificationsEnabled =
+        widget.initialForbiddenTimesNotifications ?? true;
 
     _isBatteryExempt = widget.initialBatteryExempt ?? false;
     _warnBatteryOpt = widget.initialWarnBatteryOpt ?? true;
     _dailyReflectionEnabled = widget.initialDailyReflectionEnabled ?? true;
-    _dailyReflectionTime = widget.initialDailyReflectionTime ?? const TimeOfDay(hour: 6, minute: 15);
+    _dailyReflectionTime =
+        widget.initialDailyReflectionTime ??
+        const TimeOfDay(hour: 6, minute: 15);
 
     _loadSavedSettings();
     _fetchBatteryStatus();
@@ -167,15 +174,20 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     super.didChangeDependencies();
     final activeLocale = Localizations.maybeLocaleOf(context);
     if (activeLocale != null) {
-      _selectedLanguage = LanguageRegistry.getLanguage(activeLocale.languageCode);
+      _selectedLanguage = LanguageRegistry.getLanguage(
+        activeLocale.languageCode,
+      );
     }
   }
 
   @override
   void didUpdateWidget(covariant SettingsScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.currentLocale != oldWidget.currentLocale && widget.currentLocale != null) {
-      _selectedLanguage = LanguageRegistry.getLanguage(widget.currentLocale!.languageCode);
+    if (widget.currentLocale != oldWidget.currentLocale &&
+        widget.currentLocale != null) {
+      _selectedLanguage = LanguageRegistry.getLanguage(
+        widget.currentLocale!.languageCode,
+      );
     }
   }
 
@@ -184,20 +196,38 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     if (voice.contains('Makkah')) return l10n?.adhanVoiceMakkah ?? voice;
     if (voice.contains('Madinah')) return l10n?.adhanVoiceMadinah ?? voice;
     if (voice.contains('Al-Aqsa')) return l10n?.adhanVoiceAlAqsa ?? voice;
-    if (voice.contains('Soft') || voice.contains('Traditional')) return l10n?.adhanVoiceSoft ?? voice;
+    if (voice.contains('Soft') || voice.contains('Traditional')) {
+      return l10n?.adhanVoiceSoft ?? voice;
+    }
     return voice;
   }
 
   String _localizeCalcMethod(BuildContext context, String method) {
     final l10n = AppLocalizations.of(context);
-    if (method.contains('Umm Al-Qura')) return l10n?.calcMethodUmmAlQura ?? method;
-    if (method.contains('Muslim World League')) return l10n?.calcMethodMwl ?? method;
-    if (method.contains('Egyptian')) return l10n?.calcMethodEgyptian ?? method;
-    if (method.contains('ISNA')) return l10n?.calcMethodIsna ?? method;
-    if (method.contains('Karachi')) return l10n?.calcMethodKarachi ?? method;
-    if (method.contains('Dubai')) return l10n?.calcMethodDubai ?? method;
-    if (method.contains('Diyanet')) return l10n?.calcMethodDiyanet ?? method;
-    if (method.contains('Singapore') || method.contains('MUIS')) return l10n?.calcMethodSingapore ?? method;
+    if (method.contains('Umm Al-Qura')) {
+      return l10n?.calcMethodUmmAlQura ?? method;
+    }
+    if (method.contains('Muslim World League')) {
+      return l10n?.calcMethodMwl ?? method;
+    }
+    if (method.contains('Egyptian')) {
+      return l10n?.calcMethodEgyptian ?? method;
+    }
+    if (method.contains('ISNA')) {
+      return l10n?.calcMethodIsna ?? method;
+    }
+    if (method.contains('Karachi')) {
+      return l10n?.calcMethodKarachi ?? method;
+    }
+    if (method.contains('Dubai')) {
+      return l10n?.calcMethodDubai ?? method;
+    }
+    if (method.contains('Diyanet')) {
+      return l10n?.calcMethodDiyanet ?? method;
+    }
+    if (method.contains('Singapore') || method.contains('MUIS')) {
+      return l10n?.calcMethodSingapore ?? method;
+    }
     return method;
   }
 
@@ -214,13 +244,21 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
       _madhab = prefs.getString('calc_madhab') ?? _madhab;
       _adhanVoice = prefs.getString('adhan_voice') ?? _adhanVoice;
 
-      _prayerNotificationsEnabled = prefs.getBool('notif_enabled_prayer') ?? _prayerNotificationsEnabled;
-      _adhanAudioEnabled = prefs.getBool('notif_enabled_adhan') ?? _adhanAudioEnabled;
-      _preAdhanReminder = prefs.getBool('pre_adhan_reminder') ?? _preAdhanReminder;
-      _hapticFeedback = prefs.getBool('haptic_feedback_enabled') ?? _hapticFeedback;
+      _prayerNotificationsEnabled =
+          prefs.getBool('notif_enabled_prayer') ?? _prayerNotificationsEnabled;
+      _adhanAudioEnabled =
+          prefs.getBool('notif_enabled_adhan') ?? _adhanAudioEnabled;
+      _preAdhanReminder =
+          prefs.getBool('pre_adhan_reminder') ?? _preAdhanReminder;
+      _hapticFeedback =
+          prefs.getBool('haptic_feedback_enabled') ?? _hapticFeedback;
 
-      _dailyReflectionEnabled = prefs.getBool('notif_enabled_daily_reflection') ?? _dailyReflectionEnabled;
-      _forbiddenTimesNotificationsEnabled = prefs.getBool('notif_enabled_forbidden_times') ?? _forbiddenTimesNotificationsEnabled;
+      _dailyReflectionEnabled =
+          prefs.getBool('notif_enabled_daily_reflection') ??
+          _dailyReflectionEnabled;
+      _forbiddenTimesNotificationsEnabled =
+          prefs.getBool('notif_enabled_forbidden_times') ??
+          _forbiddenTimesNotificationsEnabled;
 
       final hour = prefs.getInt('daily_reflection_hour');
       final minute = prefs.getInt('daily_reflection_minute');
@@ -247,7 +285,8 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     if (mounted) setState(() => _isCheckingBattery = true);
     try {
       if (widget.batteryService != null) {
-        final exempt = await widget.batteryService!.checkBatteryOptimizationStatus();
+        final exempt = await widget.batteryService!
+            .checkBatteryOptimizationStatus();
         final state = await widget.batteryService!.getBatteryState();
         if (mounted) {
           setState(() {
@@ -260,9 +299,13 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
         }
       } else {
         const channel = MethodChannel('com.salahcompanion/battery');
-        final isExempt = await channel
+        final isExempt =
+            await channel
                 .invokeMethod<bool>('isIgnoringBatteryOptimizations')
-                .timeout(const Duration(milliseconds: 500), onTimeout: () => false) ??
+                .timeout(
+                  const Duration(milliseconds: 500),
+                  onTimeout: () => false,
+                ) ??
             false;
         if (mounted) {
           setState(() {
@@ -278,7 +321,8 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
 
   Future<void> _checkBatteryNow() async {
     setState(() => _isCheckingBattery = true);
-    final service = widget.batteryService ?? BatteryService(db: AppDatabase.instance());
+    final service =
+        widget.batteryService ?? BatteryService(db: AppDatabase.instance());
     final exempt = await service.checkBatteryOptimizationStatus();
     final mfg = await service.getManufacturer();
 
@@ -314,7 +358,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     } else if (exempt && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Battery Optimization Status: Exempt (Adhan alerts will fire reliably)'),
+          content: Text(
+            'Battery Optimization Status: Exempt (Adhan alerts will fire reliably)',
+          ),
         ),
       );
     }
@@ -335,6 +381,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     final TimeOfDay? picked = await showModalBottomSheet<TimeOfDay>(
       context: context,
       backgroundColor: colors.surface,
+      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -345,7 +392,10 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             children: [
               // Header with Cancel, Title, Done
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 12.0,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -362,7 +412,8 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                     ),
                     Text(
                       l10n?.settingsDailyReflection ?? 'Reflection Time',
-                      style: Theme.of(sheetContext).textTheme.titleMedium?.copyWith(
+                      style: Theme.of(sheetContext).textTheme.titleMedium
+                          ?.copyWith(
                             color: colors.textPrimary,
                             fontWeight: FontWeight.bold,
                           ),
@@ -437,7 +488,13 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
           today: DateTime.now(),
         );
         final now = DateTime.now();
-        var targetTime = DateTime(now.year, now.month, now.day, picked.hour, picked.minute);
+        var targetTime = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          picked.hour,
+          picked.minute,
+        );
         if (targetTime.isBefore(now)) {
           targetTime = targetTime.add(const Duration(days: 1));
         }
@@ -459,6 +516,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     await showModalBottomSheet(
       context: context,
       backgroundColor: colors.surface,
+      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -473,16 +531,19 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
 
             return SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 20.0,
+                  horizontal: 16.0,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       l10n?.settingsAdhanReciterTone ?? 'Adhan Reciter & Tone',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: colors.textPrimary,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        color: colors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     ..._adhanVoices.map((voice) {
@@ -496,13 +557,19 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                         title: Text(
                           _localizeAdhanVoice(context, voice),
                           style: TextStyle(
-                            color: isSelected ? colors.primary : colors.textPrimary,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected
+                                ? colors.primary
+                                : colors.textPrimary,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                         ),
                         trailing: IconButton(
                           icon: Icon(
-                            isPlayingThis ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded,
+                            isPlayingThis
+                                ? Icons.pause_circle_filled_rounded
+                                : Icons.play_circle_fill_rounded,
                             size: 30,
                           ),
                           color: colors.primary,
@@ -513,12 +580,14 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                               return;
                             }
 
-                            String sampleAsset = 'assets/audio/adhan_makkah.mp3';
+                            String sampleAsset =
+                                'assets/audio/adhan_makkah.mp3';
                             if (voice.contains('Madinah')) {
                               sampleAsset = 'assets/audio/adhan_madinah.mp3';
                             } else if (voice.contains('Al-Aqsa')) {
                               sampleAsset = 'assets/audio/adhan_alaqsa.mp3';
-                            } else if (voice.contains('Soft') || voice.contains('Egyptian')) {
+                            } else if (voice.contains('Soft') ||
+                                voice.contains('Egyptian')) {
                               sampleAsset = 'assets/audio/adhan_egyptian.mp3';
                             }
 
@@ -565,13 +634,17 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.surface,
+      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(
+              vertical: 20.0,
+              horizontal: 16.0,
+            ),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -579,9 +652,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   Text(
                     l10n?.settingsCalculationMethod ?? 'Calculation Method',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   ..._calculationMethods.map((method) {
@@ -593,8 +666,12 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                       title: Text(
                         _localizeCalcMethod(context, method),
                         style: TextStyle(
-                          color: isSelected ? colors.primary : colors.textPrimary,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected
+                              ? colors.primary
+                              : colors.textPrimary,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
                       onTap: () async {
@@ -624,13 +701,16 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
       context: context,
       isScrollControlled: true,
       backgroundColor: colors.surface,
+      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            final activeLangCode = Localizations.maybeLocaleOf(context)?.languageCode ?? _selectedLanguage.code;
+            final activeLangCode =
+                Localizations.maybeLocaleOf(context)?.languageCode ??
+                _selectedLanguage.code;
             final filtered = LanguageRegistry.supportedLanguages.where((lang) {
               if (searchQuery.trim().isEmpty) return true;
               final q = searchQuery.toLowerCase();
@@ -651,7 +731,8 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                         children: [
                           Text(
                             l10n?.settingsLanguage ?? 'Language',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
                                   color: colors.textPrimary,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -664,21 +745,35 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 4.0,
+                      ),
                       child: TextField(
-                        onChanged: (val) => setModalState(() => searchQuery = val),
-                        style: TextStyle(color: colors.textPrimary, fontSize: 14),
+                        onChanged: (val) =>
+                            setModalState(() => searchQuery = val),
+                        style: TextStyle(
+                          color: colors.textPrimary,
+                          fontSize: 14,
+                        ),
                         decoration: InputDecoration(
-                          hintText: l10n?.searchLanguagePlaceholder ?? 'Search language...',
+                          hintText:
+                              l10n?.searchLanguagePlaceholder ??
+                              'Search language...',
                           hintStyle: TextStyle(color: colors.textTertiary),
-                          prefixIcon: Icon(Icons.search_rounded, color: colors.textTertiary),
+                          prefixIcon: Icon(
+                            Icons.search_rounded,
+                            color: colors.textTertiary,
+                          ),
                           filled: true,
                           fillColor: colors.background,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                          ),
                         ),
                       ),
                     ),
@@ -706,8 +801,12 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                             title: Text(
                               lang.nativeName,
                               style: TextStyle(
-                                color: isSelected ? colors.primary : colors.textPrimary,
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                color: isSelected
+                                    ? colors.primary
+                                    : colors.textPrimary,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
                               ),
                             ),
                             subtitle: Text(
@@ -718,14 +817,23 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                               ),
                             ),
                             trailing: isSelected
-                                ? Icon(Icons.check_circle_rounded, color: colors.primary)
+                                ? Icon(
+                                    Icons.check_circle_rounded,
+                                    color: colors.primary,
+                                  )
                                 : null,
                             onTap: () async {
-                              if (_hapticFeedback) HapticFeedback.selectionClick();
+                              if (_hapticFeedback) {
+                                HapticFeedback.selectionClick();
+                              }
                               setState(() => _selectedLanguage = lang);
                               widget.onLocaleChanged?.call(lang.locale);
-                              final prefs = await SharedPreferences.getInstance();
-                              await prefs.setString('selected_language_code', lang.code);
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.setString(
+                                'selected_language_code',
+                                lang.code,
+                              );
                               if (context.mounted) Navigator.pop(context);
                             },
                           );
@@ -749,42 +857,52 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.surface,
+      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+            padding: const EdgeInsets.symmetric(
+              vertical: 20.0,
+              horizontal: 20.0,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l10n?.settingsAsrCalculationTitle ?? 'Asr Calculation Method (Fiqh)',
+                  l10n?.settingsAsrCalculationTitle ??
+                      'Asr Calculation Method (Fiqh)',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: colors.textPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  l10n?.settingsAsrCalculationSubtitle ?? 'Select juristic school for computing Asr prayer start time.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: colors.textSecondary,
-                      ),
+                  l10n?.settingsAsrCalculationSubtitle ??
+                      'Select juristic school for computing Asr prayer start time.',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: colors.textSecondary),
                 ),
                 const SizedBox(height: 16),
                 _buildFiqhOptionTile(
-                  title: l10n?.settingsFiqhStandardTitle ?? 'Shafi / Standard (Default)',
-                  subtitle: l10n?.settingsFiqhStandardSub ??
+                  title:
+                      l10n?.settingsFiqhStandardTitle ??
+                      'Shafi / Standard (Default)',
+                  subtitle:
+                      l10n?.settingsFiqhStandardSub ??
                       'Shadow length = 1x object height. Followed by Shafi, Maliki, Hanbali & most global authorities.',
                   value: 'Shafi / Standard',
                 ),
                 const SizedBox(height: 10),
                 _buildFiqhOptionTile(
                   title: l10n?.settingsFiqhHanafiTitle ?? 'Hanafi',
-                  subtitle: l10n?.settingsFiqhHanafiSub ??
+                  subtitle:
+                      l10n?.settingsFiqhHanafiSub ??
                       'Shadow length = 2x object height. Followed by the Hanafi school of jurisprudence.',
                   value: 'Hanafi',
                 ),
@@ -802,7 +920,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     required String value,
   }) {
     final colors = context.appColors;
-    final isSelected = _madhab == value || (_madhab.contains('Shafi') && value.contains('Shafi'));
+    final isSelected =
+        _madhab == value ||
+        (_madhab.contains('Shafi') && value.contains('Shafi'));
 
     return Material(
       color: Colors.transparent,
@@ -819,7 +939,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: ShapeDecoration(
-            color: isSelected ? colors.primary.withValues(alpha: 0.12) : colors.elevatedBackground,
+            color: isSelected
+                ? colors.primary.withValues(alpha: 0.12)
+                : colors.elevatedBackground,
             shape: ContinuousRectangleBorder(
               borderRadius: BorderRadius.circular(14),
               side: BorderSide(
@@ -831,7 +953,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
           child: Row(
             children: [
               Icon(
-                isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+                isSelected
+                    ? Icons.radio_button_checked_rounded
+                    : Icons.radio_button_off_rounded,
                 color: isSelected ? colors.primary : colors.textTertiary,
                 size: 22,
               ),
@@ -904,30 +1028,38 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               Text(
                 l10n?.settingsTitle ?? 'Settings',
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 32,
-                      letterSpacing: -0.2,
-                    ),
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 32,
+                  letterSpacing: -0.2,
+                ),
               ),
               const SizedBox(height: 20),
 
               // SECTION 1: NOTIFICATIONS (Positioned at VERY TOP as requested)
-              _SectionHeader(title: l10n?.settingsNotifications ?? 'NOTIFICATIONS'),
+              _SectionHeader(
+                title: l10n?.settingsNotifications ?? 'NOTIFICATIONS',
+              ),
               const SizedBox(height: 8),
               _IOSGroupedCard(
                 children: [
                   _IOSGroupedTile(
                     key: const ValueKey('prayer_notifications_master_tile'),
                     icon: Icons.notifications_active_rounded,
-                    iconColor: const Color(0xFFF59E0B), // Marigold Amber (Prayer Alerts)
-                    title: l10n?.settingsPrayerNotifications ?? 'Prayer Notifications',
+                    iconColor: const Color(
+                      0xFFF59E0B,
+                    ), // Marigold Amber (Prayer Alerts)
+                    title:
+                        l10n?.settingsPrayerNotifications ??
+                        'Prayer Notifications',
                     trailing: Switch.adaptive(
                       key: const ValueKey('prayer_notifications_master_switch'),
                       value: _prayerNotificationsEnabled,
                       activeTrackColor: colors.primary,
                       activeThumbColor: Colors.white,
-                      inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
+                      inactiveTrackColor: colors.textTertiary.withValues(
+                        alpha: 0.3,
+                      ),
                       inactiveThumbColor: colors.textSecondary,
                       onChanged: _updatePrayerNotificationsMaster,
                     ),
@@ -936,14 +1068,18 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('adhan_audio_master_tile'),
                     icon: Icons.volume_up_rounded,
-                    iconColor: const Color(0xFF0284C7), // Cerulean Azure (Audio Acoustics)
+                    iconColor: const Color(
+                      0xFF0284C7,
+                    ), // Cerulean Azure (Audio Acoustics)
                     title: l10n?.settingsAdhanAudio ?? 'Adhan Audio',
                     trailing: Switch.adaptive(
                       key: const ValueKey('adhan_audio_master_switch'),
                       value: _adhanAudioEnabled,
                       activeTrackColor: colors.primary,
                       activeThumbColor: Colors.white,
-                      inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
+                      inactiveTrackColor: colors.textTertiary.withValues(
+                        alpha: 0.3,
+                      ),
                       inactiveThumbColor: colors.textSecondary,
                       onChanged: _updateAdhanAudioMaster,
                     ),
@@ -952,7 +1088,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('adhan_voice_tile'),
                     icon: Icons.record_voice_over_rounded,
-                    iconColor: const Color(0xFFEA580C), // Terracotta Coral (Mu'adhin Voice)
+                    iconColor: const Color(
+                      0xFFEA580C,
+                    ), // Terracotta Coral (Mu'adhin Voice)
                     title: l10n?.settingsAdhanVoice ?? 'Adhan Voice',
                     valueText: _localizeAdhanVoice(context, _adhanVoice),
                     onTap: _showAdhanVoicePicker,
@@ -961,25 +1099,44 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('forbidden_times_notification_tile'),
                     icon: Icons.do_not_disturb_on_rounded,
-                    iconColor: const Color(0xFFEF4444), // Crimson Warning Red (Forbidden Nafl)
-                    title: l10n?.forbiddenTimesNotificationTitle ?? 'Forbidden Time Notifications',
-                    subtitle: l10n?.forbiddenTimesNotificationSubtitle ?? 'Alerts for Sunrise, Zenith & Sunset prohibited windows',
+                    iconColor: const Color(
+                      0xFFEF4444,
+                    ), // Crimson Warning Red (Forbidden Nafl)
+                    title:
+                        l10n?.forbiddenTimesNotificationTitle ??
+                        'Forbidden Time Notifications',
+                    subtitle:
+                        l10n?.forbiddenTimesNotificationSubtitle ??
+                        'Alert for prohibited nafl time',
+                    subtitleMaxLines: 1,
                     trailing: Switch.adaptive(
-                      key: const ValueKey('forbidden_times_notification_switch'),
+                      key: const ValueKey(
+                        'forbidden_times_notification_switch',
+                      ),
                       value: _forbiddenTimesNotificationsEnabled,
                       activeTrackColor: colors.primary,
                       activeThumbColor: Colors.white,
-                      inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
+                      inactiveTrackColor: colors.textTertiary.withValues(
+                        alpha: 0.3,
+                      ),
                       inactiveThumbColor: colors.textSecondary,
                       onChanged: (val) async {
                         if (_hapticFeedback) HapticFeedback.selectionClick();
-                        setState(() => _forbiddenTimesNotificationsEnabled = val);
+                        setState(
+                          () => _forbiddenTimesNotificationsEnabled = val,
+                        );
                         final prefs = await SharedPreferences.getInstance();
-                        await prefs.setBool('notif_enabled_forbidden_times', val);
+                        await prefs.setBool(
+                          'notif_enabled_forbidden_times',
+                          val,
+                        );
                         widget.onForbiddenTimesNotificationsToggled?.call(val);
                         if (!val) {
-                          final notifService = widget.notificationService ?? NotificationService();
-                          await notifService.cancelForbiddenTimesNotifications();
+                          final notifService =
+                              widget.notificationService ??
+                              NotificationService();
+                          await notifService
+                              .cancelForbiddenTimesNotifications();
                         }
                       },
                     ),
@@ -988,22 +1145,31 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('daily_reflection_tile'),
                     icon: Icons.auto_stories_rounded,
-                    iconColor: const Color(0xFF9333EA), // Rich Amethyst (Spiritual Reflection)
+                    iconColor: const Color(
+                      0xFF9333EA,
+                    ), // Rich Amethyst (Spiritual Reflection)
                     title: l10n?.settingsDailyReflection ?? 'Daily Reflection',
-                    subtitle: l10n?.settingsDailyReflectionSubtitle ?? 'Morning verse & Hadith reminder',
+                    subtitle:
+                        l10n?.settingsDailyReflectionSubtitle ??
+                        'Morning verse & Hadith reminder',
                     trailing: Switch.adaptive(
                       key: const ValueKey('daily_reflection_switch'),
                       value: _dailyReflectionEnabled,
                       activeTrackColor: colors.primary,
                       activeThumbColor: Colors.white,
-                      inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
+                      inactiveTrackColor: colors.textTertiary.withValues(
+                        alpha: 0.3,
+                      ),
                       inactiveThumbColor: colors.textSecondary,
                       onChanged: (val) async {
                         if (_hapticFeedback) HapticFeedback.selectionClick();
                         setState(() => _dailyReflectionEnabled = val);
                         widget.onDailyReflectionToggled?.call(val);
                         final prefs = await SharedPreferences.getInstance();
-                        await prefs.setBool('notif_enabled_daily_reflection', val);
+                        await prefs.setBool(
+                          'notif_enabled_daily_reflection',
+                          val,
+                        );
                       },
                     ),
                   ),
@@ -1012,8 +1178,12 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                     _IOSGroupedTile(
                       key: const ValueKey('daily_reflection_time_tile'),
                       icon: Icons.access_time_rounded,
-                      iconColor: const Color(0xFFD946EF), // Fuchsia Magenta (Scheduled Time)
-                      title: l10n?.settingsDailyReminderTime ?? 'Reflection Notification',
+                      iconColor: const Color(
+                        0xFFD946EF,
+                      ), // Fuchsia Magenta (Scheduled Time)
+                      title:
+                          l10n?.settingsDailyReminderTime ??
+                          'Reflection Notification',
                       valueText: _dailyReflectionTime.format(context),
                       onTap: _selectReflectionTime,
                     ),
@@ -1022,9 +1192,12 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('home_widgets_tile'),
                     icon: Icons.widgets_rounded,
-                    iconColor: const Color(0xFF06B6D4), // Electric Cyan (Live Widgets)
+                    iconColor: const Color(
+                      0xFF06B6D4,
+                    ), // Electric Cyan (Live Widgets)
                     title: l10n?.widgetsTitle ?? 'Widgets',
-                    valueText: l10n?.settingsLiveWidgetsCount(3) ?? '3 Live Widgets',
+                    valueText:
+                        l10n?.settingsLiveWidgetsCount(3) ?? '3 Live Widgets',
                     onTap: () {
                       WidgetPreviewSheet.show(context);
                     },
@@ -1035,15 +1208,20 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               const SizedBox(height: 24),
 
               // SECTION 2: CALCULATION & FIQH
-              _SectionHeader(title: l10n?.settingsCalculationFiqh ?? 'CALCULATION & FIQH'),
+              _SectionHeader(
+                title: l10n?.settingsCalculationFiqh ?? 'CALCULATION & FIQH',
+              ),
               const SizedBox(height: 8),
               _IOSGroupedCard(
                 children: [
                   _IOSGroupedTile(
                     key: const ValueKey('calculation_method_tile'),
                     icon: Icons.calculate_rounded,
-                    iconColor: const Color(0xFF4F46E5), // Deep Indigo (Solar Math)
-                    title: l10n?.settingsCalculationMethod ?? 'Calculation Method',
+                    iconColor: const Color(
+                      0xFF4F46E5,
+                    ), // Deep Indigo (Solar Math)
+                    title:
+                        l10n?.settingsCalculationMethod ?? 'Calculation Method',
                     valueText: _localizeCalcMethod(context, _calculationMethod),
                     onTap: _showCalculationMethodPicker,
                   ),
@@ -1051,7 +1229,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('madhab_tile'),
                     icon: Icons.balance_rounded,
-                    iconColor: const Color(0xFF059669), // Fiqh Forest Emerald (Jurisprudence)
+                    iconColor: const Color(
+                      0xFF059669,
+                    ), // Fiqh Forest Emerald (Jurisprudence)
                     title: l10n?.settingsFiqhAsr ?? 'Fiqh (Asr Timing)',
                     valueText: _madhab.contains('Shafi')
                         ? (l10n?.madhabShafi ?? 'Shafi')
@@ -1062,13 +1242,18 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('pre_adhan_reminder_tile'),
                     icon: Icons.alarm_rounded,
-                    iconColor: const Color(0xFFEAB308), // Golden Sun Yellow (Early Warning)
-                    title: l10n?.settingsPreAdhanReminder ?? 'Pre-Adhan Reminder',
+                    iconColor: const Color(
+                      0xFFEAB308,
+                    ), // Golden Sun Yellow (Early Warning)
+                    title:
+                        l10n?.settingsPreAdhanReminder ?? 'Pre-Adhan Reminder',
                     trailing: Switch.adaptive(
                       value: _preAdhanReminder,
                       activeTrackColor: colors.primary,
                       activeThumbColor: Colors.white,
-                      inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
+                      inactiveTrackColor: colors.textTertiary.withValues(
+                        alpha: 0.3,
+                      ),
                       inactiveThumbColor: colors.textSecondary,
                       onChanged: (val) {
                         if (_hapticFeedback) HapticFeedback.selectionClick();
@@ -1083,27 +1268,44 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               const SizedBox(height: 24),
 
               // SECTION 3: BATTERY OPTIMIZATION
-              _SectionHeader(title: l10n?.settingsBattery ?? 'BATTERY OPTIMIZATION'),
+              _SectionHeader(
+                title: l10n?.settingsBattery ?? 'BATTERY OPTIMIZATION',
+              ),
               const SizedBox(height: 8),
               _IOSGroupedCard(
                 children: [
                   _IOSGroupedTile(
                     key: const ValueKey('battery_status_tile'),
                     iconWidget: _IOSBatteryBadge(isExempt: _isBatteryExempt),
-                    title: l10n?.onboardingPermBatteryTitle ?? 'Battery Optimization',
+                    title:
+                        l10n?.onboardingPermBatteryTitle ??
+                        'Battery Optimization',
                     subtitle: _isBatteryExempt
-                        ? (l10n?.settingsBatteryExemptDesc ?? 'Exempt — Adhan alerts will fire reliably')
-                        : (l10n?.settingsBatteryNotExemptDesc ?? 'Not exempt — alerts may be delayed'),
+                        ? (l10n?.settingsBatteryExemptDesc ??
+                              'Exempt — Adhan alerts will fire reliably')
+                        : (l10n?.settingsBatteryNotExemptDesc ??
+                              'Not exempt — alerts may be delayed'),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
-                            color: (_isBatteryExempt ? colors.success : colors.missed).withValues(alpha: 0.14),
+                            color:
+                                (_isBatteryExempt
+                                        ? colors.success
+                                        : colors.missed)
+                                    .withValues(alpha: 0.14),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: (_isBatteryExempt ? colors.success : colors.missed).withValues(alpha: 0.35),
+                              color:
+                                  (_isBatteryExempt
+                                          ? colors.success
+                                          : colors.missed)
+                                      .withValues(alpha: 0.35),
                               width: 0.8,
                             ),
                           ),
@@ -1114,7 +1316,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                                 width: 6,
                                 height: 6,
                                 decoration: BoxDecoration(
-                                  color: _isBatteryExempt ? colors.success : colors.missed,
+                                  color: _isBatteryExempt
+                                      ? colors.success
+                                      : colors.missed,
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -1122,12 +1326,15 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                               Text(
                                 _isBatteryExempt
                                     ? (l10n?.settingsBatteryExempt ?? 'Exempt')
-                                    : (l10n?.settingsBatteryRestricted ?? 'Restricted'),
+                                    : (l10n?.settingsBatteryRestricted ??
+                                          'Restricted'),
                                 key: const ValueKey('battery_status_text'),
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
-                                  color: _isBatteryExempt ? colors.successText : colors.missedText,
+                                  color: _isBatteryExempt
+                                      ? colors.successText
+                                      : colors.missedText,
                                 ),
                               ),
                             ],
@@ -1150,9 +1357,13 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('check_battery_button'),
                     icon: Icons.sync_rounded,
-                    iconColor: const Color(0xFF2563EB), // Cobalt Blue (Hardware Sync)
+                    iconColor: const Color(
+                      0xFF2563EB,
+                    ), // Cobalt Blue (Hardware Sync)
                     title: l10n?.settingsCheckBatteryNow ?? 'Check Status Now',
-                    subtitle: l10n?.settingsCheckBatterySubtitle ?? 'Verify background wake permissions',
+                    subtitle:
+                        l10n?.settingsCheckBatterySubtitle ??
+                        'Verify background wake permissions',
                     trailing: _isCheckingBattery
                         ? SizedBox(
                             width: 18,
@@ -1170,7 +1381,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                     onTap: _isCheckingBattery
                         ? null
                         : () {
-                            if (_hapticFeedback) HapticFeedback.selectionClick();
+                            if (_hapticFeedback) {
+                              HapticFeedback.selectionClick();
+                            }
                             _checkBatteryNow();
                           },
                   ),
@@ -1178,15 +1391,21 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('warn_battery_tile'),
                     icon: Icons.shield_outlined,
-                    iconColor: const Color(0xFF0F766E), // Guard Teal (Protection Shield)
+                    iconColor: const Color(
+                      0xFF0F766E,
+                    ), // Guard Teal (Protection Shield)
                     title: l10n?.settingsWarnBattery ?? 'Warn if Re-optimized',
-                    subtitle: l10n?.settingsWarnBatterySubtitle ?? 'Alert if OS turns power saver back on',
+                    subtitle:
+                        l10n?.settingsWarnBatterySubtitle ??
+                        'Alert if OS turns power saver back on',
                     trailing: Switch.adaptive(
                       key: const ValueKey('warn_battery_switch'),
                       value: _warnBatteryOpt,
                       activeTrackColor: colors.primary,
                       activeThumbColor: Colors.white,
-                      inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
+                      inactiveTrackColor: colors.textTertiary.withValues(
+                        alpha: 0.3,
+                      ),
                       inactiveThumbColor: colors.textSecondary,
                       onChanged: (val) {
                         if (_hapticFeedback) HapticFeedback.selectionClick();
@@ -1201,16 +1420,21 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               const SizedBox(height: 24),
 
               // SECTION 4: APPEARANCE & HAPTICS
-              _SectionHeader(title: l10n?.settingsAppearance ?? 'APPEARANCE & HAPTICS'),
+              _SectionHeader(
+                title: l10n?.settingsAppearance ?? 'APPEARANCE & HAPTICS',
+              ),
               const SizedBox(height: 8),
               _IOSGroupedCard(
                 children: [
                   _IOSGroupedTile(
                     key: const ValueKey('language_settings_tile'),
                     icon: Icons.translate_rounded,
-                    iconColor: const Color(0xFFE11D48), // Global Rose Ruby (World Languages)
+                    iconColor: const Color(
+                      0xFFE11D48,
+                    ), // Global Rose Ruby (World Languages)
                     title: l10n?.settingsLanguage ?? 'Language',
-                    valueText: '${_selectedLanguage.flag} ${_selectedLanguage.nativeName}',
+                    valueText:
+                        '${_selectedLanguage.flag} ${_selectedLanguage.nativeName}',
                     onTap: () {
                       if (_hapticFeedback) HapticFeedback.selectionClick();
                       _showLanguagePicker();
@@ -1220,14 +1444,20 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('haptic_feedback_tile'),
                     icon: Icons.vibration_rounded,
-                    iconColor: const Color(0xFF475569), // Slate Graphite (Tactile Hardware)
+                    iconColor: const Color(
+                      0xFF475569,
+                    ), // Slate Graphite (Tactile Hardware)
                     title: l10n?.settingsHaptics ?? 'Haptic Feedback',
-                    subtitle: l10n?.settingsHapticsSubtitle ?? 'Tactile vibrations for taps and events',
+                    subtitle:
+                        l10n?.settingsHapticsSubtitle ??
+                        'Tactile vibrations for taps and events',
                     trailing: Switch.adaptive(
                       value: _hapticFeedback,
                       activeTrackColor: colors.primary,
                       activeThumbColor: Colors.white,
-                      inactiveTrackColor: colors.textTertiary.withValues(alpha: 0.3),
+                      inactiveTrackColor: colors.textTertiary.withValues(
+                        alpha: 0.3,
+                      ),
                       inactiveThumbColor: colors.textSecondary,
                       onChanged: (val) async {
                         AppHaptics.setEnabled(val);
@@ -1245,16 +1475,22 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               const SizedBox(height: 24),
 
               // SECTION 5: GUIDE & ONBOARDING
-              _SectionHeader(title: l10n?.settingsGuideOnboarding ?? 'GUIDE & ONBOARDING'),
+              _SectionHeader(
+                title: l10n?.settingsGuideOnboarding ?? 'GUIDE & ONBOARDING',
+              ),
               const SizedBox(height: 8),
               _IOSGroupedCard(
                 children: [
                   _IOSGroupedTile(
                     key: const ValueKey('replay_walkthrough_tile'),
                     icon: Icons.explore_rounded,
-                    iconColor: const Color(0xFF0284C7), // Sky Blue (Feature Tour)
-                    title: l10n?.onboardingReplayTour ?? 'Replay Onboarding Tour',
-                    subtitle: l10n?.onboardingReplayTourSubtitle ??
+                    iconColor: const Color(
+                      0xFF0284C7,
+                    ), // Sky Blue (Feature Tour)
+                    title:
+                        l10n?.onboardingReplayTour ?? 'Replay Onboarding Tour',
+                    subtitle:
+                        l10n?.onboardingReplayTourSubtitle ??
                         'Explore app features, privacy commitment, and setup again',
                     onTap: () {
                       if (_hapticFeedback) HapticFeedback.selectionClick();
@@ -1265,7 +1501,10 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                             onLocaleChanged: (locale) {
                               widget.onLocaleChanged?.call(locale);
                               setState(() {
-                                _selectedLanguage = LanguageRegistry.getLanguage(locale.languageCode);
+                                _selectedLanguage =
+                                    LanguageRegistry.getLanguage(
+                                      locale.languageCode,
+                                    );
                               });
                             },
                           ),
@@ -1277,9 +1516,15 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('calculation_docs_tile'),
                     icon: Icons.menu_book_rounded,
-                    iconColor: const Color(0xFF7C3AED), // Lavender Violet (Knowledge Base)
-                    title: l10n?.settingsCalculationDocs ?? 'Calculation Accuracy & FAQ',
-                    subtitle: l10n?.settingsCalculationDocsSubtitle ?? 'Learn how prayer times and solar angles are calculated',
+                    iconColor: const Color(
+                      0xFF7C3AED,
+                    ), // Lavender Violet (Knowledge Base)
+                    title:
+                        l10n?.settingsCalculationDocs ??
+                        'Calculation Accuracy & FAQ',
+                    subtitle:
+                        l10n?.settingsCalculationDocsSubtitle ??
+                        'Learn how prayer times and solar angles are calculated',
                     onTap: () {
                       if (_hapticFeedback) HapticFeedback.selectionClick();
                       Navigator.of(context).push(
@@ -1295,14 +1540,18 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               const SizedBox(height: 24),
 
               // SECTION 6: ABOUT & PRIVACY
-              _SectionHeader(title: l10n?.settingsAboutPrivacy ?? 'ABOUT & PRIVACY'),
+              _SectionHeader(
+                title: l10n?.settingsAboutPrivacy ?? 'ABOUT & PRIVACY',
+              ),
               const SizedBox(height: 8),
               _IOSGroupedCard(
                 children: [
                   _IOSGroupedTile(
                     key: const ValueKey('privacy_policy_tile'),
                     icon: Icons.shield_rounded,
-                    iconColor: const Color(0xFF10B981), // Safety Mint Emerald (Data Privacy)
+                    iconColor: const Color(
+                      0xFF10B981,
+                    ), // Safety Mint Emerald (Data Privacy)
                     title: l10n?.settingsPrivacyPolicy ?? 'Privacy Policy',
                     onTap: () {
                       if (_hapticFeedback) HapticFeedback.selectionClick();
@@ -1317,8 +1566,11 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('open_source_tile'),
                     icon: Icons.code_rounded,
-                    iconColor: const Color(0xFF334155), // GitHub Carbon Slate (Source Code)
-                    title: l10n?.settingsOpenSource ?? '100% Open Source (GitHub)',
+                    iconColor: const Color(
+                      0xFF334155,
+                    ), // GitHub Carbon Slate (Source Code)
+                    title:
+                        l10n?.settingsOpenSource ?? '100% Open Source (GitHub)',
                     onTap: () {
                       if (_hapticFeedback) HapticFeedback.selectionClick();
                       OpenSourceSheet.show(context);
@@ -1328,7 +1580,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                   _IOSGroupedTile(
                     key: const ValueKey('terms_tile'),
                     icon: Icons.description_rounded,
-                    iconColor: const Color(0xFFD97706), // Warm Ochre Amber (Legal Terms)
+                    iconColor: const Color(
+                      0xFFD97706,
+                    ), // Warm Ochre Amber (Legal Terms)
                     title: l10n?.settingsTerms ?? 'Terms & Conditions',
                     onTap: () {
                       if (_hapticFeedback) HapticFeedback.selectionClick();
@@ -1347,18 +1601,19 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 child: Column(
                   children: [
                     Text(
-                      l10n?.settingsOpenSourceFootnote ?? '100% Free & Open Source • Zero Ads • No Data Collection',
+                      l10n?.settingsOpenSourceFootnote ??
+                          '100% Free & Open Source • Zero Ads • No Data Collection',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colors.textTertiary,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        color: colors.textTertiary,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       AppInfoService.settingsVersionText,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: colors.textTertiary.withValues(alpha: 0.7),
-                          ),
+                        color: colors.textTertiary.withValues(alpha: 0.7),
+                      ),
                     ),
                   ],
                 ),
@@ -1386,10 +1641,10 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         title,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: colors.textTertiary,
-              letterSpacing: 1.2,
-              fontWeight: FontWeight.bold,
-            ),
+          color: colors.textTertiary,
+          letterSpacing: 1.2,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -1411,10 +1666,7 @@ class _IOSGroupedCard extends StatelessWidget {
         side: BorderSide(color: colors.divider, width: 1.0),
       ),
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: children,
-      ),
+      child: Column(mainAxisSize: MainAxisSize.min, children: children),
     );
   }
 }
@@ -1447,7 +1699,9 @@ class _IOSBatteryBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: (isExempt ? const Color(0xFF34C759) : const Color(0xFFFF9500)).withValues(alpha: 0.28),
+            color:
+                (isExempt ? const Color(0xFF34C759) : const Color(0xFFFF9500))
+                    .withValues(alpha: 0.28),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -1549,6 +1803,7 @@ class _IOSGroupedTile extends StatelessWidget {
   final Widget? iconWidget;
   final String title;
   final String? subtitle;
+  final int? subtitleMaxLines;
   final String? valueText;
   final Widget? trailing;
   final VoidCallback? onTap;
@@ -1560,6 +1815,7 @@ class _IOSGroupedTile extends StatelessWidget {
     this.iconWidget,
     required this.title,
     this.subtitle,
+    this.subtitleMaxLines,
     this.valueText,
     this.trailing,
     this.onTap,
@@ -1589,11 +1845,7 @@ class _IOSGroupedTile extends StatelessWidget {
                   color: iconColor ?? colors.primary,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  icon!,
-                  color: Colors.white,
-                  size: 18,
-                ),
+                child: Icon(icon!, color: Colors.white, size: 18),
               ),
             const SizedBox(width: 12),
 
@@ -1606,22 +1858,28 @@ class _IOSGroupedTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                          letterSpacing: -0.2,
-                        ),
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      letterSpacing: -0.2,
+                    ),
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 3),
                     Text(
                       subtitle!,
+                      maxLines: subtitleMaxLines,
+                      overflow: subtitleMaxLines != null
+                          ? TextOverflow.ellipsis
+                          : null,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colors.textSecondary,
-                            fontSize: 13,
-                            height: 1.25,
-                          ),
+                        color: colors.textSecondary,
+                        fontSize: 13,
+                        height: 1.25,
+                      ),
                     ),
                   ],
                 ],
@@ -1639,8 +1897,8 @@ class _IOSGroupedTile extends StatelessWidget {
                   if (valueText != null)
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxWidth: (MediaQuery.sizeOf(context).width - 190)
-                            .clamp(110.0, MediaQuery.sizeOf(context).width * 0.44),
+                        maxWidth: (MediaQuery.sizeOf(context).width * 0.32)
+                            .clamp(100.0, 125.0),
                       ),
                       child: Text(
                         valueText!,
@@ -1648,11 +1906,11 @@ class _IOSGroupedTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.end,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: colors.textSecondary,
-                              fontSize: 13.5,
-                              height: 1.25,
-                              letterSpacing: -0.1,
-                            ),
+                          color: colors.textSecondary,
+                          fontSize: 13,
+                          height: 1.2,
+                          letterSpacing: -0.1,
+                        ),
                       ),
                     ),
                   if (trailing case final Widget t) t,

@@ -23,24 +23,24 @@ class LocationData {
   });
 
   Map<String, dynamic> toJson() => {
-        'latitude': latitude,
-        'longitude': longitude,
-        'city': city,
-        'countryCode': countryCode,
-        'countryName': countryName,
-        'isFallback': isFallback,
-        'statusMessage': statusMessage,
-      };
+    'latitude': latitude,
+    'longitude': longitude,
+    'city': city,
+    'countryCode': countryCode,
+    'countryName': countryName,
+    'isFallback': isFallback,
+    'statusMessage': statusMessage,
+  };
 
   factory LocationData.fromJson(Map<String, dynamic> json) => LocationData(
-        latitude: (json['latitude'] as num).toDouble(),
-        longitude: (json['longitude'] as num).toDouble(),
-        city: json['city'] as String?,
-        countryCode: json['countryCode'] as String?,
-        countryName: json['countryName'] as String?,
-        isFallback: (json['isFallback'] as bool?) ?? false,
-        statusMessage: json['statusMessage'] as String?,
-      );
+    latitude: (json['latitude'] as num).toDouble(),
+    longitude: (json['longitude'] as num).toDouble(),
+    city: json['city'] as String?,
+    countryCode: json['countryCode'] as String?,
+    countryName: json['countryName'] as String?,
+    isFallback: (json['isFallback'] as bool?) ?? false,
+    statusMessage: json['statusMessage'] as String?,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -114,7 +114,8 @@ class LocationService {
   /// Bypasses VPNs completely by reading hardware satellite & cell tower signals.
   Stream<LocationData> listenToHighAccuracyUpdates() async* {
     final permission = await Geolocator.checkPermission();
-    if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
+    if (permission != LocationPermission.whileInUse &&
+        permission != LocationPermission.always) {
       return;
     }
 
@@ -140,8 +141,8 @@ class LocationService {
           city = (place.locality?.trim().isNotEmpty ?? false)
               ? place.locality
               : ((place.subAdministrativeArea?.trim().isNotEmpty ?? false)
-                  ? place.subAdministrativeArea
-                  : place.administrativeArea);
+                    ? place.subAdministrativeArea
+                    : place.administrativeArea);
           countryCode = place.isoCountryCode;
           countryName = place.country;
         }
@@ -208,15 +209,20 @@ class LocationService {
       } else {
         final serviceEnabled = await Geolocator.isLocationServiceEnabled()
             .timeout(const Duration(seconds: 2), onTimeout: () => false);
-        var permission = await Geolocator.checkPermission()
-            .timeout(const Duration(seconds: 2), onTimeout: () => LocationPermission.denied);
+        var permission = await Geolocator.checkPermission().timeout(
+          const Duration(seconds: 2),
+          onTimeout: () => LocationPermission.denied,
+        );
 
         if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission()
-              .timeout(const Duration(seconds: 15), onTimeout: () => LocationPermission.denied);
+          permission = await Geolocator.requestPermission().timeout(
+            const Duration(seconds: 15),
+            onTimeout: () => LocationPermission.denied,
+          );
         }
 
-        final hasPermission = permission == LocationPermission.whileInUse ||
+        final hasPermission =
+            permission == LocationPermission.whileInUse ||
             permission == LocationPermission.always;
 
         if (!serviceEnabled || !hasPermission) {
@@ -252,8 +258,10 @@ class LocationService {
 
         // Tier 2: Try OS Last Known Position (0ms instant, VPN-proof!)
         try {
-          position = await Geolocator.getLastKnownPosition()
-              .timeout(const Duration(seconds: 2), onTimeout: () => null);
+          position = await Geolocator.getLastKnownPosition().timeout(
+            const Duration(seconds: 2),
+            onTimeout: () => null,
+          );
         } catch (_) {}
 
         // Tier 3: Try Fast Fix (3.5s timeout)
@@ -290,12 +298,14 @@ class LocationService {
         try {
           List<Placemark> placemarks;
           if (placemarkFetcher != null) {
-            placemarks = await placemarkFetcher(position.latitude, position.longitude);
-          } else {
-            placemarks = await Geocoding().placemarkFromCoordinates(
+            placemarks = await placemarkFetcher(
               position.latitude,
               position.longitude,
-            ).timeout(const Duration(seconds: 2));
+            );
+          } else {
+            placemarks = await Geocoding()
+                .placemarkFromCoordinates(position.latitude, position.longitude)
+                .timeout(const Duration(seconds: 2));
           }
 
           if (placemarks.isNotEmpty) {
@@ -303,8 +313,8 @@ class LocationService {
             city = (place.locality?.trim().isNotEmpty ?? false)
                 ? place.locality
                 : ((place.subAdministrativeArea?.trim().isNotEmpty ?? false)
-                    ? place.subAdministrativeArea
-                    : place.administrativeArea);
+                      ? place.subAdministrativeArea
+                      : place.administrativeArea);
             countryCode = place.isoCountryCode;
             countryName = place.country;
           }
@@ -419,4 +429,5 @@ class LocationService {
 }
 
 typedef PositionFetcher = Future<Position> Function();
-typedef PlacemarkFetcher = Future<List<Placemark>> Function(double latitude, double longitude);
+typedef PlacemarkFetcher =
+    Future<List<Placemark>> Function(double latitude, double longitude);

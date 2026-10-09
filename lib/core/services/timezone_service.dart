@@ -28,8 +28,8 @@ class TimezoneService {
     }
 
     final deviceOffset = deviceTime.timeZoneOffset;
-    final diffInMinutes =
-        (deviceOffset.inMinutes - targetOffset.inMinutes).abs();
+    final diffInMinutes = (deviceOffset.inMinutes - targetOffset.inMinutes)
+        .abs();
 
     if (diffInMinutes > 60) {
       return timezoneMismatchWarning;

@@ -22,6 +22,7 @@ import '../../../tasbih/presentation/screens/tasbih_screen.dart';
 import '../../domain/prayer_times_calculator.dart';
 import '../widgets/daily_reflection_card.dart';
 import '../widgets/daily_reflection_popup.dart';
+import '../widgets/friday_companion_suite.dart';
 import '../widgets/hijri_strip.dart';
 import '../widgets/prayer_countdown_hero.dart';
 import '../widgets/prayer_list_card.dart';
@@ -47,6 +48,8 @@ class HomeScreen extends StatefulWidget {
   final NotificationService? notificationService;
   final Locale? currentLocale;
   final ValueChanged<Locale>? onLocaleChanged;
+  final bool? overrideIsFriday;
+  final DateTime? nowOverride;
 
   const HomeScreen({
     super.key,
@@ -63,12 +66,15 @@ class HomeScreen extends StatefulWidget {
     this.notificationService,
     this.currentLocale,
     this.onLocaleChanged,
+    this.overrideIsFriday,
+    this.nowOverride,
   });
 
   static final defaultReflection = DailyContentItem(
     id: 'hadith_bukhari_50',
     type: DailyContentType.hadith,
-    arabicText: 'مَنْ صَامَ رَمَضَانَ إِيمَانًا وَاحْتِسَابًا غُفِرَ لَهُ مَا تَقَدَّمَ مِنْ ذَنْبِهِ',
+    arabicText:
+        'مَنْ صَامَ رَمَضَانَ إِيمَانًا وَاحْتِسَابًا غُفِرَ لَهُ مَا تَقَدَّمَ مِنْ ذَنْبِهِ',
     translationText:
         'Whoever fasts during the month of Ramadan out of sincere faith and hoping for a reward from Allah will have all his previous sins forgiven.',
     translationSource: 'Sahih al-Bukhari 38',
@@ -85,12 +91,22 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<TasbihScreenState> _tasbihKey = GlobalKey<TasbihScreenState>();
   int _selectedNavIndex = 0;
+  String? _requestedTasbihDhikrId;
   bool _isDrawerOpen = false;
   bool _isReflectionFavorited = false;
   late String _currentLocationName;
   int _hijriOffset = 0;
   Timer? _periodicRefreshTimer;
+
+  void _handleOpenSalawatTasbih() {
+    setState(() {
+      _selectedNavIndex = 2;
+      _requestedTasbihDhikrId = 'salawat';
+    });
+    _tasbihKey.currentState?.selectDhikrById('salawat');
+  }
   StreamSubscription<LocationData>? _locationSubscription;
   bool _isLocationFallback = false;
   String? _locationStatusMessage;
@@ -111,6 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Duration? _remainingDuration;
   double _countdownProgress = 0.75;
   bool _isDrain = false;
+  bool _isCurrentSalah = false;
 
   // Dynamic Prayer List & Content State
   List<PrayerItem> _prayers = [];
@@ -140,12 +157,50 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Locale? _lastLocale;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final currentLocale = Localizations.localeOf(context);
+    if (_lastLocale != null && _lastLocale != currentLocale) {
+      _lastLocale = currentLocale;
+      _reEvaluateCurrentPrayerState();
+      _scheduleCurrentPrayerNotifications();
+      _scheduleForbiddenNotifications();
+    } else {
+      _lastLocale = currentLocale;
+    }
+  }
+
   @override
   void didUpdateWidget(covariant HomeScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentLocale != widget.currentLocale) {
       _reEvaluateCurrentPrayerState();
+      _scheduleCurrentPrayerNotifications();
+      _scheduleForbiddenNotifications();
     }
+  }
+
+  Future<void> _scheduleForbiddenNotifications() async {
+    final sunrise = _calculatedTimesMap['Sunrise'];
+    final dhuhr = _calculatedTimesMap['Dhuhr'];
+    final maghrib = _calculatedTimesMap['Maghrib'];
+    if (sunrise == null || dhuhr == null || maghrib == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final notifForbiddenEnabled =
+        prefs.getBool('notif_enabled_forbidden_times') ?? true;
+    final notifService = widget.notificationService ?? NotificationService();
+
+    await notifService.scheduleForbiddenTimesNotifications(
+      sunrise: sunrise,
+      dhuhr: dhuhr,
+      maghrib: maghrib,
+      enabled: notifForbiddenEnabled,
+      localizations: mounted ? AppLocalizations.of(context) : null,
+    );
   }
 
   @override
@@ -159,14 +214,18 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
 
     final now = DateTime.now();
-    final loc = LocationService.savedLocation ?? LocationService.defaultFallbackLocation;
+    final loc =
+        LocationService.savedLocation ??
+        LocationService.defaultFallbackLocation;
 
     if (_calculatedTimesMap.isEmpty || _currentCalcDate == null) {
       await _applyLocationAndCalculate(loc);
       return;
     }
 
-    final calcParams = CalculationMethodMapper.getMethodForCountry(loc.countryCode);
+    final calcParams = CalculationMethodMapper.getMethodForCountry(
+      loc.countryCode,
+    );
     final coords = Coordinates(loc.latitude, loc.longitude);
     final calc = const PrayerTimesCalculator();
     final requiredCalcDate = calc.getIslamicCalculationDate(
@@ -175,8 +234,16 @@ class _HomeScreenState extends State<HomeScreen> {
       calculationParameters: calcParams,
     );
 
-    final reqDateOnly = DateTime(requiredCalcDate.year, requiredCalcDate.month, requiredCalcDate.day);
-    final curDateOnly = DateTime(_currentCalcDate!.year, _currentCalcDate!.month, _currentCalcDate!.day);
+    final reqDateOnly = DateTime(
+      requiredCalcDate.year,
+      requiredCalcDate.month,
+      requiredCalcDate.day,
+    );
+    final curDateOnly = DateTime(
+      _currentCalcDate!.year,
+      _currentCalcDate!.month,
+      _currentCalcDate!.day,
+    );
 
     if (reqDateOnly != curDateOnly) {
       await _applyLocationAndCalculate(loc);
@@ -190,7 +257,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final maghrib = _calculatedTimesMap['Maghrib'];
     final isha = _calculatedTimesMap['Isha'];
 
-    if (fajr == null || sunrise == null || dhuhr == null || asr == null || maghrib == null || isha == null) {
+    if (fajr == null ||
+        sunrise == null ||
+        dhuhr == null ||
+        asr == null ||
+        maghrib == null ||
+        isha == null) {
       return;
     }
 
@@ -205,7 +277,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (dbStatus != null && dbStatus != PrayerStatus.pending) return dbStatus;
       if (isSameDay) {
         for (final p in _prayers) {
-          if (p.name == name && p.status != PrayerStatus.pending) return p.status;
+          if (p.name == name && p.status != PrayerStatus.pending) {
+            return p.status;
+          }
         }
       }
       return dbStatus ?? PrayerStatus.pending;
@@ -225,12 +299,37 @@ class _HomeScreenState extends State<HomeScreen> {
     final tomorrowFajrStr = _formatTime12h(fajr.add(const Duration(days: 1)));
 
     final rawList = [
-      PrayerItem(name: 'Fajr', time: fajrStr, endTime: sunriseStr, status: mergedLogs['Fajr']!),
+      PrayerItem(
+        name: 'Fajr',
+        time: fajrStr,
+        endTime: sunriseStr,
+        status: mergedLogs['Fajr']!,
+      ),
       PrayerItem(name: 'Sunrise', time: sunriseStr, isSunrise: true),
-      PrayerItem(name: 'Dhuhr', time: dhuhrStr, endTime: asrStr, status: mergedLogs['Dhuhr']!),
-      PrayerItem(name: 'Asr', time: asrStr, endTime: maghribStr, status: mergedLogs['Asr']!),
-      PrayerItem(name: 'Maghrib', time: maghribStr, endTime: ishaStr, status: mergedLogs['Maghrib']!),
-      PrayerItem(name: 'Isha', time: ishaStr, endTime: tomorrowFajrStr, status: mergedLogs['Isha']!),
+      PrayerItem(
+        name: 'Dhuhr',
+        time: dhuhrStr,
+        endTime: asrStr,
+        status: mergedLogs['Dhuhr']!,
+      ),
+      PrayerItem(
+        name: 'Asr',
+        time: asrStr,
+        endTime: maghribStr,
+        status: mergedLogs['Asr']!,
+      ),
+      PrayerItem(
+        name: 'Maghrib',
+        time: maghribStr,
+        endTime: ishaStr,
+        status: mergedLogs['Maghrib']!,
+      ),
+      PrayerItem(
+        name: 'Isha',
+        time: ishaStr,
+        endTime: tomorrowFajrStr,
+        status: mergedLogs['Isha']!,
+      ),
     ];
 
     if (!mounted) return;
@@ -252,11 +351,18 @@ class _HomeScreenState extends State<HomeScreen> {
     _currentLocationData = loc;
     final deviceOffsetHours = DateTime.now().timeZoneOffset.inMinutes / 60.0;
     final geoOffsetHours = loc.longitude / 15.0;
-    _isTimezoneMismatched = !loc.isFallback && (deviceOffsetHours - geoOffsetHours).abs() >= 2.5;
-    final calcParams = CalculationMethodMapper.getMethodForCountry(loc.countryCode);
+    _isTimezoneMismatched =
+        !loc.isFallback && (deviceOffsetHours - geoOffsetHours).abs() >= 2.5;
+    final calcParams = CalculationMethodMapper.getMethodForCountry(
+      loc.countryCode,
+    );
     final calc = const PrayerTimesCalculator();
     final coords = Coordinates(loc.latitude, loc.longitude);
-    final calcDate = _getIslamicCalculationDate(DateTime.now(), coords, calcParams);
+    final calcDate = _getIslamicCalculationDate(
+      DateTime.now(),
+      coords,
+      calcParams,
+    );
     final prayerTimes = calc.calculatePrayerTimes(
       coordinates: coords,
       date: calcDate,
@@ -293,7 +399,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final asrStr = _formatTime12h(prayerTimes.asr);
     final maghribStr = _formatTime12h(prayerTimes.maghrib);
     final ishaStr = _formatTime12h(prayerTimes.isha);
-    final tomorrowFajrStr = _formatTime12h(prayerTimes.fajr.add(const Duration(days: 1)));
+    final tomorrowFajrStr = _formatTime12h(
+      prayerTimes.fajr.add(const Duration(days: 1)),
+    );
 
     final rawList = [
       PrayerItem(name: 'Fajr', time: fajrStr, endTime: sunriseStr),
@@ -324,7 +432,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return '${hour.toString().padLeft(2, '0')}:$minute $ampm';
   }
 
-  DateTime _getIslamicCalculationDate([DateTime? referenceDate, Coordinates? coords, CalculationParameters? params]) {
+  DateTime _getIslamicCalculationDate([
+    DateTime? referenceDate,
+    Coordinates? coords,
+    CalculationParameters? params,
+  ]) {
     final now = referenceDate ?? DateTime.now();
     if (coords != null && params != null) {
       final calc = const PrayerTimesCalculator();
@@ -334,7 +446,11 @@ class _HomeScreenState extends State<HomeScreen> {
         calculationParameters: params,
       );
     } else if (now.hour < 4) {
-      return DateTime(now.year, now.month, now.day).subtract(const Duration(days: 1));
+      return DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(const Duration(days: 1));
     }
     return DateTime(now.year, now.month, now.day);
   }
@@ -347,9 +463,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<Map<String, PrayerStatus>> _loadTodayPrayerLogs(String dateStr) async {
     try {
       final db = AppDatabase.instance();
-      final logs = await (db.select(db.prayerLogsTable)
-            ..where((tbl) => tbl.date.equals(dateStr)))
-          .get();
+      final logs = await (db.select(
+        db.prayerLogsTable,
+      )..where((tbl) => tbl.date.equals(dateStr))).get();
       final map = <String, PrayerStatus>{};
       for (final log in logs) {
         if (log.status == 'prayed') {
@@ -366,22 +482,34 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _savePrayerLog(String dateStr, String prayerName, PrayerStatus status) async {
+  Future<void> _savePrayerLog(
+    String dateStr,
+    String prayerName,
+    PrayerStatus status,
+  ) async {
     try {
       final db = AppDatabase.instance();
-      final existing = await (db.select(db.prayerLogsTable)
-            ..where((tbl) => (tbl.date.equals(dateStr)) & (tbl.prayerName.equals(prayerName))))
-          .getSingleOrNull();
+      final existing =
+          await (db.select(db.prayerLogsTable)..where(
+                (tbl) =>
+                    (tbl.date.equals(dateStr)) &
+                    (tbl.prayerName.equals(prayerName)),
+              ))
+              .getSingleOrNull();
 
       if (existing != null) {
-        await (db.update(db.prayerLogsTable)..where((tbl) => tbl.id.equals(existing.id))).write(
+        await (db.update(
+          db.prayerLogsTable,
+        )..where((tbl) => tbl.id.equals(existing.id))).write(
           PrayerLogsTableCompanion(
             status: Value(status.name),
             updatedAt: Value(DateTime.now()),
           ),
         );
       } else {
-        await db.into(db.prayerLogsTable).insert(
+        await db
+            .into(db.prayerLogsTable)
+            .insert(
               PrayerLogsTableCompanion.insert(
                 date: dateStr,
                 prayerName: prayerName,
@@ -445,7 +573,9 @@ class _HomeScreenState extends State<HomeScreen> {
         headerLabel = currentSalahLabel;
         heroPrayerName = 'Fajr';
         currentActivePrayerName = 'Fajr';
-        periodText = l10n?.periodRange(fajrStr, sunriseStr) ?? 'Period: $fajrStr – $sunriseStr';
+        periodText =
+            l10n?.periodRange(fajrStr, sunriseStr) ??
+            'Period: $fajrStr – $sunriseStr';
         targetTime = sunrise;
         pStart = fajr;
         pEnd = sunrise;
@@ -473,7 +603,9 @@ class _HomeScreenState extends State<HomeScreen> {
         headerLabel = currentSalahLabel;
         heroPrayerName = 'Dhuhr';
         currentActivePrayerName = 'Dhuhr';
-        periodText = l10n?.periodRange(dhuhrStr, asrStr) ?? 'Period: $dhuhrStr – $asrStr';
+        periodText =
+            l10n?.periodRange(dhuhrStr, asrStr) ??
+            'Period: $dhuhrStr – $asrStr';
         targetTime = asr;
         pStart = dhuhr;
         pEnd = asr;
@@ -492,7 +624,9 @@ class _HomeScreenState extends State<HomeScreen> {
         headerLabel = currentSalahLabel;
         heroPrayerName = 'Asr';
         currentActivePrayerName = 'Asr';
-        periodText = l10n?.periodRange(asrStr, maghribStr) ?? 'Period: $asrStr – $maghribStr';
+        periodText =
+            l10n?.periodRange(asrStr, maghribStr) ??
+            'Period: $asrStr – $maghribStr';
         targetTime = maghrib;
         pStart = asr;
         pEnd = maghrib;
@@ -511,7 +645,9 @@ class _HomeScreenState extends State<HomeScreen> {
         headerLabel = currentSalahLabel;
         heroPrayerName = 'Maghrib';
         currentActivePrayerName = 'Maghrib';
-        periodText = l10n?.periodRange(maghribStr, ishaStr) ?? 'Period: $maghribStr – $ishaStr';
+        periodText =
+            l10n?.periodRange(maghribStr, ishaStr) ??
+            'Period: $maghribStr – $ishaStr';
         targetTime = isha;
         pStart = maghrib;
         pEnd = isha;
@@ -530,7 +666,9 @@ class _HomeScreenState extends State<HomeScreen> {
         headerLabel = currentSalahLabel;
         heroPrayerName = 'Isha';
         currentActivePrayerName = 'Isha';
-        periodText = l10n?.periodRange(ishaStr, tomorrowFajrStr) ?? 'Period: $ishaStr – $tomorrowFajrStr';
+        periodText =
+            l10n?.periodRange(ishaStr, tomorrowFajrStr) ??
+            'Period: $ishaStr – $tomorrowFajrStr';
         targetTime = tomorrowFajr;
         pStart = isha;
         pEnd = tomorrowFajr;
@@ -541,7 +679,8 @@ class _HomeScreenState extends State<HomeScreen> {
         currentActivePrayerName = null;
         periodText = isSameDayFajr
             ? (l10n?.startsAt(tomorrowFajrStr) ?? 'Starts at $tomorrowFajrStr')
-            : 'Tomorrow at $tomorrowFajrStr';
+            : (l10n?.tomorrowAt(tomorrowFajrStr) ??
+                'Tomorrow at $tomorrowFajrStr');
         targetTime = tomorrowFajr;
         pStart = isha;
         pEnd = tomorrowFajr;
@@ -579,7 +718,10 @@ class _HomeScreenState extends State<HomeScreen> {
         evalStatus = PrayerStatus.pending;
       }
       // RULE 2: Past expired prayer (end time has passed) auto-evaluates to missed if user has not logged prayed/missed
-      else if (_isDatabaseHydrated && !item.isSunrise && endT != null && now.isAfter(endT)) {
+      else if (_isDatabaseHydrated &&
+          !item.isSunrise &&
+          endT != null &&
+          now.isAfter(endT)) {
         if (evalStatus == PrayerStatus.pending) {
           evalStatus = PrayerStatus.missed;
         }
@@ -597,7 +739,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final sunriseItem = rawPrayers.firstWhere(
       (p) => p.isSunrise || p.name == 'Sunrise',
-      orElse: () => const PrayerItem(name: 'Sunrise', time: '06:05 AM', isSunrise: true),
+      orElse: () =>
+          const PrayerItem(name: 'Sunrise', time: '06:05 AM', isSunrise: true),
     );
 
     String heroStartStr = fajrStr;
@@ -638,7 +781,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _nextPrayerTime = targetTime;
     _heroPeriodStartTime = pStart;
     _heroPeriodEndTime = pEnd;
-    _isDrain = (headerLabel == 'CURRENT SALAH');
+    final isCurrent = currentActivePrayerName != null;
+    _isCurrentSalah = isCurrent;
+    _isDrain = isCurrent;
     _prayers = updatedList;
 
     final stringLogs = logs.map((k, v) => MapEntry(k, v.name));
@@ -670,7 +815,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final notifAdhanMaster =
         adhanAudioOverride ?? (prefs.getBool('notif_enabled_adhan') ?? true);
     final adhanVoice =
-        voiceOverride ?? (prefs.getString('adhan_voice') ?? 'Makkah (Ali Mulla)');
+        voiceOverride ??
+        (prefs.getString('adhan_voice') ?? 'Makkah (Ali Mulla)');
 
     if (!notifPrayerMaster) {
       await notifService.cancelAllPrayerNotifications();
@@ -678,12 +824,16 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final enabledMap = <String, bool>{
-      'Fajr': notifPrayerMaster && (prefs.getBool('notif_enabled_fajr') ?? true),
+      'Fajr':
+          notifPrayerMaster && (prefs.getBool('notif_enabled_fajr') ?? true),
       'Sunrise': false,
-      'Dhuhr': notifPrayerMaster && (prefs.getBool('notif_enabled_dhuhr') ?? true),
+      'Dhuhr':
+          notifPrayerMaster && (prefs.getBool('notif_enabled_dhuhr') ?? true),
       'Asr': notifPrayerMaster && (prefs.getBool('notif_enabled_asr') ?? true),
-      'Maghrib': notifPrayerMaster && (prefs.getBool('notif_enabled_maghrib') ?? true),
-      'Isha': notifPrayerMaster && (prefs.getBool('notif_enabled_isha') ?? true),
+      'Maghrib':
+          notifPrayerMaster && (prefs.getBool('notif_enabled_maghrib') ?? true),
+      'Isha':
+          notifPrayerMaster && (prefs.getBool('notif_enabled_isha') ?? true),
     };
 
     final fajr = _calculatedTimesMap['Fajr'];
@@ -709,7 +859,8 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     } else {
       for (final p in _prayers) {
-        if (p.status == PrayerStatus.prayed || p.status == PrayerStatus.missed) {
+        if (p.status == PrayerStatus.prayed ||
+            p.status == PrayerStatus.missed) {
           completedPrayers.add(p.name);
         }
       }
@@ -731,12 +882,19 @@ class _HomeScreenState extends State<HomeScreen> {
     final savedMethod = prefs.getString('calc_method');
     final savedMadhab = prefs.getString('calc_madhab');
 
-    final calcParams = CalculationMethodMapper.getMethodByName(savedMethod, loc.countryCode);
+    final calcParams = CalculationMethodMapper.getMethodByName(
+      savedMethod,
+      loc.countryCode,
+    );
     calcParams.madhab = CalculationMethodMapper.getMadhabByName(savedMadhab);
 
     final calc = const PrayerTimesCalculator();
     final coords = Coordinates(loc.latitude, loc.longitude);
-    final calcDate = _getIslamicCalculationDate(DateTime.now(), coords, calcParams);
+    final calcDate = _getIslamicCalculationDate(
+      DateTime.now(),
+      coords,
+      calcParams,
+    );
     final prayerTimes = calc.calculatePrayerTimes(
       coordinates: coords,
       date: calcDate,
@@ -757,7 +915,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (dbStatus != null && dbStatus != PrayerStatus.pending) return dbStatus;
       if (isSameDay) {
         for (final p in _prayers) {
-          if (p.name == name && p.status != PrayerStatus.pending) return p.status;
+          if (p.name == name && p.status != PrayerStatus.pending) {
+            return p.status;
+          }
         }
       }
       return dbStatus ?? PrayerStatus.pending;
@@ -783,20 +943,48 @@ class _HomeScreenState extends State<HomeScreen> {
     final asrStr = _formatTime12h(prayerTimes.asr);
     final maghribStr = _formatTime12h(prayerTimes.maghrib);
     final ishaStr = _formatTime12h(prayerTimes.isha);
-    final tomorrowFajrStr = _formatTime12h(prayerTimes.fajr.add(const Duration(days: 1)));
+    final tomorrowFajrStr = _formatTime12h(
+      prayerTimes.fajr.add(const Duration(days: 1)),
+    );
 
     final rawList = [
-      PrayerItem(name: 'Fajr', time: fajrStr, endTime: sunriseStr, status: mergedLogs['Fajr']!),
+      PrayerItem(
+        name: 'Fajr',
+        time: fajrStr,
+        endTime: sunriseStr,
+        status: mergedLogs['Fajr']!,
+      ),
       PrayerItem(name: 'Sunrise', time: sunriseStr, isSunrise: true),
-      PrayerItem(name: 'Dhuhr', time: dhuhrStr, endTime: asrStr, status: mergedLogs['Dhuhr']!),
-      PrayerItem(name: 'Asr', time: asrStr, endTime: maghribStr, status: mergedLogs['Asr']!),
-      PrayerItem(name: 'Maghrib', time: maghribStr, endTime: ishaStr, status: mergedLogs['Maghrib']!),
-      PrayerItem(name: 'Isha', time: ishaStr, endTime: tomorrowFajrStr, status: mergedLogs['Isha']!),
+      PrayerItem(
+        name: 'Dhuhr',
+        time: dhuhrStr,
+        endTime: asrStr,
+        status: mergedLogs['Dhuhr']!,
+      ),
+      PrayerItem(
+        name: 'Asr',
+        time: asrStr,
+        endTime: maghribStr,
+        status: mergedLogs['Asr']!,
+      ),
+      PrayerItem(
+        name: 'Maghrib',
+        time: maghribStr,
+        endTime: ishaStr,
+        status: mergedLogs['Maghrib']!,
+      ),
+      PrayerItem(
+        name: 'Isha',
+        time: ishaStr,
+        endTime: tomorrowFajrStr,
+        status: mergedLogs['Isha']!,
+      ),
     ];
 
     final deviceOffsetHours = DateTime.now().timeZoneOffset.inMinutes / 60.0;
     final geoOffsetHours = loc.longitude / 15.0;
-    final isMismatched = !loc.isFallback && (deviceOffsetHours - geoOffsetHours).abs() >= 2.5;
+    final isMismatched =
+        !loc.isFallback && (deviceOffsetHours - geoOffsetHours).abs() >= 2.5;
 
     if (!mounted) return;
     setState(() {
@@ -821,7 +1009,8 @@ class _HomeScreenState extends State<HomeScreen> {
     await _scheduleCurrentPrayerNotifications(prayerLogs: savedLogs);
 
     final notifService = widget.notificationService ?? NotificationService();
-    final notifForbiddenEnabled = prefs.getBool('notif_enabled_forbidden_times') ?? true;
+    final notifForbiddenEnabled =
+        prefs.getBool('notif_enabled_forbidden_times') ?? true;
     await notifService.scheduleForbiddenTimesNotifications(
       sunrise: prayerTimes.sunrise,
       dhuhr: prayerTimes.dhuhr,
@@ -856,10 +1045,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Trigger First-Launch Daily Reflection Pop-up once per daily refresh
         final now = DateTime.now();
-        final todayDateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-        final lastShownPopupDate = prefs.getString('last_shown_daily_reflection_popup_date');
+        final todayDateStr =
+            '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+        final lastShownPopupDate = prefs.getString(
+          'last_shown_daily_reflection_popup_date',
+        );
         if (lastShownPopupDate != todayDateStr) {
-          await prefs.setString('last_shown_daily_reflection_popup_date', todayDateStr);
+          await prefs.setString(
+            'last_shown_daily_reflection_popup_date',
+            todayDateStr,
+          );
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted && _reflectionItem != null) {
               DailyReflectionPopup.show(
@@ -879,14 +1074,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // 1. Instant startup hydration from local cache or memory
     try {
-      final cachedLoc = LocationService.savedLocation ?? await locService.getCachedLocation();
+      final cachedLoc =
+          LocationService.savedLocation ?? await locService.getCachedLocation();
       if (cachedLoc != null && mounted) {
         await _applyLocationAndCalculate(cachedLoc);
 
-        if (todayReflection != null && _calculatedTimesMap.containsKey('Fajr')) {
-          final notifService = widget.notificationService ?? NotificationService();
+        if (todayReflection != null &&
+            _calculatedTimesMap.containsKey('Fajr')) {
+          final notifService =
+              widget.notificationService ?? NotificationService();
           final prefs = await SharedPreferences.getInstance();
-          final reflectionEnabled = prefs.getBool('notif_enabled_daily_reflection') ?? true;
+          final reflectionEnabled =
+              prefs.getBool('notif_enabled_daily_reflection') ?? true;
           final fajrTime = _calculatedTimesMap['Fajr']!;
           final reflectionTime = fajrTime.add(const Duration(minutes: 30));
 
@@ -906,20 +1105,26 @@ class _HomeScreenState extends State<HomeScreen> {
         await _applyLocationAndCalculate(resolvedLoc);
       }
     } catch (_) {
-      if (mounted && (_prayers.isEmpty || _currentLocationName == 'Locating...')) {
-        await _applyLocationAndCalculate(LocationService.defaultFallbackLocation);
+      if (mounted &&
+          (_prayers.isEmpty || _currentLocationName == 'Locating...')) {
+        await _applyLocationAndCalculate(
+          LocationService.defaultFallbackLocation,
+        );
       }
     }
 
     // 3. Continuous Hardware GPS Precision Stream
-    _locationSubscription = locService.listenToHighAccuracyUpdates().listen((freshLoc) {
+    _locationSubscription = locService.listenToHighAccuracyUpdates().listen((
+      freshLoc,
+    ) {
       if (mounted) {
         _applyLocationAndCalculate(freshLoc);
       }
     });
 
     // Safety net: if still unpopulated for any unexpected reason
-    if (mounted && (_prayers.isEmpty || _currentLocationName == 'Locating...')) {
+    if (mounted &&
+        (_prayers.isEmpty || _currentLocationName == 'Locating...')) {
       await _applyLocationAndCalculate(LocationService.defaultFallbackLocation);
     }
   }
@@ -930,17 +1135,25 @@ class _HomeScreenState extends State<HomeScreen> {
     if (item.isSunrise) return;
 
     if (item.isFuture && newStatus == PrayerStatus.prayed) {
+      final l10n = AppLocalizations.of(context);
+      final localizedPrayer =
+          NotificationService.getLocalizedPrayerName(l10n, item.name);
+      final message =
+          l10n?.prayerNotStartedYet(localizedPrayer, item.time) ??
+          '$localizedPrayer prayer time has not started yet (${item.time})';
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${item.name} prayer time has not started yet (${item.time})'),
+          content: Text(message),
           duration: const Duration(seconds: 2),
         ),
       );
       return;
     }
 
-    final prevPrayedCount = _prayers.where((p) => !p.isSunrise && p.status == PrayerStatus.prayed).length;
+    final prevPrayedCount = _prayers
+        .where((p) => !p.isSunrise && p.status == PrayerStatus.prayed)
+        .length;
 
     AppHaptics.prayerStatusChanged();
     final updatedItem = item.copyWith(status: newStatus);
@@ -948,7 +1161,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final newPrayers = List<PrayerItem>.from(_prayers);
     newPrayers[index] = updatedItem;
 
-    final newPrayedCount = newPrayers.where((p) => !p.isSunrise && p.status == PrayerStatus.prayed).length;
+    final newPrayedCount = newPrayers
+        .where((p) => !p.isSunrise && p.status == PrayerStatus.prayed)
+        .length;
 
     final logsMap = <String, PrayerStatus>{};
     for (final p in newPrayers) {
@@ -987,7 +1202,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _handleToggleFavorite() async {
-    final item = _reflectionItem ?? widget.reflectionItem ?? HomeScreen.defaultReflection;
+    final item =
+        _reflectionItem ??
+        widget.reflectionItem ??
+        HomeScreen.defaultReflection;
     try {
       final repo = DailyContentRepository(AppDatabase.instance());
       await repo.toggleFavorite(item.id);
@@ -1025,128 +1243,168 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody(BuildContext context) {
-    final reflection = _reflectionItem ?? widget.reflectionItem ?? HomeScreen.defaultReflection;
+    final reflection =
+        _reflectionItem ??
+        widget.reflectionItem ??
+        HomeScreen.defaultReflection;
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
-    final dynamicBottomInset = 58.0 + (bottomPadding > 0 ? 8.0 + bottomPadding : 12.0) + 20.0;
+    final dynamicBottomInset =
+        58.0 + (bottomPadding > 0 ? 8.0 + bottomPadding : 12.0) + 20.0;
 
-    return IndexedStack(
-      index: _selectedNavIndex,
-      children: [
-        // Tab 0: Home Dashboard
-        TickerMode(
-          enabled: _selectedNavIndex == 0,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.only(
-              left: 16.0,
-              right: 16.0,
-              top: 16.0,
-              bottom: dynamicBottomInset, // Dynamic space for frosted glass nav bar
+    return Center(
+      child: ConstrainedBox(
+        key: const ValueKey('home_content_shell'),
+        constraints: const BoxConstraints(maxWidth: 620.0),
+        child: IndexedStack(
+          index: _selectedNavIndex,
+          children: [
+            // Tab 0: Home Dashboard
+            TickerMode(
+              enabled: _selectedNavIndex == 0,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  top: 16.0,
+                  bottom:
+                      dynamicBottomInset, // Dynamic space for floating nav bar
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // 1. Hijri & Location Strip
+                    RepaintBoundary(
+                      child: HijriStrip(
+                        locationName: _currentLocationName,
+                        hijriOffset: _hijriOffset,
+                        isTimezoneMismatched: _isTimezoneMismatched,
+                        isLocationFallback: _isLocationFallback,
+                        locationStatusMessage: _locationStatusMessage,
+                        onLocationBannerTap: () async {
+                          await LocationService().openLocationSettings();
+                          await _initLocationAndPrayers();
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 2. Countdown Hero Card
+                    RepaintBoundary(
+                      child: PrayerCountdownHero(
+                        headerLabel: _heroHeaderLabel,
+                        nextPrayerName: _nextPrayerName,
+                        periodText: _heroPeriodText,
+                        sunriseTime: _sunriseTimeStr,
+                        sunsetTime: _sunsetTimeStr,
+                        nextPrayerTime: _nextPrayerTime,
+                        periodStartTime: _heroPeriodStartTime,
+                        periodEndTime: _heroPeriodEndTime,
+                        startTimeStr: _heroStartTimeStr,
+                        endTimeStr: _heroEndTimeStr,
+                        remainingDuration: _nextPrayerTime == null
+                            ? _remainingDuration
+                            : null,
+                        progress: _countdownProgress,
+                        isDrain: _isDrain,
+                        isCurrentSalah: _isCurrentSalah,
+                        animate: widget.animateHero,
+                        onTimerExpired: _reEvaluateCurrentPrayerState,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 3. Prayer List Card
+                    RepaintBoundary(
+                      child: PrayerListCard(
+                        prayers: _prayers.isNotEmpty
+                            ? _prayers
+                            : widget.prayers,
+                        onStatusChanged: _handleStatusChanged,
+                        sunriseDateTime: _calculatedTimesMap['Sunrise'],
+                        dhuhrDateTime: _calculatedTimesMap['Dhuhr'],
+                        maghribDateTime: _calculatedTimesMap['Maghrib'],
+                        notificationService: widget.notificationService,
+                        isFriday: widget.overrideIsFriday,
+                        nowOverride: widget.nowOverride,
+                      ),
+                    ),
+
+                    // Friday Companion Suite (conditionally rendered strictly on Friday)
+                    if ((widget.overrideIsFriday ??
+                        ((widget.nowOverride ?? DateTime.now()).weekday ==
+                            DateTime.friday))) ...[
+                      const SizedBox(height: 16),
+                      RepaintBoundary(
+                        child: FridayCompanionSuite(
+                          overrideIsFriday: widget.overrideIsFriday,
+                          nowOverride: widget.nowOverride,
+                          asrDateTime: _calculatedTimesMap['Asr'],
+                          maghribDateTime: _calculatedTimesMap['Maghrib'],
+                          onOpenSalawatTasbih: _handleOpenSalawatTasbih,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+
+                    // 4. Daily Reflection Card (Repositioned to the bottom)
+                    RepaintBoundary(
+                      child: DailyReflectionCard(
+                        content: reflection,
+                        isFavorited: _isReflectionFavorited,
+                        onToggleFavorite: _handleToggleFavorite,
+                        onRefresh: _handleRefreshReflection,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // 1. Hijri & Location Strip
-                RepaintBoundary(
-                  child: HijriStrip(
-                    locationName: _currentLocationName,
-                    hijriOffset: _hijriOffset,
-                    isTimezoneMismatched: _isTimezoneMismatched,
-                    isLocationFallback: _isLocationFallback,
-                    locationStatusMessage: _locationStatusMessage,
-                    onLocationBannerTap: () async {
-                      await LocationService().openLocationSettings();
-                      await _initLocationAndPrayers();
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
 
-                // 2. Countdown Hero Card
-                RepaintBoundary(
-                  child: PrayerCountdownHero(
-                    headerLabel: _heroHeaderLabel,
-                    nextPrayerName: _nextPrayerName,
-                    periodText: _heroPeriodText,
-                    sunriseTime: _sunriseTimeStr,
-                    sunsetTime: _sunsetTimeStr,
-                    nextPrayerTime: _nextPrayerTime,
-                    periodStartTime: _heroPeriodStartTime,
-                    periodEndTime: _heroPeriodEndTime,
-                    startTimeStr: _heroStartTimeStr,
-                    endTimeStr: _heroEndTimeStr,
-                    remainingDuration: _nextPrayerTime == null ? _remainingDuration : null,
-                    progress: _countdownProgress,
-                    isDrain: _isDrain,
-                    animate: widget.animateHero,
-                    onTimerExpired: _reEvaluateCurrentPrayerState,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 3. Prayer List Card
-                RepaintBoundary(
-                  child: PrayerListCard(
-                    prayers: _prayers.isNotEmpty ? _prayers : widget.prayers,
-                    onStatusChanged: _handleStatusChanged,
-                    sunriseDateTime: _calculatedTimesMap['Sunrise'],
-                    dhuhrDateTime: _calculatedTimesMap['Dhuhr'],
-                    maghribDateTime: _calculatedTimesMap['Maghrib'],
-                    notificationService: widget.notificationService,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 4. Daily Reflection Card (Repositioned to the bottom)
-                RepaintBoundary(
-                  child: DailyReflectionCard(
-                    content: reflection,
-                    isFavorited: _isReflectionFavorited,
-                    onToggleFavorite: _handleToggleFavorite,
-                    onRefresh: _handleRefreshReflection,
-                  ),
-                ),
-              ],
+            // Tab 1: Duas & Azkar
+            TickerMode(
+              enabled: _selectedNavIndex == 1,
+              child: const DuasScreen(),
             ),
-          ),
-        ),
 
-        // Tab 1: Duas & Azkar
-        TickerMode(
-          enabled: _selectedNavIndex == 1,
-          child: const DuasScreen(),
-        ),
+            // Tab 2: Tasbih Counter
+            TickerMode(
+              enabled: _selectedNavIndex == 2,
+              child: TasbihScreen(
+                key: _tasbihKey,
+                overrideIsFriday: widget.overrideIsFriday,
+                nowOverride: widget.nowOverride,
+                targetDhikrId: _requestedTasbihDhikrId,
+              ),
+            ),
 
-        // Tab 2: Tasbih Counter
-        TickerMode(
-          enabled: _selectedNavIndex == 2,
-          child: const TasbihScreen(),
-        ),
+            // Tab 3: Qibla Finder
+            TickerMode(
+              enabled: _selectedNavIndex == 3,
+              child: QiblaScreen(
+                isActive: _selectedNavIndex == 3,
+                initialLocation:
+                    _currentLocationData ?? LocationService.savedLocation,
+              ),
+            ),
 
-        // Tab 3: Qibla Finder
-        TickerMode(
-          enabled: _selectedNavIndex == 3,
-          child: QiblaScreen(
-            isActive: _selectedNavIndex == 3,
-            initialLocation: _currentLocationData ?? LocationService.savedLocation,
-          ),
+            // Tab 4: Hijri Calendar
+            TickerMode(
+              enabled: _selectedNavIndex == 4,
+              child: HijriCalendarScreen(
+                initialOffset: _hijriOffset,
+                onOffsetChanged: (newOffset) {
+                  if (mounted) {
+                    setState(() {
+                      _hijriOffset = newOffset;
+                    });
+                  }
+                },
+              ),
+            ),
+          ],
         ),
-
-        // Tab 4: Hijri Calendar
-        TickerMode(
-          enabled: _selectedNavIndex == 4,
-          child: HijriCalendarScreen(
-            initialOffset: _hijriOffset,
-            onOffsetChanged: (newOffset) {
-              if (mounted) {
-                setState(() {
-                  _hijriOffset = newOffset;
-                });
-              }
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -1165,7 +1423,8 @@ class _HomeScreenState extends State<HomeScreen> {
         canPop: _selectedNavIndex == 0 && !_isDrawerOpen,
         onPopInvokedWithResult: (bool didPop, Object? result) {
           if (didPop) return;
-          if (_isDrawerOpen || (_scaffoldKey.currentState?.isDrawerOpen ?? false)) {
+          if (_isDrawerOpen ||
+              (_scaffoldKey.currentState?.isDrawerOpen ?? false)) {
             _scaffoldKey.currentState?.closeDrawer();
             return;
           }
@@ -1204,9 +1463,9 @@ class _HomeScreenState extends State<HomeScreen> {
             title: Text(
               'Salah Companion',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: colors.textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             actions: [
               IconButton(
@@ -1226,41 +1485,59 @@ class _HomeScreenState extends State<HomeScreen> {
                         notificationService: widget.notificationService,
                         onPrayerNotificationsToggled: (enabled) async {
                           if (!enabled) {
-                            final notifService = widget.notificationService ?? NotificationService();
+                            final notifService =
+                                widget.notificationService ??
+                                NotificationService();
                             await notifService.cancelAllPrayerNotifications();
                           } else {
-                            await _scheduleCurrentPrayerNotifications(prayerNotifOverride: true);
+                            await _scheduleCurrentPrayerNotifications(
+                              prayerNotifOverride: true,
+                            );
                           }
                         },
                         onAdhanAudioToggled: (enabled) async {
-                          await _scheduleCurrentPrayerNotifications(adhanAudioOverride: enabled);
+                          await _scheduleCurrentPrayerNotifications(
+                            adhanAudioOverride: enabled,
+                          );
                         },
                         onAdhanVoiceChanged: (voice) async {
-                          await _scheduleCurrentPrayerNotifications(voiceOverride: voice);
+                          await _scheduleCurrentPrayerNotifications(
+                            voiceOverride: voice,
+                          );
                         },
                         onForbiddenTimesNotificationsToggled: (enabled) async {
-                          final notifService = widget.notificationService ?? NotificationService();
+                          final notifService =
+                              widget.notificationService ??
+                              NotificationService();
                           if (enabled) {
                             final sunrise = _calculatedTimesMap['Sunrise'];
                             final dhuhr = _calculatedTimesMap['Dhuhr'];
                             final maghrib = _calculatedTimesMap['Maghrib'];
-                            if (sunrise != null && dhuhr != null && maghrib != null) {
-                              await notifService.scheduleForbiddenTimesNotifications(
-                                sunrise: sunrise,
-                                dhuhr: dhuhr,
-                                maghrib: maghrib,
-                                enabled: true,
-                                localizations: mounted ? AppLocalizations.of(context) : null,
-                              );
+                            if (sunrise != null &&
+                                dhuhr != null &&
+                                maghrib != null) {
+                              await notifService
+                                  .scheduleForbiddenTimesNotifications(
+                                    sunrise: sunrise,
+                                    dhuhr: dhuhr,
+                                    maghrib: maghrib,
+                                    enabled: true,
+                                    localizations: mounted
+                                        ? AppLocalizations.of(context)
+                                        : null,
+                                  );
                             }
                           } else {
-                            await notifService.cancelForbiddenTimesNotifications();
+                            await notifService
+                                .cancelForbiddenTimesNotifications();
                           }
                         },
                       ),
                     ),
                   );
-                  final loc = LocationService.savedLocation ?? LocationService.defaultFallbackLocation;
+                  final loc =
+                      LocationService.savedLocation ??
+                      LocationService.defaultFallbackLocation;
                   await _applyLocationAndCalculate(loc);
                 },
               ),
@@ -1276,11 +1553,9 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Stack(
               children: [
                 // Active Tab Content Viewport
-                Positioned.fill(
-                  child: _buildBody(context),
-                ),
+                Positioned.fill(child: _buildBody(context)),
 
-                // Frosted-Glass Bottom Navigation Bar (6 Tabs)
+                // Floating Bottom Navigation Bar (5 Tabs)
                 Positioned(
                   left: 0,
                   right: 0,
@@ -1302,4 +1577,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-

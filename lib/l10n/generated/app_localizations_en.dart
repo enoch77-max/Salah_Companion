@@ -948,6 +948,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'La ilaha illallah';
 
   @override
+  String get dhikrSalawat => 'Salawat';
+
+  @override
   String get dhikrSubhanAllahTranslation => 'Glory be to Allah';
 
   @override
@@ -962,6 +965,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dhikrLaIlahaIllallahTranslation =>
       'There is no deity except Allah';
+
+  @override
+  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+
+  @override
+  String get doSalawat => 'Do Salawat';
 
   @override
   String tasbihNextDhikr(String dhikr) {
@@ -998,7 +1007,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forbiddenTimesNotificationSubtitle =>
-      'Alerts for Sunrise, Zenith & Sunset prohibited windows';
+      'Alert for prohibited nafl time';
 
   @override
   String get forbiddenNaflUpcomingSunriseHeader =>
@@ -1033,4 +1042,174 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get forbiddenNaflConcludedBody =>
       'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
+
+  @override
+  String get solarTimingsTitle => 'Solar Timings';
+
+  @override
+  String get daylightWindowNote =>
+      'Daylight Window: Fajr ends promptly at sunrise. Maghrib begins at sunset.';
+
+  @override
+  String get prayerStarts => 'Starts';
+
+  @override
+  String get prayerStarted => 'Started';
+
+  @override
+  String get prayerEnds => 'Ends';
+
+  @override
+  String get badgeCurrent => 'CURRENT';
+
+  @override
+  String get badgeNext => 'NEXT';
+
+  @override
+  String get shuruqBadge => 'Shuruq';
+
+  @override
+  String get continueToPrayerTimes => 'Continue to Prayer Times';
+
+  @override
+  String tomorrowAt(String time) {
+    return 'Tomorrow at $time';
+  }
+
+  @override
+  String get fridayJumuahTitle => 'Jumu\'ah';
+
+  @override
+  String get fridayLocationLabel => 'Location';
+
+  @override
+  String get fridayAtMosque => 'At Mosque';
+
+  @override
+  String get fridayAtHome => 'At Home';
+
+  @override
+  String get fridaySunnahRulingsTitle => 'Friday Sunnah Rulings';
+
+  @override
+  String get fridayBeforeLabel => 'Before';
+
+  @override
+  String get fridayAfterLabel => 'After';
+
+  @override
+  String get fridayMosqueBeforeDesc =>
+      'Tahiyyat al-Masjid & general voluntary prayers until Khutbah begins.';
+
+  @override
+  String get fridayMosqueAfterDesc =>
+      '4 Sunnah Rak\'ahs (at mosque) or 2 Sunnah Rak\'ahs (if prayed at home).';
+
+  @override
+  String get fridayHomeBeforeDesc =>
+      '4 Sunnah Rak\'ahs before Dhuhr (for those praying Dhuhr at home).';
+
+  @override
+  String get fridayHomeAfterDesc =>
+      '2 Sunnah Rak\'ahs after Dhuhr (for those praying Dhuhr at home).';
+
+  @override
+  String get fridayClickToReadFull =>
+      'Tap to view authentic rulings and hadith references';
+
+  @override
+  String get fridaySuiteHeader => 'FRIDAY SUNNAH & SPECIAL DEEDS';
+
+  @override
+  String get fridayTodayOnly => 'Available on Friday';
+
+  @override
+  String get surahKahfTitle => 'Surah Al-Kahf';
+
+  @override
+  String get surahKahfBadge => 'Light Between Two Fridays';
+
+  @override
+  String get surahKahfHadith =>
+      'Whoever recites Surah Al-Kahf on Friday will have a light shining for him between the two Fridays. (Al-Bayhaqi)';
+
+  @override
+  String get markAsRead => 'Mark as Read';
+
+  @override
+  String get readCompleted => 'Completed';
+
+  @override
+  String get salawatTitle => 'Abundant Salawat upon the Prophet ﷺ';
+
+  @override
+  String get salawatBadge => 'Presented Directly';
+
+  @override
+  String get salawatHadith =>
+      'Increase your supplications for blessings upon me on Friday, for your supplications are presented to me. (Abu Dawud)';
+
+  @override
+  String get salawatCountLabel => 'Recitations Today';
+
+  @override
+  String get salawatTapBtn => 'Send Salawat (+1)';
+
+  @override
+  String get fridayEtiquettesTitle => 'Sunnahs & Etiquettes of Friday';
+
+  @override
+  String get fridayEtiquettesRef => 'Authentic Traditions of Friday';
+
+  @override
+  String get fridayGhusl => 'Ghusl (Ritual Bath) before prayer';
+
+  @override
+  String get fridaySiwak => 'Using the Siwak (Tooth-stick) & perfume';
+
+  @override
+  String get fridayCleanClothes => 'Wearing one\'s best and cleanest garments';
+
+  @override
+  String get fridayEarlyMosque => 'Arriving early to the mosque for Khutbah';
+
+  @override
+  String get istijabahTitle => 'Hour of Response (Sa\'at al-Istijabah)';
+
+  @override
+  String get istijabahBadge => 'Supplication Accepted';
+
+  @override
+  String get istijabahHadith =>
+      'On Friday there is an hour when no Muslim servant asks Allah for something good but He grants it to him — seek it in the last hour after Asr. (Abu Dawud, An-Nasa\'i)';
+
+  @override
+  String get fridayHadithGuideSheetTitle =>
+      'Sunnah Prayers of Friday: Hadith Guide';
+
+  @override
+  String get fridayHadithBeforeCardTitle => 'Before Jumu\'ah / Dhuhr Prayer';
+
+  @override
+  String get fridayHadithBeforeCardDesc =>
+      'At the mosque: When you enter, pray Tahiyyat al-Masjid (2 Rak\'ahs), then voluntary prayers until the Imam ascends the pulpit. At home (Dhuhr): Pray 4 Rak\'ahs Sunnah Mu\'akkadah before Dhuhr.';
+
+  @override
+  String get fridayHadithAfterMosqueTitle =>
+      'After Jumu\'ah at the Mosque (4 Rak\'ahs)';
+
+  @override
+  String get fridayHadithAfterMosqueDesc =>
+      'Abu Hurairah reported: The Messenger of Allah ﷺ said: \'When one of you prays Jumu\'ah, let him pray four Rak\'ahs after it.\' (Sahih Muslim 881)';
+
+  @override
+  String get fridayHadithAfterHomeTitle =>
+      'After Jumu\'ah at Home (2 Rak\'ahs)';
+
+  @override
+  String get fridayHadithAfterHomeDesc =>
+      'Ibn Umar reported: \'The Prophet ﷺ would not pray after Jumu\'ah until he departed, and then he would pray two Rak\'ahs in his house.\' (Sahih al-Bukhari 937, Sahih Muslim 882)';
+
+  @override
+  String get closeGuideBtn => 'Close Guide';
 }

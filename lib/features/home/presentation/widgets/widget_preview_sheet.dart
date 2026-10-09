@@ -8,15 +8,13 @@ import '../../../../l10n/generated/app_localizations.dart';
 class WidgetPreviewSheet extends StatefulWidget {
   final WidgetService? widgetService;
 
-  const WidgetPreviewSheet({
-    super.key,
-    this.widgetService,
-  });
+  const WidgetPreviewSheet({super.key, this.widgetService});
 
   static Future<void> show(BuildContext context) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (context) => const WidgetPreviewSheet(),
     );
@@ -26,7 +24,8 @@ class WidgetPreviewSheet extends StatefulWidget {
   State<WidgetPreviewSheet> createState() => _WidgetPreviewSheetState();
 }
 
-class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBindingObserver {
+class _WidgetPreviewSheetState extends State<WidgetPreviewSheet>
+    with WidgetsBindingObserver {
   late final WidgetService _service;
   final Map<String, int> _widgetCounts = {
     'small_salah': 0,
@@ -90,16 +89,25 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               backgroundColor: const Color(0xFF10B981),
               content: Row(
                 children: [
-                  const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                  const Icon(
+                    Icons.check_circle_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Pin request sent for "$title". Approve on screen!',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -148,16 +156,20 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
                 color: colors.primarySoft,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.widgets_rounded, color: colors.primary, size: 20),
+              child: Icon(
+                Icons.widgets_rounded,
+                color: colors.primary,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 'Widget Already Added',
                 style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -165,9 +177,9 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
         content: Text(
           'You already have the "$title" widget on your home screen!\n\nWould you like to add another copy to your home screen?',
           style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                color: colors.textSecondary,
-                height: 1.4,
-              ),
+            color: colors.textSecondary,
+            height: 1.4,
+          ),
         ),
         actions: [
           TextButton(
@@ -180,7 +192,9 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
               _triggerNativePin(type, title);
             },
             icon: const Icon(Icons.add_rounded, size: 18),
-            label: Text(AppLocalizations.of(ctx)?.widgetAddAnother ?? 'Add Another'),
+            label: Text(
+              AppLocalizations.of(ctx)?.widgetAddAnother ?? 'Add Another',
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: colors.primary,
               foregroundColor: Colors.white,
@@ -214,16 +228,20 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
                 color: colors.primarySoft,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.settings_suggest_rounded, color: colors.primary, size: 20),
+              child: Icon(
+                Icons.settings_suggest_rounded,
+                color: colors.primary,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 'Permission or Manual Add',
                 style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -236,38 +254,39 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
               Text(
                 'On some devices (Xiaomi, Poco, Oppo, Realme, Vivo), 1-tap widget pinning requires enabling "Home Screen Shortcuts" or "Display pop-up windows" in phone settings.',
                 style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
-                      color: colors.textSecondary,
-                      height: 1.4,
-                    ),
+                  color: colors.textSecondary,
+                  height: 1.4,
+                ),
               ),
               const SizedBox(height: 14),
               Text(
                 'Option 1: Allow Permission',
                 style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 'Tap "Open Settings" below -> Permissions -> Enable "Home screen shortcuts" or "Display pop-up windows".',
                 style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
-                      color: colors.textSecondary,
-                      fontSize: 11,
-                    ),
+                  color: colors.textSecondary,
+                  fontSize: 11,
+                ),
               ),
               const SizedBox(height: 14),
               Text(
                 'Option 2: Add Manually from Home Screen',
                 style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 6),
               _InstructionStep(
                 number: '1',
-                text: 'Go to your phone\'s Home Screen and touch & hold any empty space for 1 sec.',
+                text:
+                    'Go to your phone\'s Home Screen and touch & hold any empty space for 1 sec.',
                 colors: colors,
               ),
               const SizedBox(height: 6),
@@ -279,7 +298,8 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
               const SizedBox(height: 6),
               _InstructionStep(
                 number: '3',
-                text: 'Touch & hold the "$title" widget and drag it onto your screen!',
+                text:
+                    'Touch & hold the "$title" widget and drag it onto your screen!',
                 colors: colors,
               ),
             ],
@@ -296,7 +316,9 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
               _service.openWidgetPermissionSettings();
             },
             icon: const Icon(Icons.settings_rounded, size: 14),
-            label: Text(AppLocalizations.of(ctx)?.widgetOpenSettings ?? 'Open Settings'),
+            label: Text(
+              AppLocalizations.of(ctx)?.widgetOpenSettings ?? 'Open Settings',
+            ),
             style: OutlinedButton.styleFrom(
               foregroundColor: colors.primary,
               side: BorderSide(color: colors.primary.withValues(alpha: 0.5)),
@@ -311,7 +333,9 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
               _service.goToHomeScreen();
             },
             icon: const Icon(Icons.home_rounded, size: 16),
-            label: Text(AppLocalizations.of(ctx)?.widgetGoToHome ?? 'Go to Home Screen'),
+            label: Text(
+              AppLocalizations.of(ctx)?.widgetGoToHome ?? 'Go to Home Screen',
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: colors.primary,
               foregroundColor: Colors.white,
@@ -373,7 +397,11 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Icon(Icons.widgets_rounded, color: colors.primary, size: 20),
+                  child: Icon(
+                    Icons.widgets_rounded,
+                    color: colors.primary,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -383,16 +411,16 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
                       Text(
                         'Widgets',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: colors.textPrimary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
+                          color: colors.textPrimary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
                       Text(
                         'Choose from 3 live widgets for your home screen',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: colors.textSecondary,
-                            ),
+                          color: colors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -426,18 +454,50 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('NEXT SALAH', style: TextStyle(color: Color(0xFF64748B), fontSize: 9, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'NEXT SALAH',
+                      style: TextStyle(
+                        color: Color(0xFF64748B),
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    const Text('Dhuhr', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Dhuhr',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 1),
-                    const Text('12:15 PM', style: TextStyle(color: Color(0xFF2DD4BF), fontSize: 16, fontWeight: FontWeight.bold)),
+                    const Text(
+                      '12:15 PM',
+                      style: TextStyle(
+                        color: Color(0xFF2DD4BF),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
-                        Icon(Icons.location_on_rounded, size: 10, color: Color(0xFF94A3B8)),
+                        Icon(
+                          Icons.location_on_rounded,
+                          size: 10,
+                          color: Color(0xFF94A3B8),
+                        ),
                         SizedBox(width: 2),
-                        Text('Riyadh', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.bold)),
+                        Text(
+                          'Riyadh',
+                          style: TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -450,9 +510,11 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
             _WidgetOptionCard(
               title: 'Full Salah Schedule',
               sizeLabel: 'Wide 4x2',
-              description: 'Full 5 daily prayer times with active prayer highlight.',
+              description:
+                  'Full 5 daily prayer times with active prayer highlight.',
               activeCount: _widgetCounts['full_schedule'] ?? 0,
-              onAddTap: () => _handleAddWidgetTap('full_schedule', 'Full Salah Schedule'),
+              onAddTap: () =>
+                  _handleAddWidgetTap('full_schedule', 'Full Salah Schedule'),
               colors: colors,
               previewWidget: Container(
                 padding: const EdgeInsets.all(10),
@@ -469,16 +531,44 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: const [
-                        Text('16 Safar 1448 AH', style: TextStyle(color: Color(0xFF2DD4BF), fontSize: 10, fontWeight: FontWeight.bold)),
-                        Text('Riyadh', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.bold)),
+                        Text(
+                          '16 Safar 1448 AH',
+                          style: TextStyle(
+                            color: Color(0xFF2DD4BF),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Riyadh',
+                          style: TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: const [
-                        Text('Dhuhr', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                        Text('12:15 PM', style: TextStyle(color: Color(0xFF2DD4BF), fontSize: 14, fontWeight: FontWeight.bold)),
+                        Text(
+                          'Dhuhr',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '12:15 PM',
+                          style: TextStyle(
+                            color: Color(0xFF2DD4BF),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 6),
@@ -488,7 +578,11 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
                         _MiniChip(name: 'Fajr', time: '04:12', active: false),
                         _MiniChip(name: 'Dhuhr', time: '12:15', active: true),
                         _MiniChip(name: 'Asr', time: '03:45', active: false),
-                        _MiniChip(name: 'Maghrib', time: '06:42', active: false),
+                        _MiniChip(
+                          name: 'Maghrib',
+                          time: '06:42',
+                          active: false,
+                        ),
                         _MiniChip(name: 'Isha', time: '08:12', active: false),
                       ],
                     ),
@@ -502,9 +596,11 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
             _WidgetOptionCard(
               title: 'Daily Dua & Reflection',
               sizeLabel: 'Wide 4x2',
-              description: 'Daily Quranic Ayah & Hadith with Arabic & translation.',
+              description:
+                  'Daily Quranic Ayah & Hadith with Arabic & translation.',
               activeCount: _widgetCounts['daily_dua'] ?? 0,
-              onAddTap: () => _handleAddWidgetTap('daily_dua', 'Daily Dua & Reflection'),
+              onAddTap: () =>
+                  _handleAddWidgetTap('daily_dua', 'Daily Dua & Reflection'),
               colors: colors,
               previewWidget: Container(
                 width: double.infinity,
@@ -520,11 +616,22 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: const [
-                    Text('DAILY REMEMBRANCE', style: TextStyle(color: Color(0xFFF59E0B), fontSize: 9, fontWeight: FontWeight.bold)),
+                    Text(
+                      'DAILY REMEMBRANCE',
+                      style: TextStyle(
+                        color: Color(0xFFF59E0B),
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     SizedBox(height: 4),
                     Text(
                       'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ',
-                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 2),
@@ -545,7 +652,9 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
                 color: colors.primarySoft.withValues(alpha: 0.15),
                 shape: ContinuousRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: colors.primary.withValues(alpha: 0.3)),
+                  side: BorderSide(
+                    color: colors.primary.withValues(alpha: 0.3),
+                  ),
                 ),
               ),
               child: Column(
@@ -553,7 +662,11 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.touch_app_rounded, color: colors.primary, size: 20),
+                      Icon(
+                        Icons.touch_app_rounded,
+                        color: colors.primary,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -579,15 +692,30 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet> with WidgetsBin
                   const SizedBox(height: 10),
                   OutlinedButton.icon(
                     onPressed: () => _service.openWidgetPermissionSettings(),
-                    icon: Icon(Icons.security_rounded, size: 14, color: colors.primary),
+                    icon: Icon(
+                      Icons.security_rounded,
+                      size: 14,
+                      color: colors.primary,
+                    ),
                     label: Text(
                       'Open Phone Settings (Xiaomi / Oppo / Vivo)',
-                      style: TextStyle(color: colors.primary, fontSize: 11, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: colors.primary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: colors.primary.withValues(alpha: 0.4)),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      side: BorderSide(
+                        color: colors.primary.withValues(alpha: 0.4),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                 ],
@@ -639,9 +767,9 @@ class _InstructionStep extends StatelessWidget {
           child: Text(
             text,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colors.textSecondary,
-                  height: 1.3,
-                ),
+              color: colors.textSecondary,
+              height: 1.3,
+            ),
           ),
         ),
       ],
@@ -693,16 +821,16 @@ class _WidgetOptionCard extends StatelessWidget {
                   Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
                     description,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colors.textSecondary,
-                          fontSize: 11,
-                        ),
+                      color: colors.textSecondary,
+                      fontSize: 11,
+                    ),
                   ),
                 ],
               ),
@@ -735,8 +863,13 @@ class _WidgetOptionCard extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: onAddTap,
-              icon: Icon(isPinned ? Icons.check_circle_rounded : Icons.add_rounded, size: 18),
-              label: Text(isPinned ? 'Active on Screen ($activeCount)' : 'Add Widget'),
+              icon: Icon(
+                isPinned ? Icons.check_circle_rounded : Icons.add_rounded,
+                size: 18,
+              ),
+              label: Text(
+                isPinned ? 'Active on Screen ($activeCount)' : 'Add Widget',
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: isPinned ? colors.primarySoft : colors.primary,
                 foregroundColor: isPinned ? colors.primaryText : Colors.white,
@@ -779,8 +912,21 @@ class _MiniChip extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(name, style: TextStyle(color: active ? Colors.white : const Color(0xFFCBD5E1), fontSize: 8, fontWeight: FontWeight.bold)),
-          Text(time, style: TextStyle(color: active ? Colors.white : const Color(0xFF94A3B8), fontSize: 8)),
+          Text(
+            name,
+            style: TextStyle(
+              color: active ? Colors.white : const Color(0xFFCBD5E1),
+              fontSize: 8,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            time,
+            style: TextStyle(
+              color: active ? Colors.white : const Color(0xFF94A3B8),
+              fontSize: 8,
+            ),
+          ),
         ],
       ),
     );

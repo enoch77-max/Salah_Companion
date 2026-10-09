@@ -22,7 +22,10 @@ class _SalahStepByStepScreenState extends State<SalahStepByStepScreen> {
   @override
   void initState() {
     super.initState();
-    _currentStep = widget.initialStep.clamp(0, SalahGuideData.propheticSteps.length - 1);
+    _currentStep = widget.initialStep.clamp(
+      0,
+      SalahGuideData.propheticSteps.length - 1,
+    );
     _pageController = PageController(initialPage: _currentStep);
   }
 
@@ -71,16 +74,19 @@ class _SalahStepByStepScreenState extends State<SalahStepByStepScreen> {
         title: Text(
           'Step $_currentStep of ${totalSteps - 1}',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colors.textPrimary,
-              ),
+            fontWeight: FontWeight.bold,
+            color: colors.textPrimary,
+          ),
         ),
       ),
       body: Column(
         children: [
           // Step Progress Bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
@@ -121,7 +127,9 @@ class _SalahStepByStepScreenState extends State<SalahStepByStepScreen> {
                         label: Text(l10n?.stepPrevious ?? 'Previous'),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                       ),
                     )
@@ -138,7 +146,9 @@ class _SalahStepByStepScreenState extends State<SalahStepByStepScreen> {
                           backgroundColor: colors.primary,
                           foregroundColor: colors.background,
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                       ),
                     )
@@ -152,7 +162,9 @@ class _SalahStepByStepScreenState extends State<SalahStepByStepScreen> {
                           backgroundColor: const Color(0xFF10B981),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                       ),
                     ),
@@ -205,16 +217,22 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                   children: [
                     Flexible(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: ShapeDecoration(
                           color: colors.primary.withValues(alpha: 0.15),
-                          shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: ContinuousRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                         child: Text(
                           step.ruleTypeBadgeText,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
                                 color: colors.primary,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.0,
@@ -226,9 +244,9 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                     Text(
                       'STEP ${step.stepNumber}',
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: colors.textSecondary,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        color: colors.textSecondary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -246,18 +264,18 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                   step.title,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: colors.textPrimary,
-                      ),
+                    fontWeight: FontWeight.w800,
+                    color: colors.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   step.subtitle,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: colors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    color: colors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -281,18 +299,18 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                 Text(
                   'INSTRUCTION',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: colors.textSecondary,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.1,
-                      ),
+                    color: colors.textSecondary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.1,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   step.detailedInstruction,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colors.textPrimary,
-                        height: 1.5,
-                      ),
+                    color: colors.textPrimary,
+                    height: 1.5,
+                  ),
                 ),
                 const SizedBox(height: 14),
                 ...step.keyActionPoints.map(
@@ -301,12 +319,17 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.check_circle_outline_rounded, size: 18, color: colors.primary),
+                        Icon(
+                          Icons.check_circle_outline_rounded,
+                          size: 18,
+                          color: colors.primary,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             point,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
                                   color: colors.textPrimary,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -329,7 +352,10 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                 color: colors.primary.withValues(alpha: 0.08),
                 shape: ContinuousRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
-                  side: BorderSide(color: colors.primary.withValues(alpha: 0.3), width: 1.2),
+                  side: BorderSide(
+                    color: colors.primary.withValues(alpha: 0.3),
+                    width: 1.2,
+                  ),
                 ),
               ),
               child: Column(
@@ -338,10 +364,10 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                   Text(
                     'RECITATION',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: colors.primary,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.1,
-                        ),
+                      color: colors.primary,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -360,10 +386,10 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                     Text(
                       step.transliteration!,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontStyle: FontStyle.italic,
-                            color: colors.textPrimary,
-                            height: 1.4,
-                          ),
+                        fontStyle: FontStyle.italic,
+                        color: colors.textPrimary,
+                        height: 1.4,
+                      ),
                     ),
                   ],
                   if (step.englishTranslation != null) ...[
@@ -371,9 +397,9 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                     Text(
                       step.englishTranslation!,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colors.textSecondary,
-                            height: 1.4,
-                          ),
+                        color: colors.textSecondary,
+                        height: 1.4,
+                      ),
                     ),
                   ],
                 ],
@@ -388,7 +414,10 @@ class _StepDetailCardState extends State<_StepDetailCard> {
             color: colors.surface,
             shape: ContinuousRectangleBorder(
               borderRadius: BorderRadius.circular(24),
-              side: BorderSide(color: colors.primary.withValues(alpha: 0.4), width: 1.2),
+              side: BorderSide(
+                color: colors.primary.withValues(alpha: 0.4),
+                width: 1.2,
+              ),
             ),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
@@ -404,7 +433,11 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.menu_book_rounded, color: colors.primary, size: 22),
+                        Icon(
+                          Icons.menu_book_rounded,
+                          color: colors.primary,
+                          size: 22,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Column(
@@ -412,16 +445,16 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                             children: [
                               Text(
                                 'Authentic Evidence & Hadiths',
-                                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                style: Theme.of(context).textTheme.titleSmall
+                                    ?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: colors.textPrimary,
                                     ),
                               ),
                               Text(
                                 '${step.references.length} Untruncated Hadith/Quran proof(s)',
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: colors.textSecondary,
-                                    ),
+                                style: Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(color: colors.textSecondary),
                               ),
                             ],
                           ),
@@ -430,7 +463,10 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                           turns: _isReferencesExpanded ? 0.5 : 0.0,
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeOutCubic,
-                          child: Icon(Icons.keyboard_arrow_down_rounded, color: colors.primary),
+                          child: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: colors.primary,
+                          ),
                         ),
                       ],
                     ),
@@ -448,29 +484,43 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                                     color: colors.elevatedBackground,
                                     shape: ContinuousRectangleBorder(
                                       borderRadius: BorderRadius.circular(18),
-                                      side: BorderSide(color: colors.divider, width: 1.0),
+                                      side: BorderSide(
+                                        color: colors.divider,
+                                        width: 1.0,
+                                      ),
                                     ),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Expanded(
                                             child: Text(
                                               ref.title,
-                                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleSmall
+                                                  ?.copyWith(
                                                     fontWeight: FontWeight.bold,
                                                     color: colors.primary,
                                                   ),
                                             ),
                                           ),
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 2,
+                                            ),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                                              borderRadius: BorderRadius.circular(6),
+                                              color: const Color(
+                                                0xFF10B981,
+                                              ).withValues(alpha: 0.15),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
                                             ),
                                             child: Text(
                                               ref.grade,
@@ -486,7 +536,10 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                                       const SizedBox(height: 4),
                                       Text(
                                         ref.citation,
-                                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall
+                                            ?.copyWith(
                                               color: colors.textSecondary,
                                               fontWeight: FontWeight.w600,
                                             ),
@@ -494,7 +547,10 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                                       const SizedBox(height: 8),
                                       Text(
                                         ref.fullTextEnglish,
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
                                               color: colors.textPrimary,
                                               height: 1.45,
                                             ),
@@ -503,7 +559,10 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                                         const SizedBox(height: 6),
                                         Text(
                                           'Narrator: ${ref.narrator}',
-                                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelSmall
+                                              ?.copyWith(
                                                 color: colors.textTertiary,
                                                 fontStyle: FontStyle.italic,
                                               ),

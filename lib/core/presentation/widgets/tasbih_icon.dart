@@ -21,10 +21,7 @@ class TasbihIcon extends StatelessWidget {
       height: size,
       child: CustomPaint(
         size: Size(size, size),
-        painter: _TasbihIconPainter(
-          color: color,
-          isSelected: isSelected,
-        ),
+        painter: _TasbihIconPainter(color: color, isSelected: isSelected),
       ),
     );
   }
@@ -34,10 +31,7 @@ class _TasbihIconPainter extends CustomPainter {
   final Color color;
   final bool isSelected;
 
-  _TasbihIconPainter({
-    required this.color,
-    required this.isSelected,
-  });
+  _TasbihIconPainter({required this.color, required this.isSelected});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -125,9 +119,21 @@ class _TasbihIconPainter extends CustomPainter {
 
     // Terminal droplets
     final dropRadius = size.width * 0.045;
-    canvas.drawCircle(Offset(cx - size.width * 0.10, tasselStartY + tasselLength), dropRadius, paintSolid);
-    canvas.drawCircle(Offset(cx, tasselStartY + tasselLength * 1.15), dropRadius, paintSolid);
-    canvas.drawCircle(Offset(cx + size.width * 0.10, tasselStartY + tasselLength), dropRadius, paintSolid);
+    canvas.drawCircle(
+      Offset(cx - size.width * 0.10, tasselStartY + tasselLength),
+      dropRadius,
+      paintSolid,
+    );
+    canvas.drawCircle(
+      Offset(cx, tasselStartY + tasselLength * 1.15),
+      dropRadius,
+      paintSolid,
+    );
+    canvas.drawCircle(
+      Offset(cx + size.width * 0.10, tasselStartY + tasselLength),
+      dropRadius,
+      paintSolid,
+    );
   }
 
   @override

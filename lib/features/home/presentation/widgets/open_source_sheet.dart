@@ -18,6 +18,7 @@ class OpenSourceSheet extends StatelessWidget {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (context) => const OpenSourceSheet(),
     );
@@ -61,10 +62,7 @@ class OpenSourceSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        border: Border.all(
-          color: colors.dividerStrong,
-          width: 1.0,
-        ),
+        border: Border.all(color: colors.dividerStrong, width: 1.0),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.25),
@@ -76,7 +74,12 @@ class OpenSourceSheet extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(20, 12, 20, bottomPadding > 0 ? bottomPadding + 12 : 24),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            12,
+            20,
+            bottomPadding > 0 ? bottomPadding + 12 : 24,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -121,7 +124,8 @@ class OpenSourceSheet extends StatelessWidget {
                       children: [
                         Text(
                           '100% Open Source',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
                                 color: colors.textPrimary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
@@ -130,7 +134,8 @@ class OpenSourceSheet extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           'Transparent & Privacy-First',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
                                 color: colors.textSecondary,
                                 fontSize: 13,
                               ),
@@ -139,7 +144,10 @@ class OpenSourceSheet extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: colors.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
@@ -174,21 +182,36 @@ class OpenSourceSheet extends StatelessWidget {
                       icon: Icons.shield_outlined,
                       iconColor: const Color(0xFF10B981),
                       title: 'Zero Data Stored or Shared',
-                      description: 'No account required. We never collect, track, or sell your personal data.',
+                      description:
+                          'No account required. We never collect, track, or sell your personal data.',
                     ),
-                    Divider(height: 1, thickness: 1, color: colors.divider, indent: 0, endIndent: 0),
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: colors.divider,
+                      indent: 0,
+                      endIndent: 0,
+                    ),
                     _PrivacyFeatureTile(
                       icon: Icons.signal_wifi_off_rounded,
                       iconColor: const Color(0xFF0EA5E9),
                       title: '100% Offline Capability',
-                      description: 'Prayer times, Qibla calculation, and Duas work completely offline.',
+                      description:
+                          'Prayer times, Qibla calculation, and Duas work completely offline.',
                     ),
-                    Divider(height: 1, thickness: 1, color: colors.divider, indent: 0, endIndent: 0),
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: colors.divider,
+                      indent: 0,
+                      endIndent: 0,
+                    ),
                     _PrivacyFeatureTile(
                       icon: Icons.visibility_outlined,
                       iconColor: const Color(0xFF8B5CF6),
                       title: 'Fully Auditable Code',
-                      description: 'Inspect every feature, algorithm, and line of code freely on GitHub.',
+                      description:
+                          'Inspect every feature, algorithm, and line of code freely on GitHub.',
                     ),
                   ],
                 ),
@@ -205,7 +228,11 @@ class OpenSourceSheet extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.terminal_rounded, size: 20, color: colors.textSecondary),
+                    Icon(
+                      Icons.terminal_rounded,
+                      size: 20,
+                      color: colors.textSecondary,
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -220,7 +247,11 @@ class OpenSourceSheet extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.copy_rounded, size: 18, color: colors.primary),
+                      icon: Icon(
+                        Icons.copy_rounded,
+                        size: 18,
+                        color: colors.primary,
+                      ),
                       tooltip: 'Copy Link',
                       onPressed: () => _copyToClipboard(context),
                     ),
@@ -237,10 +268,7 @@ class OpenSourceSheet extends StatelessWidget {
                   icon: const Icon(Icons.open_in_new_rounded, size: 18),
                   label: const Text(
                     'View Code on GitHub',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.primary,

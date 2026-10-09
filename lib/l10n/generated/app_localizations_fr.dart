@@ -30,7 +30,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get prayerFajr => 'Fajr';
 
   @override
-  String get prayerSunrise => 'Sunrise';
+  String get prayerSunrise => 'Lever du soleil';
 
   @override
   String get prayerDhuhr => 'Dhuhr';
@@ -45,10 +45,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get prayerIsha => 'Isha';
 
   @override
-  String get upcomingPrayer => 'UPCOMING PRAYER';
+  String get upcomingPrayer => 'Prière suivante';
 
   @override
-  String get currentSalah => 'CURRENT SALAH';
+  String get currentSalah => 'Prière actuelle';
 
   @override
   String get remaining => 'restant';
@@ -381,7 +381,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navTracker => 'Tracker';
 
   @override
-  String get prayerSunset => 'Sunset';
+  String get prayerSunset => 'Coucher du soleil';
 
   @override
   String get statusNotPrayed => 'Not Prayed';
@@ -964,6 +964,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'La ilaha illallah';
 
   @override
+  String get dhikrSalawat => 'Salawat';
+
+  @override
   String get dhikrSubhanAllahTranslation =>
       'Gloire et pureté à Allah au-dessus de tout défaut';
 
@@ -982,6 +985,12 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get dhikrLaIlahaIllallahTranslation =>
       'Nulle divinité ne mérite d\'être adorée sauf Allah';
+
+  @override
+  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+
+  @override
+  String get doSalawat => 'Do Salawat';
 
   @override
   String tasbihNextDhikr(String dhikr) {
@@ -1014,43 +1023,216 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get forbiddenTimesNotificationTitle => 'Forbidden Time Notifications';
+  String get forbiddenTimesNotificationTitle =>
+      'Notifications des heures interdites';
 
   @override
   String get forbiddenTimesNotificationSubtitle =>
-      'Alerts for Sunrise, Zenith & Sunset prohibited windows';
+      'Alertes pour les périodes où les prières surérogatoires sont interdites';
 
   @override
   String get forbiddenNaflUpcomingSunriseHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNRISE';
+      'TEMPS INTERDIT APPROCHANT • LEVER DU SOLEIL';
 
   @override
   String forbiddenNaflUpcomingSunriseBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time as the sun rises. Conclude voluntary prayers before this time.';
+    return 'Les prières surérogatoires (Nafl) deviennent interdites à $time au lever du soleil. Terminez vos prières avant cette heure.';
   }
 
   @override
   String get forbiddenNaflUpcomingZawalHeader =>
-      'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
+      'TEMPS INTERDIT APPROCHANT • ZÉNITH';
 
   @override
   String forbiddenNaflUpcomingZawalBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time during solar zenith. Conclude voluntary prayers before this time.';
+    return 'Les prières surérogatoires (Nafl) deviennent interdites à $time au zénith solaire. Terminez vos prières avant cette heure.';
   }
 
   @override
   String get forbiddenNaflUpcomingSunsetHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNSET';
+      'TEMPS INTERDIT APPROCHANT • COUCHER DU SOLEIL';
 
   @override
   String forbiddenNaflUpcomingSunsetBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time before sunset. Conclude voluntary prayers before this time.';
+    return 'Les prières surérogatoires (Nafl) deviennent interdites à $time avant le coucher du soleil. Terminez vos prières avant cette heure.';
   }
 
   @override
-  String get forbiddenNaflConcludedHeader => 'FORBIDDEN TIME CONCLUDED';
+  String get forbiddenNaflConcludedHeader => 'TEMPS INTERDIT TERMINÉ';
 
   @override
   String get forbiddenNaflConcludedBody =>
-      'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
+      'La période d\'interdiction est terminée. Les prières surérogatoires (Nafl) sont désormais permises.';
+
+  @override
+  String get solarTimingsTitle => 'Horaires Solaires';
+
+  @override
+  String get daylightWindowNote =>
+      'Fenêtre de lumière du jour : Fajr se termine précisément au lever du soleil. Maghrib commence au coucher du soleil.';
+
+  @override
+  String get prayerStarts => 'Commence';
+
+  @override
+  String get prayerStarted => 'Commencé';
+
+  @override
+  String get prayerEnds => 'Termine';
+
+  @override
+  String get badgeCurrent => 'ACTUELLE';
+
+  @override
+  String get badgeNext => 'SUIVANTE';
+
+  @override
+  String get shuruqBadge => 'Chourouq';
+
+  @override
+  String get continueToPrayerTimes => 'Continuer vers les horaires de prière';
+
+  @override
+  String tomorrowAt(String time) {
+    return 'Demain à $time';
+  }
+
+  @override
+  String get fridayJumuahTitle => 'Joumou\'a';
+
+  @override
+  String get fridayLocationLabel => 'Lieu';
+
+  @override
+  String get fridayAtMosque => 'À la mosquée';
+
+  @override
+  String get fridayAtHome => 'À la maison';
+
+  @override
+  String get fridaySunnahRulingsTitle => 'Règles des Sunnahs du vendredi';
+
+  @override
+  String get fridayBeforeLabel => 'Avant';
+
+  @override
+  String get fridayAfterLabel => 'Après';
+
+  @override
+  String get fridayMosqueBeforeDesc =>
+      'Tahiyyat al-Masjid et prières surérogatoires jusqu\'au début du prêche.';
+
+  @override
+  String get fridayMosqueAfterDesc =>
+      '4 Rak\'ahs Sunnah (à la mosquée) ou 2 Rak\'ahs Sunnah (à la maison).';
+
+  @override
+  String get fridayHomeBeforeDesc =>
+      '4 Rak\'ahs Sunnah avant Dhuhr (pour ceux qui prient Dhuhr chez eux).';
+
+  @override
+  String get fridayHomeAfterDesc =>
+      '2 Rak\'ahs Sunnah après Dhuhr (pour ceux qui prient Dhuhr chez eux).';
+
+  @override
+  String get fridayClickToReadFull =>
+      'Appuyez pour voir les règles et hadiths authentiques';
+
+  @override
+  String get fridaySuiteHeader => 'SUNNAHS DU VENDREDI & BONNES ACTIONS';
+
+  @override
+  String get fridayTodayOnly => 'Disponible le vendredi';
+
+  @override
+  String get surahKahfTitle => 'Sourate Al-Kahf';
+
+  @override
+  String get surahKahfBadge => 'Lumière entre deux vendredis';
+
+  @override
+  String get surahKahfHadith =>
+      'Quiconque récite la sourate Al-Kahf le vendredi verra une lumière briller pour lui entre les deux vendredis. (Al-Bayhaqi)';
+
+  @override
+  String get markAsRead => 'Marquer comme lu';
+
+  @override
+  String get readCompleted => 'Terminé';
+
+  @override
+  String get salawatTitle => 'Salawat abondantes sur le Prophète ﷺ';
+
+  @override
+  String get salawatBadge => 'Directement présentées';
+
+  @override
+  String get salawatHadith =>
+      'Multipliez les prières sur moi le vendredi, car vos prières me sont présentées. (Abou Dawoud)';
+
+  @override
+  String get salawatCountLabel => 'Récitations aujourd\'hui';
+
+  @override
+  String get salawatTapBtn => 'Envoyer Salawat (+1)';
+
+  @override
+  String get fridayEtiquettesTitle => 'Sunnahs & bienséances du vendredi';
+
+  @override
+  String get fridayEtiquettesRef => 'Traditions authentiques du vendredi';
+
+  @override
+  String get fridayGhusl => 'Ghusl (Bain rituel) avant la prière';
+
+  @override
+  String get fridaySiwak => 'Utilisation du Siwak et parfum';
+
+  @override
+  String get fridayCleanClothes =>
+      'Porter ses vêtements les plus beaux et les plus propres';
+
+  @override
+  String get fridayEarlyMosque => 'Venir tôt à la mosquée pour le sermon';
+
+  @override
+  String get istijabahTitle => 'Heure d\'exaucement (Sa\'at al-Istijabah)';
+
+  @override
+  String get istijabahBadge => 'Invocation exaucée';
+
+  @override
+  String get istijabahHadith =>
+      'Le vendredi comporte une heure où tout musulman demandant un bien à Allah le verra exaucé — cherchez-la dans la dernière heure après Asr. (Abou Dawoud, An-Nasa\'i)';
+
+  @override
+  String get fridayHadithGuideSheetTitle =>
+      'Prières du vendredi : Guide des hadiths';
+
+  @override
+  String get fridayHadithBeforeCardTitle =>
+      'Avant la prière de Joumou\'a / Dhuhr';
+
+  @override
+  String get fridayHadithBeforeCardDesc =>
+      'À la mosquée : 2 Rak\'ahs de Tahiyyat al-Masjid en entrant, puis prières surérogatoires jusqu\'à la chaire. À la maison (Dhuhr) : 4 Rak\'ahs Sunnah Mu\'akkadah avant Dhuhr.';
+
+  @override
+  String get fridayHadithAfterMosqueTitle =>
+      'Après Joumou\'a à la mosquée (4 Rak\'ahs)';
+
+  @override
+  String get fridayHadithAfterMosqueDesc =>
+      'D\'après Abou Hourayra, le Messager d\'Allah ﷺ a dit : \'Quand l\'un de vous a prié le vendredi, qu\'il prie quatre Rak\'ahs après.\' (Sahih Muslim 881)';
+
+  @override
+  String get fridayHadithAfterHomeTitle =>
+      'Après Joumou\'a à la maison (2 Rak\'ahs)';
+
+  @override
+  String get fridayHadithAfterHomeDesc =>
+      'D\'après Ibn Omar : \'Le Prophète ﷺ ne priait pas après le vendredi jusqu\'à rentrer chez lui, où il priait deux Rak\'ahs.\' (Sahih al-Bukhari 937, Sahih Muslim 882)';
+
+  @override
+  String get closeGuideBtn => 'Fermer le guide';
 }

@@ -46,7 +46,8 @@ class _PermissionPrimingStepState extends State<PermissionPrimingStep>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _notificationService = widget.notificationService ?? NotificationService();
-    _batteryService = widget.batteryService ?? BatteryService(db: AppDatabase.instance());
+    _batteryService =
+        widget.batteryService ?? BatteryService(db: AppDatabase.instance());
     _checkInitialStatuses();
   }
 
@@ -69,14 +70,18 @@ class _PermissionPrimingStepState extends State<PermissionPrimingStep>
     // 1. Check Location
     try {
       final permission = await Geolocator.checkPermission();
-      final isLocGranted = permission == LocationPermission.always ||
+      final isLocGranted =
+          permission == LocationPermission.always ||
           permission == LocationPermission.whileInUse;
       if (mounted) {
         setState(() => _locationGranted = isLocGranted);
       }
     } catch (_) {
       if (mounted) {
-        setState(() => _locationGranted = prefs.getBool('onboarding_location_granted') ?? false);
+        setState(
+          () => _locationGranted =
+              prefs.getBool('onboarding_location_granted') ?? false,
+        );
       }
     }
 
@@ -84,16 +89,21 @@ class _PermissionPrimingStepState extends State<PermissionPrimingStep>
     try {
       final androidImpl = _notificationService.notificationsPlugin
           .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       final isNotifEnabled = await androidImpl?.areNotificationsEnabled();
-      final savedNotif = prefs.getBool('onboarding_notification_granted') ?? false;
+      final savedNotif =
+          prefs.getBool('onboarding_notification_granted') ?? false;
 
       if (mounted) {
         setState(() => _notificationGranted = isNotifEnabled ?? savedNotif);
       }
     } catch (_) {
       if (mounted) {
-        setState(() => _notificationGranted = prefs.getBool('onboarding_notification_granted') ?? false);
+        setState(
+          () => _notificationGranted =
+              prefs.getBool('onboarding_notification_granted') ?? false,
+        );
       }
     }
 
@@ -106,7 +116,10 @@ class _PermissionPrimingStepState extends State<PermissionPrimingStep>
       }
     } catch (_) {
       if (mounted) {
-        setState(() => _batteryExempt = prefs.getBool('onboarding_battery_granted') ?? false);
+        setState(
+          () => _batteryExempt =
+              prefs.getBool('onboarding_battery_granted') ?? false,
+        );
       }
     }
   }
@@ -241,7 +254,8 @@ class _PermissionPrimingStepState extends State<PermissionPrimingStep>
           icon: Icons.location_on_rounded,
           gradientColors: const [Color(0xFF60A5FA), Color(0xFF3B82F6)],
           title: l10n?.onboardingPermLocationTitle ?? 'Precise Location',
-          description: l10n?.onboardingPermLocationDesc ??
+          description:
+              l10n?.onboardingPermLocationDesc ??
               'Used strictly on-device to compute solar prayer times for your coordinates.',
           isGranted: _locationGranted,
           onRequest: _requestLocation,
@@ -257,7 +271,8 @@ class _PermissionPrimingStepState extends State<PermissionPrimingStep>
           icon: Icons.notifications_active_rounded,
           gradientColors: const [Color(0xFFFBBF24), Color(0xFFF59E0B)],
           title: l10n?.onboardingPermNotifTitle ?? 'Adhan & Prayer Alerts',
-          description: l10n?.onboardingPermNotifDesc ??
+          description:
+              l10n?.onboardingPermNotifDesc ??
               'Delivers gentle Adhan calls and Sunnah reminders right on time.',
           isGranted: _notificationGranted,
           onRequest: _requestNotification,
@@ -272,8 +287,11 @@ class _PermissionPrimingStepState extends State<PermissionPrimingStep>
           _buildPermissionCard(
             icon: Icons.battery_charging_full_rounded,
             gradientColors: const [Color(0xFF34D399), Color(0xFF10B981)],
-            title: l10n?.onboardingPermBatteryTitle ?? 'Reliable Background Alarms',
-            description: l10n?.onboardingPermBatteryDesc ??
+            title:
+                l10n?.onboardingPermBatteryTitle ??
+                'Reliable Background Alarms',
+            description:
+                l10n?.onboardingPermBatteryDesc ??
                 'Prevents Android battery optimization from canceling scheduled Fajr and midnight alarms.',
             isGranted: _batteryExempt,
             onRequest: _requestBattery,

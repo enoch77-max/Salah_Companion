@@ -47,28 +47,33 @@ class _TrustManifestoStepState extends State<TrustManifestoStep>
         icon: Icons.offline_bolt_rounded,
         accentColor: colors.primary,
         title: l10n?.onboardingTrustOfflineTitle ?? '100% On-Device & Private',
-        description: l10n?.onboardingTrustOfflineDesc ??
+        description:
+            l10n?.onboardingTrustOfflineDesc ??
             'Your location and prayer records never leave your phone. All astronomical solar math is calculated locally with zero network calls.',
       ),
       _TrustPledgeItem(
         icon: Icons.block_rounded,
         accentColor: const Color(0xFFE5A93C),
         title: l10n?.onboardingTrustNoAdsTitle ?? 'No Advertisements. Ever.',
-        description: l10n?.onboardingTrustNoAdsDesc ??
+        description:
+            l10n?.onboardingTrustNoAdsDesc ??
             'Zero banners, zero commercial popups, and zero distractions between you and your Creator.',
       ),
       _TrustPledgeItem(
         icon: Icons.security_rounded,
         accentColor: const Color(0xFF4A90E2),
-        title: l10n?.onboardingTrustNoTrackingTitle ?? 'Zero Analytics & Tracking',
-        description: l10n?.onboardingTrustNoTrackingDesc ??
+        title:
+            l10n?.onboardingTrustNoTrackingTitle ?? 'Zero Analytics & Tracking',
+        description:
+            l10n?.onboardingTrustNoTrackingDesc ??
             'No Firebase tracking, no user profiling, no data collection, and no background telemetry.',
       ),
       _TrustPledgeItem(
         icon: Icons.favorite_rounded,
         accentColor: const Color(0xFF50C878),
         title: l10n?.onboardingTrustFreeTitle ?? 'Free Forever for the Ummah',
-        description: l10n?.onboardingTrustFreeDesc ??
+        description:
+            l10n?.onboardingTrustFreeDesc ??
             'Built as a pure Sadaqah Jariyah. No paywalls, no subscriptions, no monetization.',
       ),
     ];
@@ -203,10 +208,7 @@ class _TrustManifestoStepState extends State<TrustManifestoStep>
               decoration: BoxDecoration(
                 color: colors.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: colors.divider,
-                  width: 1.0,
-                ),
+                border: Border.all(color: colors.divider, width: 1.0),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

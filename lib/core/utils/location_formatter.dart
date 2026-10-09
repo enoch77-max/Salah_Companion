@@ -171,7 +171,10 @@ abstract final class LocationFormatter {
     }
 
     // Combine formatted city and country without mixing scripts
-    if (formattedCity != null && formattedCity.isNotEmpty && formattedCountry != null && formattedCountry.isNotEmpty) {
+    if (formattedCity != null &&
+        formattedCity.isNotEmpty &&
+        formattedCountry != null &&
+        formattedCountry.isNotEmpty) {
       final cityIsArabic = containsArabic(formattedCity);
       final countryIsArabic = containsArabic(formattedCountry);
 

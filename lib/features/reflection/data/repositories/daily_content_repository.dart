@@ -12,10 +12,7 @@ class DailyContentRepository {
   final String? jsonAssetOverride;
   List<DailyContentItem>? _cachedPool;
 
-  DailyContentRepository(
-    this._db, {
-    this.jsonAssetOverride,
-  });
+  DailyContentRepository(this._db, {this.jsonAssetOverride});
 
   Future<List<DailyContentItem>> loadPool() async {
     if (_cachedPool != null) return _cachedPool!;
@@ -48,13 +45,14 @@ class DailyContentRepository {
     final pool = await loadPool();
 
     // 1. Check slot cache first if not force refreshing
-    final cached = await (_db.select(_db.dailyContentCacheTable)
-          ..where((tbl) => tbl.date.equals(dateSlotStr)))
-        .getSingleOrNull();
+    final cached = await (_db.select(
+      _db.dailyContentCacheTable,
+    )..where((tbl) => tbl.date.equals(dateSlotStr))).getSingleOrNull();
 
     if (!forceRefresh && cached != null) {
-      final cachedItem =
-          pool.where((item) => item.id == cached.contentId).firstOrNull;
+      final cachedItem = pool
+          .where((item) => item.id == cached.contentId)
+          .firstOrNull;
       if (cachedItem != null) {
         return cachedItem;
       }
@@ -64,10 +62,9 @@ class DailyContentRepository {
     final cutOffDate = today.subtract(Duration(days: noRepeatDays));
     final cutOffStr = _formatDate(cutOffDate);
 
-    final recentLogs = await (_db.select(_db.dailyContentShownLogTable)
-          ..where(
-              (tbl) => tbl.shownDate.isBiggerOrEqualValue(cutOffStr)))
-        .get();
+    final recentLogs = await (_db.select(
+      _db.dailyContentShownLogTable,
+    )..where((tbl) => tbl.shownDate.isBiggerOrEqualValue(cutOffStr))).get();
 
     final excludedIds = recentLogs.map((log) => log.contentId).toSet();
 
@@ -76,8 +73,9 @@ class DailyContentRepository {
       excludedIds.add(cached.contentId);
     }
 
-    List<DailyContentItem> candidatePool =
-        pool.where((item) => !excludedIds.contains(item.id)).toList();
+    List<DailyContentItem> candidatePool = pool
+        .where((item) => !excludedIds.contains(item.id))
+        .toList();
 
     if (candidatePool.isEmpty) {
       candidatePool = forceRefresh && cached != null
@@ -89,9 +87,11 @@ class DailyContentRepository {
     // 3. Filter for activeOccasion if specified
     if (activeOccasion != null && activeOccasion.trim().isNotEmpty) {
       final occasionMatched = candidatePool
-          .where((item) =>
-              item.occasion == activeOccasion ||
-              item.tags.contains(activeOccasion))
+          .where(
+            (item) =>
+                item.occasion == activeOccasion ||
+                item.tags.contains(activeOccasion),
+          )
           .toList();
       if (occasionMatched.isNotEmpty) {
         candidatePool = occasionMatched;
@@ -126,7 +126,9 @@ class DailyContentRepository {
     }
 
     // 5. Write resolved pick to DailyContentCacheTable for current slot and DailyContentShownLogTable
-    await _db.into(_db.dailyContentCacheTable).insertOnConflictUpdate(
+    await _db
+        .into(_db.dailyContentCacheTable)
+        .insertOnConflictUpdate(
           DailyContentCacheTableCompanion.insert(
             date: dateSlotStr,
             contentId: selected.id,
@@ -134,7 +136,9 @@ class DailyContentRepository {
           ),
         );
 
-    await _db.into(_db.dailyContentShownLogTable).insert(
+    await _db
+        .into(_db.dailyContentShownLogTable)
+        .insert(
           DailyContentShownLogTableCompanion.insert(
             contentId: selected.id,
             shownDate: dateStr,
@@ -145,16 +149,18 @@ class DailyContentRepository {
   }
 
   Future<void> toggleFavorite(String contentId) async {
-    final existing = await (_db.select(_db.favoriteDailyContentTable)
-          ..where((tbl) => tbl.contentId.equals(contentId)))
-        .getSingleOrNull();
+    final existing = await (_db.select(
+      _db.favoriteDailyContentTable,
+    )..where((tbl) => tbl.contentId.equals(contentId))).getSingleOrNull();
 
     if (existing != null) {
-      await (_db.delete(_db.favoriteDailyContentTable)
-            ..where((tbl) => tbl.contentId.equals(contentId)))
-          .go();
+      await (_db.delete(
+        _db.favoriteDailyContentTable,
+      )..where((tbl) => tbl.contentId.equals(contentId))).go();
     } else {
-      await _db.into(_db.favoriteDailyContentTable).insert(
+      await _db
+          .into(_db.favoriteDailyContentTable)
+          .insert(
             FavoriteDailyContentTableCompanion.insert(
               contentId: contentId,
               favoritedAt: DateTime.now(),
@@ -164,21 +170,21 @@ class DailyContentRepository {
   }
 
   Future<bool> isFavorited(String contentId) async {
-    final existing = await (_db.select(_db.favoriteDailyContentTable)
-          ..where((tbl) => tbl.contentId.equals(contentId)))
-        .getSingleOrNull();
+    final existing = await (_db.select(
+      _db.favoriteDailyContentTable,
+    )..where((tbl) => tbl.contentId.equals(contentId))).getSingleOrNull();
     return existing != null;
   }
 
   Future<List<DailyContentItem>> getFavoritedContent() async {
-    final favorites = await (_db.select(_db.favoriteDailyContentTable)
-          ..orderBy([
-            (tbl) => OrderingTerm(
-                  expression: tbl.favoritedAt,
-                  mode: OrderingMode.desc,
-                )
-          ]))
-        .get();
+    final favorites =
+        await (_db.select(_db.favoriteDailyContentTable)..orderBy([
+              (tbl) => OrderingTerm(
+                expression: tbl.favoritedAt,
+                mode: OrderingMode.desc,
+              ),
+            ]))
+            .get();
 
     final pool = await loadPool();
     final poolMap = {for (final item in pool) item.id: item};

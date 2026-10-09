@@ -27,28 +27,28 @@ class AppLocalizationsSq extends AppLocalizations {
   String get navCalendar => 'Calendar';
 
   @override
-  String get prayerFajr => 'Fajr';
+  String get prayerFajr => 'Sabahu';
 
   @override
-  String get prayerSunrise => 'Sunrise';
+  String get prayerSunrise => 'Lindja e diellit';
 
   @override
-  String get prayerDhuhr => 'Dhuhr';
+  String get prayerDhuhr => 'Dreka';
 
   @override
-  String get prayerAsr => 'Asr';
+  String get prayerAsr => 'Ikindia';
 
   @override
-  String get prayerMaghrib => 'Maghrib';
+  String get prayerMaghrib => 'Akshami';
 
   @override
-  String get prayerIsha => 'Isha';
+  String get prayerIsha => 'Jacia';
 
   @override
-  String get upcomingPrayer => 'UPCOMING PRAYER';
+  String get upcomingPrayer => 'Namazi i ardhshëm';
 
   @override
-  String get currentSalah => 'CURRENT SALAH';
+  String get currentSalah => 'Namazi aktual';
 
   @override
   String get remaining => 'mbetur';
@@ -375,7 +375,7 @@ class AppLocalizationsSq extends AppLocalizations {
   String get navTracker => 'Tracker';
 
   @override
-  String get prayerSunset => 'Sunset';
+  String get prayerSunset => 'Perëndimi i diellit';
 
   @override
   String get statusNotPrayed => 'Not Prayed';
@@ -950,6 +950,9 @@ class AppLocalizationsSq extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'La ilahe il-lallah';
 
   @override
+  String get dhikrSalawat => 'Salawat';
+
+  @override
   String get dhikrSubhanAllahTranslation =>
       'I Lavdëruar dhe i Pastër nga çdo e metë është Allahu';
 
@@ -968,6 +971,12 @@ class AppLocalizationsSq extends AppLocalizations {
   @override
   String get dhikrLaIlahaIllallahTranslation =>
       'Nuk ka të adhuruar tjetër me të drejtë përveç Allahut';
+
+  @override
+  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+
+  @override
+  String get doSalawat => 'Do Salawat';
 
   @override
   String tasbihNextDhikr(String dhikr) {
@@ -1000,43 +1009,213 @@ class AppLocalizationsSq extends AppLocalizations {
   }
 
   @override
-  String get forbiddenTimesNotificationTitle => 'Forbidden Time Notifications';
+  String get forbiddenTimesNotificationTitle =>
+      'Njoftimet për kohët e ndaluara';
 
   @override
   String get forbiddenTimesNotificationSubtitle =>
-      'Alerts for Sunrise, Zenith & Sunset prohibited windows';
+      'Paralajmërim për kohët kur ndalohen namazet nafele';
 
   @override
   String get forbiddenNaflUpcomingSunriseHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNRISE';
+      'KOHË E NDALUAR SË AFËRMI • LINDJA E DIELLIT';
 
   @override
   String forbiddenNaflUpcomingSunriseBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time as the sun rises. Conclude voluntary prayers before this time.';
+    return 'Namazet nafele ndalohen duke filluar nga ora $time me lindjen e diellit. Përfundoni nafelet para kësaj kohe.';
   }
 
   @override
   String get forbiddenNaflUpcomingZawalHeader =>
-      'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
+      'KOHË E NDALUAR SË AFËRMI • ZENITI (ZEVALI)';
 
   @override
   String forbiddenNaflUpcomingZawalBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time during solar zenith. Conclude voluntary prayers before this time.';
+    return 'Namazet nafele ndalohen duke filluar nga ora $time gjatë zenitit të diellit. Përfundoni nafelet para kësaj kohe.';
   }
 
   @override
   String get forbiddenNaflUpcomingSunsetHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNSET';
+      'KOHË E NDALUAR SË AFËRMI • PERËNDIMI I DIELLIT';
 
   @override
   String forbiddenNaflUpcomingSunsetBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time before sunset. Conclude voluntary prayers before this time.';
+    return 'Namazet nafele ndalohen duke filluar nga ora $time para perëndimit të diellit. Përfundoni nafelet para kësaj kohe.';
   }
 
   @override
-  String get forbiddenNaflConcludedHeader => 'FORBIDDEN TIME CONCLUDED';
+  String get forbiddenNaflConcludedHeader => 'KOHA E NDALUAR PËRFUNDOI';
 
   @override
   String get forbiddenNaflConcludedBody =>
-      'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
+      'Periudha e ndaluar ka përfunduar. Namazet nafele tani janë të lejuara.';
+
+  @override
+  String get solarTimingsTitle => 'Kohët Diellore';
+
+  @override
+  String get daylightWindowNote =>
+      'Dritarja e Ditës: Sabahu mbaron saktësisht në lindjen e diellit. Akshami fillon në perëndimin e diellit.';
+
+  @override
+  String get prayerStarts => 'Fillon';
+
+  @override
+  String get prayerStarted => 'Ka filluar';
+
+  @override
+  String get prayerEnds => 'Mbaron';
+
+  @override
+  String get badgeCurrent => 'AKTUAL';
+
+  @override
+  String get badgeNext => 'I ARDHSHËM';
+
+  @override
+  String get shuruqBadge => 'Lindja e diellit';
+
+  @override
+  String get continueToPrayerTimes => 'Vazhdo te kohët e namazit';
+
+  @override
+  String tomorrowAt(String time) {
+    return 'Nesër në $time';
+  }
+
+  @override
+  String get fridayJumuahTitle => 'Xhumaja';
+
+  @override
+  String get fridayLocationLabel => 'Vendi';
+
+  @override
+  String get fridayAtMosque => 'Në xhami';
+
+  @override
+  String get fridayAtHome => 'Në shtëpi';
+
+  @override
+  String get fridaySunnahRulingsTitle =>
+      'Sunetet dhe rregullat e ditës së xhumasë';
+
+  @override
+  String get fridayBeforeLabel => 'Para';
+
+  @override
+  String get fridayAfterLabel => 'Pas';
+
+  @override
+  String get fridayMosqueBeforeDesc =>
+      'Tehijetul-mesxhid dhe nafile të përgjithshme derisa të fillojë hytbja.';
+
+  @override
+  String get fridayMosqueAfterDesc =>
+      '4 rekate sunet (në xhami) ose 2 rekate sunet (nëse faleni në shtëpi).';
+
+  @override
+  String get fridayHomeBeforeDesc =>
+      '4 rekate sunet para drekës (për ata që falin drekën në shtëpi).';
+
+  @override
+  String get fridayHomeAfterDesc =>
+      '2 rekate sunet pas drekës (për ata që falin drekën në shtëpi).';
+
+  @override
+  String get fridayClickToReadFull =>
+      'Prekni për të parë hadithet e sakta dhe rregullat';
+
+  @override
+  String get fridaySuiteHeader => 'SUNETET E XHUMASË & VEPRAT E MIRA';
+
+  @override
+  String get fridayTodayOnly => 'E disponueshme ditën e xhuma';
+
+  @override
+  String get surahKahfTitle => 'Surja El-Kehf';
+
+  @override
+  String get surahKahfBadge => 'Dritë mes dy xhumave';
+
+  @override
+  String get surahKahfHadith =>
+      'Kush e lexon suren El-Kehf ditën e xhuma, do të ketë një dritë që do ta ndriçojë mes dy xhumave. (El-Bejheki)';
+
+  @override
+  String get markAsRead => 'Shëno si të lexuar';
+
+  @override
+  String get readCompleted => 'E përfunduar';
+
+  @override
+  String get salawatTitle => 'Salavate të shumta për Profetin ﷺ';
+
+  @override
+  String get salawatBadge => 'Paraqiten drejtpërdrejt';
+
+  @override
+  String get salawatHadith =>
+      'Dërgoni shumë salavate mbi mua ditën e xhuma, sepse salavatet tuaja më paraqiten mua. (Ebu Davud)';
+
+  @override
+  String get salawatCountLabel => 'Salavate sot';
+
+  @override
+  String get salawatTapBtn => 'Dërgo salavat (+1)';
+
+  @override
+  String get fridayEtiquettesTitle => 'Sunetet dhe edukata e xhumasë';
+
+  @override
+  String get fridayEtiquettesRef => 'Sunetet e sakta të ditës së xhuma';
+
+  @override
+  String get fridayGhusl => 'Gusli (larja e trupit) para namazit';
+
+  @override
+  String get fridaySiwak => 'Përdorimi i misvakut dhe parfumosja';
+
+  @override
+  String get fridayCleanClothes => 'Veshja e rrobave më të mira dhe të pastra';
+
+  @override
+  String get fridayEarlyMosque => 'Shkuarja herët në xhami për hytben';
+
+  @override
+  String get istijabahTitle => 'Ora e pranimit të duasë (Sa\'at el-Istixhabe)';
+
+  @override
+  String get istijabahBadge => 'Duaja pranohet';
+
+  @override
+  String get istijabahHadith =>
+      'Ditën e xhuma ka një orë në të cilën çdo rob mysliman që i kërkon Allahut ndonjë të mirë, Ai ia jep atë — kërkojeni në orën e fundit pas ikindisë. (Ebu Davud, En-Nesai)';
+
+  @override
+  String get fridayHadithGuideSheetTitle =>
+      'Udhëzuesi i suneteve të xhumasë: Hadithet';
+
+  @override
+  String get fridayHadithBeforeCardTitle => 'Para namazit të Xhumasë / Drekës';
+
+  @override
+  String get fridayHadithBeforeCardDesc =>
+      'Në xhami: Me të hyrë falni 2 rekate Tehijetul-mesxhid, pastaj nafile derisa imami të ngjitet në minber. Në shtëpi (Drekë): 4 rekate sunet i fortë para drekës.';
+
+  @override
+  String get fridayHadithAfterMosqueTitle => 'Pas Xhumasë në xhami (4 rekate)';
+
+  @override
+  String get fridayHadithAfterMosqueDesc =>
+      'Ebu Hurejre transmeton se i Dërguari i Allahut ﷺ ka thënë: \'Kur ndonjëri prej jush fal namazin e xhumasë, le të falë katër rekate pas tij.\' (Sahih Muslim 881)';
+
+  @override
+  String get fridayHadithAfterHomeTitle => 'Pas Xhumasë në shtëpi (2 rekate)';
+
+  @override
+  String get fridayHadithAfterHomeDesc =>
+      'Ibn Omeri transmeton: \'Profeti ﷺ nuk falej pas xhumasë derisa të kthehej në shtëpi, ku falte dy rekate.\' (Sahih el-Buhari 937, Sahih Muslim 882)';
+
+  @override
+  String get closeGuideBtn => 'Mbyll udhëzuesin';
 }

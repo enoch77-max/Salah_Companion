@@ -55,11 +55,20 @@ class AppHaptics {
   }
 
   /// Vibrate with a pattern. Each pair in [pattern] is [pause, vibrate] in ms.
-  static Future<void> _vibratePattern(List<int> pattern, {int amplitude = -1}) async {
+  static Future<void> _vibratePattern(
+    List<int> pattern, {
+    int amplitude = -1,
+  }) async {
     if (!_isEnabled) return;
     try {
       if (_hasVibrator) {
-        await Vibration.vibrate(pattern: pattern, intensities: List.filled(pattern.length, amplitude > 0 ? amplitude : 128));
+        await Vibration.vibrate(
+          pattern: pattern,
+          intensities: List.filled(
+            pattern.length,
+            amplitude > 0 ? amplitude : 128,
+          ),
+        );
       } else {
         await HapticFeedback.heavyImpact();
       }

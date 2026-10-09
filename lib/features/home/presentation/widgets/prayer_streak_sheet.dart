@@ -5,15 +5,31 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../app/theme/app_theme.dart';
+import '../../../../l10n/generated/app_localizations.dart';
+
+String _localizePrayerName(BuildContext context, String rawName) {
+  final l10n = AppLocalizations.of(context);
+  switch (rawName.toLowerCase()) {
+    case 'fajr':
+      return l10n?.prayerFajr ?? 'Fajr';
+    case 'dhuhr':
+      return l10n?.prayerDhuhr ?? 'Dhuhr';
+    case 'asr':
+      return l10n?.prayerAsr ?? 'Asr';
+    case 'maghrib':
+      return l10n?.prayerMaghrib ?? 'Maghrib';
+    case 'isha':
+      return l10n?.prayerIsha ?? 'Isha';
+    default:
+      return rawName;
+  }
+}
 
 /// Modal bottom sheet celebrating the completion of all 5 daily prayers today.
 class PrayerStreakSheet extends StatelessWidget {
   final VoidCallback? onDismiss;
 
-  const PrayerStreakSheet({
-    super.key,
-    this.onDismiss,
-  });
+  const PrayerStreakSheet({super.key, this.onDismiss});
 
   /// Displays the 5-Prayer Streak celebration bottom sheet with haptic feedback.
   static Future<T?> show<T>(BuildContext context, {VoidCallback? onDismiss}) {
@@ -21,6 +37,7 @@ class PrayerStreakSheet extends StatelessWidget {
     return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withValues(alpha: 0.65),
       builder: (sheetContext) => PrayerStreakSheet(onDismiss: onDismiss),
@@ -82,39 +99,39 @@ class PrayerStreakSheet extends StatelessWidget {
 
               // Glowing Animated Star & Checkmark Badge Icon
               Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: colors.successSoft,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: colors.success.withValues(alpha: 0.5),
-                    width: 2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colors.success.withValues(alpha: 0.35),
-                      blurRadius: 20,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Container(
-                    width: 52,
-                    height: 52,
+                    width: 72,
+                    height: 72,
                     decoration: BoxDecoration(
-                      color: colors.success,
+                      color: colors.successSoft,
                       shape: BoxShape.circle,
+                      border: Border.all(
+                        color: colors.success.withValues(alpha: 0.5),
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colors.success.withValues(alpha: 0.35),
+                          blurRadius: 20,
+                          spreadRadius: 2,
+                        ),
+                      ],
                     ),
-                    child: const Icon(
-                      Icons.verified_rounded,
-                      color: Colors.white,
-                      size: 28,
+                    child: Center(
+                      child: Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: colors.success,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.verified_rounded,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              )
+                  )
                   .animate()
                   .scale(
                     begin: const Offset(0.3, 0.3),
@@ -159,39 +176,39 @@ class PrayerStreakSheet extends StatelessWidget {
                 children: List.generate(dailyPrayers.length, (index) {
                   final prayer = dailyPrayers[index];
                   return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: colors.success,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: colors.success.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: colors.success,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: colors.success.withValues(alpha: 0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.check_rounded,
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        prayer['name']!,
-                        style: textTheme.labelSmall?.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  )
+                            child: const Icon(
+                              Icons.check_rounded,
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            _localizePrayerName(context, prayer['name']!),
+                            style: textTheme.labelSmall?.copyWith(
+                              color: colors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      )
                       .animate()
                       .scale(
                         delay: (250 + (index * 60)).ms,
@@ -208,15 +225,15 @@ class PrayerStreakSheet extends StatelessWidget {
 
               // Quranic Verse Card
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 decoration: ShapeDecoration(
                   color: colors.surface.withValues(alpha: 0.6),
                   shape: ContinuousRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(
-                      color: colors.dividerStrong,
-                      width: 1,
-                    ),
+                    side: BorderSide(color: colors.dividerStrong, width: 1),
                   ),
                 ),
                 child: Column(

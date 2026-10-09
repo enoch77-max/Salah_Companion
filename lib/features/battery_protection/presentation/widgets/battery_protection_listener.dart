@@ -25,7 +25,8 @@ class BatteryProtectionListener extends StatefulWidget {
   });
 
   @override
-  State<BatteryProtectionListener> createState() => _BatteryProtectionListenerState();
+  State<BatteryProtectionListener> createState() =>
+      _BatteryProtectionListenerState();
 }
 
 class _BatteryProtectionListenerState extends State<BatteryProtectionListener>
@@ -63,7 +64,8 @@ class _BatteryProtectionListenerState extends State<BatteryProtectionListener>
     if (currentPlatform != TargetPlatform.android) return;
 
     try {
-      final service = widget.batteryService ?? BatteryService(db: AppDatabase.instance());
+      final service =
+          widget.batteryService ?? BatteryService(db: AppDatabase.instance());
       // Silently refresh exemption status in DB
       await service.checkBatteryOptimizationStatus();
 
@@ -86,7 +88,8 @@ class _BatteryProtectionListenerState extends State<BatteryProtectionListener>
 
     _isChecking = true;
     try {
-      final service = widget.batteryService ?? BatteryService(db: AppDatabase.instance());
+      final service =
+          widget.batteryService ?? BatteryService(db: AppDatabase.instance());
       final isExempt = await service.checkBatteryOptimizationStatus();
       if (isExempt) return;
 

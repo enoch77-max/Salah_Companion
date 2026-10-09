@@ -107,7 +107,8 @@ class SalahGuideData {
         ScripturalReference(
           title: 'Raising Hands & Folding on Chest',
           bookOrSurah: 'Sahih al-Bukhari & Sunan an-Nasa\'i',
-          citation: 'Sahih al-Bukhari, Hadith 735 / Sunan an-Nasa\'i, Hadith 890',
+          citation:
+              'Sahih al-Bukhari, Hadith 735 / Sunan an-Nasa\'i, Hadith 890',
           fullTextEnglish:
               'Wa\'il bin Hujr narrated: "I saw the Messenger of Allah ﷺ raise his hands when he entered into prayer and say Allahu Akbar... then he placed his right hand over his left hand, wrist, and lower forearm upon his chest."',
           narrator: 'Wa\'il bin Hujr (RA)',
@@ -170,7 +171,8 @@ class SalahGuideData {
         ScripturalReference(
           title: 'Opening Supplication (Thana)',
           bookOrSurah: 'Sunan Abi Dawud & Jami\' at-Tirmidhi',
-          citation: 'Sunan Abi Dawud, Hadith 775 / Jami\' at-Tirmidhi, Hadith 243',
+          citation:
+              'Sunan Abi Dawud, Hadith 775 / Jami\' at-Tirmidhi, Hadith 243',
           fullTextEnglish:
               'Aishah narrated: When the Messenger of Allah ﷺ started his prayer, he would say: "Subhanakallahumma wa bihamdika wa tabarakasmuka wa ta\'ala jadduka wa la ilaha ghairuk."',
           narrator: 'Aishah (RA)',
@@ -227,7 +229,8 @@ class SalahGuideData {
           grade: 'Sahih',
         ),
         ScripturalReference(
-          title: 'Stillness (Tuma\'ninah) is Obligatory - Hadith of the Man Who Prayed Badly',
+          title:
+              'Stillness (Tuma\'ninah) is Obligatory - Hadith of the Man Who Prayed Badly',
           bookOrSurah: 'Sahih al-Bukhari & Sahih Muslim',
           citation: 'Sahih al-Bukhari, Hadith 757 / Sahih Muslim, Hadith 397',
           fullTextEnglish:
@@ -357,7 +360,8 @@ class SalahGuideData {
         ScripturalReference(
           title: 'Iftirash Posture & Supplication Between Prostrations',
           bookOrSurah: 'Sunan Abi Dawud & Jami\' at-Tirmidhi',
-          citation: 'Sunan Abi Dawud, Hadith 874 / Jami\' at-Tirmidhi, Hadith 284',
+          citation:
+              'Sunan Abi Dawud, Hadith 874 / Jami\' at-Tirmidhi, Hadith 284',
           fullTextEnglish:
               'Hudhayfah narrated that he prayed with the Prophet ﷺ, and between the two prostrations he would say: "Rabbigh-fir lee, Rabbigh-fir lee (My Lord, forgive me; My Lord, forgive me)."',
           narrator: 'Hudhayfah bin al-Yaman (RA)',
@@ -510,7 +514,8 @@ class SalahGuideData {
       id: 'pillar_1',
       name: 'Standing (Qiyam)',
       arabicName: 'القيام مع القدرة',
-      description: 'Standing upright during obligatory prayers for those physically able.',
+      description:
+          'Standing upright during obligatory prayers for those physically able.',
       postureKey: 'standing_niyyah',
       category: SalahRuleCategory.pillar,
       consequenceIfOmitted:
@@ -529,7 +534,8 @@ class SalahGuideData {
       id: 'pillar_2',
       name: 'Opening Takbir (Takbirat al-Ihram)',
       arabicName: 'تكبيرة الإحرام',
-      description: 'Audibly reciting "Allahu Akbar" to enter into the sacred state of prayer.',
+      description:
+          'Audibly reciting "Allahu Akbar" to enter into the sacred state of prayer.',
       postureKey: 'raf_al_yadayn',
       category: SalahRuleCategory.pillar,
       consequenceIfOmitted: 'The prayer never commences; invalid.',
@@ -538,7 +544,8 @@ class SalahGuideData {
           title: 'Takbeer Begins Prayer',
           bookOrSurah: 'Sunan Abi Dawud',
           citation: 'Sunan Abi Dawud, Hadith 61',
-          fullTextEnglish: '...its beginning is the Takbeer and its end is the Tasleem.',
+          fullTextEnglish:
+              '...its beginning is the Takbeer and its end is the Tasleem.',
           grade: 'Sahih',
         ),
       ],
@@ -556,7 +563,8 @@ class SalahGuideData {
           title: 'No Prayer Without Al-Fatiha',
           bookOrSurah: 'Sahih al-Bukhari',
           citation: 'Sahih al-Bukhari, Hadith 756',
-          fullTextEnglish: 'There is no prayer for the one who does not recite the Opening of the Book.',
+          fullTextEnglish:
+              'There is no prayer for the one who does not recite the Opening of the Book.',
           grade: 'Sahih',
         ),
       ],
@@ -568,7 +576,8 @@ class SalahGuideData {
       description: 'Bending forward with flat back and hands holding knees.',
       postureKey: 'ruku',
       category: SalahRuleCategory.pillar,
-      consequenceIfOmitted: 'Invalidates Rakah; Sujood as-Sahw cannot compensate.',
+      consequenceIfOmitted:
+          'Invalidates Rakah; Sujood as-Sahw cannot compensate.',
       references: [
         ScripturalReference(
           title: 'Ruku\' in Prayer',
@@ -601,10 +610,12 @@ class SalahGuideData {
       id: 'pillar_6',
       name: 'Standing Upright (I\'tidal)',
       arabicName: 'الاعتدال قائماً',
-      description: 'Standing completely straight until joints settle before Sujud.',
+      description:
+          'Standing completely straight until joints settle before Sujud.',
       postureKey: 'itidal',
       category: SalahRuleCategory.pillar,
-      consequenceIfOmitted: 'Rushing to Sujud without standing straight invalidates prayer.',
+      consequenceIfOmitted:
+          'Rushing to Sujud without standing straight invalidates prayer.',
       references: [
         ScripturalReference(
           title: 'Standing Straight',
@@ -619,7 +630,8 @@ class SalahGuideData {
       id: 'pillar_7',
       name: 'Prostration (Sujud) on 7 Limbs',
       arabicName: 'السجود على الأعضاء السبعة',
-      description: 'Placing forehead/nose, 2 palms, 2 knees, 2 sets of toes firmly on floor.',
+      description:
+          'Placing forehead/nose, 2 palms, 2 knees, 2 sets of toes firmly on floor.',
       postureKey: 'sujood',
       category: SalahRuleCategory.pillar,
       consequenceIfOmitted: 'Invalidates prayer.',
@@ -628,7 +640,8 @@ class SalahGuideData {
           title: '7 Bones Commandment',
           bookOrSurah: 'Sahih al-Bukhari',
           citation: 'Sahih al-Bukhari, Hadith 812',
-          fullTextEnglish: 'I have been commanded to prostrate on seven bones...',
+          fullTextEnglish:
+              'I have been commanded to prostrate on seven bones...',
           grade: 'Sahih',
         ),
       ],
@@ -664,7 +677,8 @@ class SalahGuideData {
           title: 'Sitting Between Sujood',
           bookOrSurah: 'Sahih al-Bukhari',
           citation: 'Sahih al-Bukhari, Hadith 793',
-          fullTextEnglish: '...and sit up at ease between the two prostrations.',
+          fullTextEnglish:
+              '...and sit up at ease between the two prostrations.',
           grade: 'Sahih',
         ),
       ],
@@ -673,7 +687,8 @@ class SalahGuideData {
       id: 'pillar_10',
       name: 'Tranquility (Tuma\'ninah) in All Actions',
       arabicName: 'الطمأنينة في جميع الأفعال',
-      description: 'Achieving stillness and calm in every position; do not rush.',
+      description:
+          'Achieving stillness and calm in every position; do not rush.',
       postureKey: 'ruku',
       category: SalahRuleCategory.pillar,
       consequenceIfOmitted: 'Rushing renders the entire prayer legally void.',
@@ -700,7 +715,8 @@ class SalahGuideData {
           title: 'Final Tashahhud Command',
           bookOrSurah: 'Sahih Muslim',
           citation: 'Sahih Muslim, Hadith 403',
-          fullTextEnglish: 'When one of you sits in prayer, let him say At-tahiyyatu lillahi...',
+          fullTextEnglish:
+              'When one of you sits in prayer, let him say At-tahiyyatu lillahi...',
           grade: 'Sahih',
         ),
       ],
@@ -709,7 +725,8 @@ class SalahGuideData {
       id: 'pillar_12',
       name: 'Sitting for Final Tashahhud',
       arabicName: 'الجلوس للتشهد الأخير',
-      description: 'Physical act of sitting in Tawarruk position for final Tashahhud.',
+      description:
+          'Physical act of sitting in Tawarruk position for final Tashahhud.',
       postureKey: 'tawarruk',
       category: SalahRuleCategory.pillar,
       consequenceIfOmitted: 'Invalidates prayer.',
@@ -718,7 +735,8 @@ class SalahGuideData {
           title: 'Sitting in Tawarruk',
           bookOrSurah: 'Sahih al-Bukhari',
           citation: 'Sahih al-Bukhari, Hadith 828',
-          fullTextEnglish: 'In the final Rakah he sat on his left buttock in Tawarruk.',
+          fullTextEnglish:
+              'In the final Rakah he sat on his left buttock in Tawarruk.',
           grade: 'Sahih',
         ),
       ],
@@ -736,7 +754,8 @@ class SalahGuideData {
           title: 'Durood Ibrahim',
           bookOrSurah: 'Sahih al-Bukhari',
           citation: 'Sahih al-Bukhari, Hadith 3369',
-          fullTextEnglish: 'O Allah, send prayers upon Muhammad and upon the family of Muhammad...',
+          fullTextEnglish:
+              'O Allah, send prayers upon Muhammad and upon the family of Muhammad...',
           grade: 'Sahih',
         ),
       ],
@@ -745,7 +764,8 @@ class SalahGuideData {
       id: 'pillar_14',
       name: 'Concluding Salam (Taslim)',
       arabicName: 'التسليم',
-      description: 'Saying "As-salamu \'alaykum wa rahmatullah" to exit prayer.',
+      description:
+          'Saying "As-salamu \'alaykum wa rahmatullah" to exit prayer.',
       postureKey: 'taslim',
       category: SalahRuleCategory.pillar,
       consequenceIfOmitted: 'Prayer is not exited legally; invalid.',
@@ -779,7 +799,8 @@ class SalahGuideData {
           title: 'Transitional Takbirs',
           bookOrSurah: 'Sahih al-Bukhari',
           citation: 'Sahih al-Bukhari, Hadith 789',
-          fullTextEnglish: 'The Prophet ﷺ used to recite Takbir when going down and standing up...',
+          fullTextEnglish:
+              'The Prophet ﷺ used to recite Takbir when going down and standing up...',
           grade: 'Sahih',
         ),
       ],
@@ -788,7 +809,8 @@ class SalahGuideData {
       id: 'ob_2',
       name: 'The Tasmee\' (Sami\'allahu liman hamidah)',
       arabicName: 'قول: سمع الله لمن حمده',
-      description: 'Saying "Sami\'allahu liman hamidah" when rising from Ruku\' (Imam & Solo).',
+      description:
+          'Saying "Sami\'allahu liman hamidah" when rising from Ruku\' (Imam & Solo).',
       postureKey: 'itidal',
       category: SalahRuleCategory.obligation,
       consequenceIfOmitted: 'Forgot = Sujood as-Sahw.',
@@ -797,7 +819,8 @@ class SalahGuideData {
           title: 'Tasmee\' Citation',
           bookOrSurah: 'Sahih al-Bukhari',
           citation: 'Sahih al-Bukhari, Hadith 735',
-          fullTextEnglish: 'On raising his head from bowing he used to say Sami\'allahu liman hamidah.',
+          fullTextEnglish:
+              'On raising his head from bowing he used to say Sami\'allahu liman hamidah.',
           grade: 'Sahih',
         ),
       ],
@@ -815,7 +838,8 @@ class SalahGuideData {
           title: 'Tahmeed Citation',
           bookOrSurah: 'Sahih Muslim',
           citation: 'Sahih Muslim, Hadith 390a',
-          fullTextEnglish: 'When he stood upright he said Rabbana wa lakal-hamd.',
+          fullTextEnglish:
+              'When he stood upright he said Rabbana wa lakal-hamd.',
           grade: 'Sahih',
         ),
       ],
@@ -824,7 +848,8 @@ class SalahGuideData {
       id: 'ob_4',
       name: 'Glorification in Bowing (Tasbeeh Ruku\')',
       arabicName: 'قول: سبحان ربي العظيم في الركوع',
-      description: 'Reciting "Subhana Rabbiyal-\'Adheem" at least once in Ruku\'.',
+      description:
+          'Reciting "Subhana Rabbiyal-\'Adheem" at least once in Ruku\'.',
       postureKey: 'ruku',
       category: SalahRuleCategory.obligation,
       consequenceIfOmitted: 'Forgot = Sujood as-Sahw.',
@@ -869,7 +894,8 @@ class SalahGuideData {
           title: 'Rabbigh-fir lee Citation',
           bookOrSurah: 'Sunan Abi Dawud',
           citation: 'Sunan Abi Dawud, Hadith 874',
-          fullTextEnglish: 'Between the two prostrations he would say Rabbigh-fir lee.',
+          fullTextEnglish:
+              'Between the two prostrations he would say Rabbigh-fir lee.',
           grade: 'Sahih',
         ),
       ],
@@ -878,7 +904,8 @@ class SalahGuideData {
       id: 'ob_7',
       name: 'First Tashahhud',
       arabicName: 'التشهد الأول',
-      description: 'Reciting Attahiyyaat in middle sitting of 3 or 4 Rakah prayer.',
+      description:
+          'Reciting Attahiyyaat in middle sitting of 3 or 4 Rakah prayer.',
       postureKey: 'tashahhud_finger',
       category: SalahRuleCategory.obligation,
       consequenceIfOmitted: 'Forgot = Sujood as-Sahw.',
@@ -920,10 +947,12 @@ class SalahGuideData {
       id: 'err_1',
       name: 'Audible Intention (Niyyah)',
       arabicName: 'التلفظ بالنية',
-      description: 'Uttering spoken formulas of intention ("I intend to pray 4 Rakahs...").',
+      description:
+          'Uttering spoken formulas of intention ("I intend to pray 4 Rakahs...").',
       postureKey: 'standing_niyyah',
       category: SalahRuleCategory.errorToAvoid,
-      consequenceIfOmitted: 'Bid\'ah (Religious innovation); has no basis in Sunnah.',
+      consequenceIfOmitted:
+          'Bid\'ah (Religious innovation); has no basis in Sunnah.',
       references: [
         ScripturalReference(
           title: 'Intention is Strictly in the Heart',
@@ -938,7 +967,8 @@ class SalahGuideData {
       id: 'err_2',
       name: 'Rushing & Lack of Tranquility',
       arabicName: 'النقار وعدم الطمأنينة',
-      description: 'Pecking like a crow; rushing through bowing and prostrating.',
+      description:
+          'Pecking like a crow; rushing through bowing and prostrating.',
       postureKey: 'ruku',
       category: SalahRuleCategory.errorToAvoid,
       consequenceIfOmitted: 'Invalidates the entire prayer completely.',
@@ -974,10 +1004,12 @@ class SalahGuideData {
       id: 'err_4',
       name: 'Looking at Sky or Wandering Eyes',
       arabicName: 'الالتفات ورَفْع البَصَر إِلَى السَّمَاء',
-      description: 'Looking up at the ceiling/sky or side-to-side during prayer.',
+      description:
+          'Looking up at the ceiling/sky or side-to-side during prayer.',
       postureKey: 'standing_niyyah',
       category: SalahRuleCategory.errorToAvoid,
-      consequenceIfOmitted: 'Risk having eyesight snatched away; Satan steals from prayer.',
+      consequenceIfOmitted:
+          'Risk having eyesight snatched away; Satan steals from prayer.',
       references: [
         ScripturalReference(
           title: 'Warning Against Looking at Sky',
@@ -1001,7 +1033,8 @@ class SalahGuideData {
           title: 'Prohibition of Waving Hands',
           bookOrSurah: 'Sahih Muslim',
           citation: 'Sahih Muslim, Hadith 431',
-          fullTextEnglish: 'Why do I see you waving your hands as if they were tails of horses?',
+          fullTextEnglish:
+              'Why do I see you waving your hands as if they were tails of horses?',
           grade: 'Sahih',
         ),
       ],

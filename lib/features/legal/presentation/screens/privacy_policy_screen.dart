@@ -26,9 +26,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
         title: Text(
           'Privacy Policy',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
+            color: colors.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: SafeArea(
@@ -39,7 +39,10 @@ class PrivacyPolicyScreen extends StatelessWidget {
             children: [
               // Header Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF10B981).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
@@ -47,14 +50,18 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.shield_rounded, color: Color(0xFF10B981), size: 18),
+                    const Icon(
+                      Icons.shield_rounded,
+                      color: Color(0xFF10B981),
+                      size: 18,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       '100% Private & Open Source',
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: const Color(0xFF10B981),
-                            fontWeight: FontWeight.bold,
-                          ),
+                        color: const Color(0xFF10B981),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -65,19 +72,19 @@ class PrivacyPolicyScreen extends StatelessWidget {
               Text(
                 'Your Privacy is Sacred',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.2,
-                    ),
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.2,
+                ),
               ),
               const SizedBox(height: 12),
 
               Text(
                 'Salah Companion is built with a strict privacy-first architecture. We believe a worship companion app should respect your spiritual focus without tracking, advertising, or selling user data.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: colors.textSecondary,
-                      height: 1.5,
-                    ),
+                  color: colors.textSecondary,
+                  height: 1.5,
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -130,16 +137,17 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 title: 'Online Hosted Privacy Policy',
                 description:
                     'You can also read the official hosted web version of our privacy policy online:',
-                githubUrl: 'https://enoch77-max.github.io/Salah_Companion/privacy.html',
+                githubUrl:
+                    'https://enoch77-max.github.io/Salah_Companion/privacy.html',
               ),
               const SizedBox(height: 32),
 
               Center(
                 child: Text(
                   'Salah Companion • Dedicated to the Ummah',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: colors.textTertiary,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: colors.textTertiary),
                 ),
               ),
               const SizedBox(height: 20),
@@ -191,7 +199,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
                               color: colors.textPrimary,
                               fontWeight: FontWeight.bold,
                             ),
@@ -200,9 +209,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
                       Text(
                         description,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: colors.textSecondary,
-                              height: 1.4,
-                            ),
+                          color: colors.textSecondary,
+                          height: 1.4,
+                        ),
                       ),
                     ],
                   ),
@@ -218,7 +227,10 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: colors.primarySoft,
                     borderRadius: BorderRadius.circular(12),
@@ -243,7 +255,11 @@ class PrivacyPolicyScreen extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Icon(Icons.open_in_new_rounded, size: 16, color: colors.primary),
+                      Icon(
+                        Icons.open_in_new_rounded,
+                        size: 16,
+                        color: colors.primary,
+                      ),
                     ],
                   ),
                 ),

@@ -27,28 +27,28 @@ class AppLocalizationsSw extends AppLocalizations {
   String get navCalendar => 'Calendar';
 
   @override
-  String get prayerFajr => 'Fajr';
+  String get prayerFajr => 'Alfajiri';
 
   @override
-  String get prayerSunrise => 'Sunrise';
+  String get prayerSunrise => 'Macheo';
 
   @override
-  String get prayerDhuhr => 'Dhuhr';
+  String get prayerDhuhr => 'Adhuhuri';
 
   @override
-  String get prayerAsr => 'Asr';
+  String get prayerAsr => 'Alasiri';
 
   @override
-  String get prayerMaghrib => 'Maghrib';
+  String get prayerMaghrib => 'Magharibi';
 
   @override
-  String get prayerIsha => 'Isha';
+  String get prayerIsha => 'Ishaa';
 
   @override
-  String get upcomingPrayer => 'UPCOMING PRAYER';
+  String get upcomingPrayer => 'Sala Ijayo';
 
   @override
-  String get currentSalah => 'CURRENT SALAH';
+  String get currentSalah => 'Sala ya Sasa';
 
   @override
   String get remaining => 'iliyobaki';
@@ -377,7 +377,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get navTracker => 'Tracker';
 
   @override
-  String get prayerSunset => 'Sunset';
+  String get prayerSunset => 'Machweo';
 
   @override
   String get statusNotPrayed => 'Not Prayed';
@@ -952,6 +952,9 @@ class AppLocalizationsSw extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'La ilaha illallah';
 
   @override
+  String get dhikrSalawat => 'Salawat';
+
+  @override
   String get dhikrSubhanAllahTranslation =>
       'Ametakasika Mwenyezi Mungu na kila upungufu';
 
@@ -970,6 +973,12 @@ class AppLocalizationsSw extends AppLocalizations {
   @override
   String get dhikrLaIlahaIllallahTranslation =>
       'Hapana mola apasaye kuabudiwa kwa haki ila Mwenyezi Mungu';
+
+  @override
+  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+
+  @override
+  String get doSalawat => 'Do Salawat';
 
   @override
   String tasbihNextDhikr(String dhikr) {
@@ -1002,43 +1011,214 @@ class AppLocalizationsSw extends AppLocalizations {
   }
 
   @override
-  String get forbiddenTimesNotificationTitle => 'Forbidden Time Notifications';
+  String get forbiddenTimesNotificationTitle =>
+      'Taarifa za Nyakati Zilizokatazwa';
 
   @override
   String get forbiddenTimesNotificationSubtitle =>
-      'Alerts for Sunrise, Zenith & Sunset prohibited windows';
+      'Tahadhari ya nyakati zilizokatazwa kuswali nafl';
 
   @override
   String get forbiddenNaflUpcomingSunriseHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNRISE';
+      'WAKATI UNAOKUJA ULIOKATAZWA • MACHEO YA JUA';
 
   @override
   String forbiddenNaflUpcomingSunriseBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time as the sun rises. Conclude voluntary prayers before this time.';
+    return 'Swala za sunnah (Nafl) zinakatazwa saa $time wakati jua linapochomoza. Kamilisha swala za sunnah kabla ya wakati huu.';
   }
 
   @override
   String get forbiddenNaflUpcomingZawalHeader =>
-      'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
+      'WAKATI UNAOKUJA ULIOKATAZWA • ZAWAL (JUA UTOSINI)';
 
   @override
   String forbiddenNaflUpcomingZawalBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time during solar zenith. Conclude voluntary prayers before this time.';
+    return 'Swala za sunnah (Nafl) zinakatazwa saa $time wakati jua liko utosini. Kamilisha swala za sunnah kabla ya wakati huu.';
   }
 
   @override
   String get forbiddenNaflUpcomingSunsetHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNSET';
+      'WAKATI UNAOKUJA ULIOKATAZWA • MACHWEO YA JUA';
 
   @override
   String forbiddenNaflUpcomingSunsetBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time before sunset. Conclude voluntary prayers before this time.';
+    return 'Swala za sunnah (Nafl) zinakatazwa saa $time kabla ya jua kutua. Kamilisha swala za sunnah kabla ya wakati huu.';
   }
 
   @override
-  String get forbiddenNaflConcludedHeader => 'FORBIDDEN TIME CONCLUDED';
+  String get forbiddenNaflConcludedHeader => 'WAKATI ULIOKATAZWA UMEMALIZIKA';
 
   @override
   String get forbiddenNaflConcludedBody =>
-      'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
+      'Kipindi kilichokatazwa kimemalizika. Sasa inajuzu kuswali swala za sunnah (Nafl).';
+
+  @override
+  String get solarTimingsTitle => 'Nyakati za Jua';
+
+  @override
+  String get daylightWindowNote =>
+      'Dirisha la Mchana: Alfajiri inaisha punde jua linapochomoza. Magharibi inaanza jua linapozama.';
+
+  @override
+  String get prayerStarts => 'Inaanza';
+
+  @override
+  String get prayerStarted => 'Imeanza';
+
+  @override
+  String get prayerEnds => 'Inaisha';
+
+  @override
+  String get badgeCurrent => 'YA SASA';
+
+  @override
+  String get badgeNext => 'IJAYO';
+
+  @override
+  String get shuruqBadge => 'Kuchomoza jua (Shuruq)';
+
+  @override
+  String get continueToPrayerTimes => 'Endelea kwenye Nyakati za Sala';
+
+  @override
+  String tomorrowAt(String time) {
+    return 'Kesho saa $time';
+  }
+
+  @override
+  String get fridayJumuahTitle => 'Ijumaa';
+
+  @override
+  String get fridayLocationLabel => 'Mahali';
+
+  @override
+  String get fridayAtMosque => 'Msikitini';
+
+  @override
+  String get fridayAtHome => 'Nyumbani';
+
+  @override
+  String get fridaySunnahRulingsTitle => 'Hukumu na Sunnah za Ijumaa';
+
+  @override
+  String get fridayBeforeLabel => 'Kabla';
+
+  @override
+  String get fridayAfterLabel => 'Baada';
+
+  @override
+  String get fridayMosqueBeforeDesc =>
+      'Tahiyyatul Masjid na swala za sunnah za hiari mpaka hotuba inapoanza.';
+
+  @override
+  String get fridayMosqueAfterDesc =>
+      'Rakaa 4 za Sunnah (msikitini) au rakaa 2 za Sunnah (ukiswali nyumbani).';
+
+  @override
+  String get fridayHomeBeforeDesc =>
+      'Rakaa 4 za Sunnah kabla ya Adhuhuri (kwa wanaoswali Adhuhuri nyumbani).';
+
+  @override
+  String get fridayHomeAfterDesc =>
+      'Rakaa 2 za Sunnah baada ya Adhuhuri (kwa wanaoswali Adhuhuri nyumbani).';
+
+  @override
+  String get fridayClickToReadFull =>
+      'Gusa kutazama hadithi sahihi na hukumu kamili';
+
+  @override
+  String get fridaySuiteHeader => 'SUNNAH NA MATENDO BORA YA IJUMAA';
+
+  @override
+  String get fridayTodayOnly => 'Inapatikana siku ya Ijumaa';
+
+  @override
+  String get surahKahfTitle => 'Surah Al-Kahf';
+
+  @override
+  String get surahKahfBadge => 'Nuru Kati ya Ijumaa Mbili';
+
+  @override
+  String get surahKahfHadith =>
+      'Mwenye kusoma Surah Al-Kahf siku ya Ijumaa, atakuwa na nuru itakayomwangazia kati ya Ijumaa mbili. (Al-Bayhaqi)';
+
+  @override
+  String get markAsRead => 'Weka alama kuwa imesomwa';
+
+  @override
+  String get readCompleted => 'Imekamilika';
+
+  @override
+  String get salawatTitle => 'Kuzidisha Kumswalia Mtume ﷺ';
+
+  @override
+  String get salawatBadge => 'Hufikishwa Moja kwa Moja';
+
+  @override
+  String get salawatHadith =>
+      'Zidisheni kuniswalia siku ya Ijumaa, kwani swala zenu huwasilishwa kwangu. (Abu Dawud)';
+
+  @override
+  String get salawatCountLabel => 'Swala Zilizosomwa Leo';
+
+  @override
+  String get salawatTapBtn => 'Mswalie Mtume (+1)';
+
+  @override
+  String get fridayEtiquettesTitle => 'Sunnah na Adabu za Ijumaa';
+
+  @override
+  String get fridayEtiquettesRef => 'Sunnah Sahihi za Ijumaa';
+
+  @override
+  String get fridayGhusl => 'Kuoga josho (Ghusl) kabla ya swala';
+
+  @override
+  String get fridaySiwak => 'Kutumia mswaki na kujitia manukato';
+
+  @override
+  String get fridayCleanClothes => 'Kuvaa nguo safi na nzuri zaidi';
+
+  @override
+  String get fridayEarlyMosque => 'Kuwahi msikitini mapema kwa ajili ya hotuba';
+
+  @override
+  String get istijabahTitle => 'Saa ya Kujibiwa Dua (Sa\'at al-Istijabah)';
+
+  @override
+  String get istijabahBadge => 'Dua Hukubaliwa';
+
+  @override
+  String get istijabahHadith =>
+      'Siku ya Ijumaa kuna saa ambayo mja Mwislamu haombi kheri yoyote kwa Mwenyezi Mungu ila humpa — itafuteni katika saa ya mwisho baada ya Alasiri. (Abu Dawud, An-Nasa\'i)';
+
+  @override
+  String get fridayHadithGuideSheetTitle =>
+      'Mwongozo wa Swala za Sunnah za Ijumaa: Hadithi';
+
+  @override
+  String get fridayHadithBeforeCardTitle =>
+      'Kabla ya Swala ya Ijumaa / Adhuhuri';
+
+  @override
+  String get fridayHadithBeforeCardDesc =>
+      'Msikitini: Unapoingia swali rakaa 2 za Tahiyyatul Masjid, kisha swala za hiari mpaka Imamu anapopanda kwenye mimbari. Nyumbani (Adhuhuri): Rakaa 4 za Sunnah Muakkadah kabla ya Adhuhuri.';
+
+  @override
+  String get fridayHadithAfterMosqueTitle =>
+      'Baada ya Ijumaa Msikitini (Rakaa 4)';
+
+  @override
+  String get fridayHadithAfterMosqueDesc =>
+      'Abu Hurairah amepokea kwamba Mtume wa Mwenyezi Mungu ﷺ alisema: \'Mmoja wenu akiswali Ijumaa, basi aswali rakaa nne baada yake.\' (Sahih Muslim 881)';
+
+  @override
+  String get fridayHadithAfterHomeTitle => 'Baada ya Ijumaa Nyumbani (Rakaa 2)';
+
+  @override
+  String get fridayHadithAfterHomeDesc =>
+      'Ibn Umar amepokea: \'Mtume ﷺ alikuwa haswali baada ya Ijumaa mpaka aondoke, kisha huswali rakaa mbili nyumbani kwake.\' (Sahih al-Bukhari 937, Sahih Muslim 882)';
+
+  @override
+  String get closeGuideBtn => 'Funga Mwongozo';
 }

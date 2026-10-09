@@ -38,6 +38,8 @@ class DhikrItem {
         return l10n?.dhikrAstaghfirullah ?? title;
       case 'la_ilaha_illallah':
         return l10n?.dhikrLaIlahaIllallah ?? title;
+      case 'salawat':
+        return l10n?.dhikrSalawat ?? title;
       default:
         return title;
     }
@@ -56,6 +58,8 @@ class DhikrItem {
         return l10n?.dhikrAstaghfirullahTranslation ?? translation;
       case 'la_ilaha_illallah':
         return l10n?.dhikrLaIlahaIllallahTranslation ?? translation;
+      case 'salawat':
+        return l10n?.dhikrSalawatTranslation ?? translation;
       default:
         return translation;
     }
@@ -63,7 +67,16 @@ class DhikrItem {
 }
 
 class TasbihScreen extends StatefulWidget {
-  const TasbihScreen({super.key});
+  final bool? overrideIsFriday;
+  final DateTime? nowOverride;
+  final String? targetDhikrId;
+
+  const TasbihScreen({
+    super.key,
+    this.overrideIsFriday,
+    this.nowOverride,
+    this.targetDhikrId,
+  });
 
   static const List<DhikrItem> dhikrs = [
     DhikrItem(
@@ -108,11 +121,21 @@ class TasbihScreen extends StatefulWidget {
     ),
   ];
 
+  static const DhikrItem salawatDhikr = DhikrItem(
+    id: 'salawat',
+    title: 'Salawat',
+    arabic: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ',
+    transliteration: "Allahumma Salli 'ala Muhammad",
+    translation: 'O Allah, send blessings upon Muhammad',
+    defaultTarget: 100,
+  );
+
   @override
-  State<TasbihScreen> createState() => _TasbihScreenState();
+  State<TasbihScreen> createState() => TasbihScreenState();
 }
 
-class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMixin {
+class TasbihScreenState extends State<TasbihScreen>
+    with TickerProviderStateMixin {
   int _selectedDhikrIndex = 0;
   int _count = 0;
   int _target = 33;
@@ -124,6 +147,58 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
   late Animation<double> _scaleAnimation;
   late AnimationController _slideController;
   late Animation<double> _slideAnimation;
+
+  bool get _isFriday {
+    if (widget.overrideIsFriday != null) return widget.overrideIsFriday!;
+    final now = widget.nowOverride ?? DateTime.now();
+    return now.weekday == DateTime.friday;
+  }
+
+  bool get isFriday => _isFriday;
+  List<DhikrItem> get effectiveDhikrs => _effectiveDhikrs;
+  int get selectedDhikrIndex => _selectedDhikrIndex;
+
+  List<DhikrItem> get _effectiveDhikrs {
+    if (_isFriday) {
+      return [...TasbihScreen.dhikrs, TasbihScreen.salawatDhikr];
+    }
+    return TasbihScreen.dhikrs;
+  }
+
+  void selectDhikrById(String dhikrId) {
+    final list = _effectiveDhikrs;
+    final index = list.indexWhere((d) => d.id == dhikrId);
+    if (index != -1) {
+      setState(() {
+        _selectedDhikrIndex = index;
+        _count = 0;
+        _lapCount = 0;
+        _target = list[index].defaultTarget;
+      });
+      _saveTasbihState();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant TasbihScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.targetDhikrId != null &&
+        widget.targetDhikrId != oldWidget.targetDhikrId) {
+      selectDhikrById(widget.targetDhikrId!);
+    } else if (widget.overrideIsFriday != oldWidget.overrideIsFriday ||
+        widget.nowOverride != oldWidget.nowOverride) {
+      final list = _effectiveDhikrs;
+      if (_selectedDhikrIndex >= list.length) {
+        setState(() {
+          _selectedDhikrIndex = 0;
+          _count = 0;
+          _lapCount = 0;
+          _target = list[0].defaultTarget;
+        });
+        _saveTasbihState();
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -153,12 +228,33 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
   Future<void> _loadSavedTasbihState() async {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
+    final list = _effectiveDhikrs;
+    final savedId = prefs.getString('tasbih_dhikr_id');
+    int initialIndex = prefs.getInt('tasbih_index') ?? 0;
+    if (savedId != null) {
+      final found = list.indexWhere((d) => d.id == savedId);
+      if (found != -1) {
+        initialIndex = found;
+      }
+    }
+    if (initialIndex >= list.length) {
+      initialIndex = 0;
+    }
+
+    if (widget.targetDhikrId != null) {
+      final requested = list.indexWhere((d) => d.id == widget.targetDhikrId);
+      if (requested != -1) {
+        initialIndex = requested;
+      }
+    }
+
     setState(() {
-      _selectedDhikrIndex = prefs.getInt('tasbih_index') ?? 0;
-      if (_selectedDhikrIndex >= TasbihScreen.dhikrs.length) _selectedDhikrIndex = 0;
+      _selectedDhikrIndex = initialIndex;
       _count = prefs.getInt('tasbih_count') ?? 0;
       _lapCount = prefs.getInt('tasbih_lap_count') ?? 0;
-      _target = prefs.getInt('tasbih_target') ?? TasbihScreen.dhikrs[_selectedDhikrIndex].defaultTarget;
+      _target =
+          prefs.getInt('tasbih_target') ??
+          list[_selectedDhikrIndex].defaultTarget;
       _customTarget = prefs.getInt('tasbih_custom_target') ?? _target;
       _autoNext = prefs.getBool('tasbih_auto_next') ?? true;
     });
@@ -166,6 +262,10 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
 
   void _saveTasbihState() async {
     final prefs = await SharedPreferences.getInstance();
+    final list = _effectiveDhikrs;
+    if (_selectedDhikrIndex < list.length) {
+      await prefs.setString('tasbih_dhikr_id', list[_selectedDhikrIndex].id);
+    }
     await prefs.setInt('tasbih_index', _selectedDhikrIndex);
     await prefs.setInt('tasbih_count', _count);
     await prefs.setInt('tasbih_lap_count', _lapCount);
@@ -190,10 +290,12 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
       if (_count >= _target) {
         AppHaptics.tasbihTargetReached();
         if (_autoNext) {
-          _selectedDhikrIndex = (_selectedDhikrIndex + 1) % TasbihScreen.dhikrs.length;
+          final list = _effectiveDhikrs;
+          _selectedDhikrIndex =
+              (_selectedDhikrIndex + 1) % list.length;
           _count = 0;
           _lapCount = 0;
-          _target = TasbihScreen.dhikrs[_selectedDhikrIndex].defaultTarget;
+          _target = list[_selectedDhikrIndex].defaultTarget;
         } else {
           _lapCount++;
           _count = 0;
@@ -216,11 +318,13 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
 
   void _nextDhikr() {
     AppHaptics.medium();
+    final list = _effectiveDhikrs;
     setState(() {
-      _selectedDhikrIndex = (_selectedDhikrIndex + 1) % TasbihScreen.dhikrs.length;
+      _selectedDhikrIndex =
+          (_selectedDhikrIndex + 1) % list.length;
       _count = 0;
       _lapCount = 0;
-      _target = TasbihScreen.dhikrs[_selectedDhikrIndex].defaultTarget;
+      _target = list[_selectedDhikrIndex].defaultTarget;
     });
     _saveTasbihState();
   }
@@ -239,7 +343,10 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
           ),
           title: Text(
             l10n?.tasbihSetCustomTarget ?? 'Set Custom Target',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(color: colors.textPrimary, fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: colors.textPrimary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           content: TextField(
             controller: controller,
@@ -247,7 +354,8 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
             autofocus: true,
             style: TextStyle(color: colors.textPrimary),
             decoration: InputDecoration(
-              hintText: l10n?.tasbihTargetHint ?? 'Enter target number (e.g. 50)',
+              hintText:
+                  l10n?.tasbihTargetHint ?? 'Enter target number (e.g. 50)',
               hintStyle: TextStyle(color: colors.textTertiary),
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: colors.divider),
@@ -260,7 +368,10 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(l10n?.tasbihCancel ?? 'Cancel', style: TextStyle(color: colors.textSecondary)),
+              child: Text(
+                l10n?.tasbihCancel ?? 'Cancel',
+                style: TextStyle(color: colors.textSecondary),
+              ),
             ),
             FilledButton(
               style: FilledButton.styleFrom(backgroundColor: colors.primary),
@@ -293,300 +404,389 @@ class _TasbihScreenState extends State<TasbihScreen> with TickerProviderStateMix
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final l10n = AppLocalizations.of(context);
-    final activeDhikr = TasbihScreen.dhikrs[_selectedDhikrIndex];
-    final nextDhikrIndex = (_selectedDhikrIndex + 1) % TasbihScreen.dhikrs.length;
-    final nextDhikr = TasbihScreen.dhikrs[nextDhikrIndex];
+    final list = _effectiveDhikrs;
+    if (_selectedDhikrIndex >= list.length) {
+      _selectedDhikrIndex = 0;
+    }
+    final activeDhikr = list[_selectedDhikrIndex];
+    final nextDhikrIndex =
+        (_selectedDhikrIndex + 1) % list.length;
+    final nextDhikr = list[nextDhikrIndex];
     final progress = (_count / _target).clamp(0.0, 1.0);
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
-    final navBarClearance = 58.0 + (bottomPadding > 0 ? 8.0 + bottomPadding : 12.0) + 8.0;
+    final navBarClearance =
+        58.0 + (bottomPadding > 0 ? 8.0 + bottomPadding : 12.0) + 8.0;
 
     return Scaffold(
       backgroundColor: colors.background,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Column(
-            children: [
-              // ─── TOP HEADER ROW (Title) ──────────────────────────────────────
-              Row(
-                children: [
-                  TasbihIcon(color: colors.primary, size: 24, isSelected: true),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      l10n?.tasbihTitle ?? 'Digital Tasbih',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                            color: colors.textPrimary,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 22,
-                            letterSpacing: -0.2,
-                          ),
-                    ),
-                  ),
-                ],
+        bottom: false,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isShortScreen = constraints.maxHeight < 680;
+            final content = Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
               ),
-
-              const SizedBox(height: 8),
-
-              // ─── 1. FULL HADITH ON TOP ───────────────────────────────────────
-              Container(
-                width: double.infinity,
-                decoration: ShapeDecoration(
-                  color: colors.primarySoft.withValues(alpha: 0.35),
-                  shape: ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    side: BorderSide(color: colors.primary.withValues(alpha: 0.25), width: 1.0),
+              child: Column(
+                mainAxisSize: isShortScreen
+                    ? MainAxisSize.min
+                    : MainAxisSize.max,
+                children: [
+                  // ─── TOP HEADER ROW (Title) ──────────────────────────────────────
+                  Row(
+                    children: [
+                      TasbihIcon(
+                        color: colors.primary,
+                        size: 24,
+                        isSelected: true,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          l10n?.tasbihTitle ?? 'Digital Tasbih',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.displayMedium
+                              ?.copyWith(
+                                color: colors.textPrimary,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 22,
+                                letterSpacing: -0.2,
+                              ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+
+                  const SizedBox(height: 8),
+
+                  // ─── 1. FULL HADITH ON TOP ───────────────────────────────────────
+                  Container(
+                    width: double.infinity,
+                    decoration: ShapeDecoration(
+                      color: colors.primarySoft.withValues(alpha: 0.35),
+                      shape: ContinuousRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        side: BorderSide(
+                          color: colors.primary.withValues(alpha: 0.25),
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.auto_awesome_rounded, size: 14, color: colors.primary),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            l10n?.tasbihHadithTitle ?? 'HADITH ON TASBIH',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.auto_awesome_rounded,
+                              size: 14,
                               color: colors.primary,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
                             ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                l10n?.tasbihHadithTitle ?? 'HADITH ON TASBIH',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: colors.primary,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          l10n?.tasbihHadithText ??
+                              '“Glorify Allah, declare His oneness, and exalt His holiness, and count your remembrance on your fingertips—for indeed, your fingers will be questioned on the Day of Judgment and made to speak.”',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: colors.textPrimary,
+                                height: 1.35,
+                                fontStyle: FontStyle.italic,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 11,
+                              ),
+                        ),
+                        const SizedBox(height: 4),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            l10n?.tasbihHadithReference ??
+                                '— Sunan Abi Dawud 1496',
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  color: colors.primaryText,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10,
+                                ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      l10n?.tasbihHadithText ??
-                          '“Glorify Allah, declare His oneness, and exalt His holiness, and count your remembrance on your fingertips—for indeed, your fingers will be questioned on the Day of Judgment and made to speak.”',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colors.textPrimary,
-                            height: 1.35,
-                            fontStyle: FontStyle.italic,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 11,
-                          ),
-                    ),
-                    const SizedBox(height: 4),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        l10n?.tasbihHadithReference ?? '— Sunan Abi Dawud 1496',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: colors.primaryText,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 10,
-                            ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // ─── 2. ZIKR SELECTION BAR ──────────────────────────────────────
-              SizedBox(
-                height: 52,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: TasbihScreen.dhikrs.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: 8),
-                  itemBuilder: (context, index) {
-                    final dhikr = TasbihScreen.dhikrs[index];
-                    final isSelected = index == _selectedDhikrIndex;
-                    return _DhikrSelectorCard(
-                      key: ValueKey('dhikr_chip_${dhikr.title}'),
-                      title: dhikr.getLocalizedTitle(context),
-                      arabic: dhikr.arabic,
-                      target: dhikr.defaultTarget,
-                      isSelected: isSelected,
-                      colors: colors,
-                      onTap: () {
-                        setState(() {
-                          _selectedDhikrIndex = index;
-                          _count = 0;
-                          _lapCount = 0;
-                          _target = TasbihScreen.dhikrs[index].defaultTarget;
-                        });
-                        _saveTasbihState();
-                      },
-                    );
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // ─── 3. MERGED ACTIVE ZIKR & COUNTER WORKSPACE CARD ─────────────
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  margin: EdgeInsets.only(bottom: navBarClearance),
-                  decoration: ShapeDecoration(
-                    color: colors.surface,
-                    shape: ContinuousRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      side: BorderSide(color: colors.divider, width: 1.0),
-                    ),
-                    shadows: [
-                      BoxShadow(
-                        color: colors.shadow.withValues(alpha: 0.05),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Merged Active Dhikr Display Header
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            activeDhikr.arabic,
-                            style: AppTypography.quranicStyle(
-                              fontSize: 28,
-                              color: colors.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            activeDhikr.getLocalizedTranslation(context),
-                            style: AppTypography.quoteTranslationStyle(
-                              fontSize: 12,
-                              color: colors.textSecondary,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
 
-                      // ─── 2D ILLUSTRATED ANIMATED HORIZONTAL TASBIH BEADS ─────────────
-                      _Illustrated2DTasbihBeads(
-                        slideAnimation: _slideAnimation,
-                        scaleAnimation: _scaleAnimation,
-                        progress: progress,
-                        count: _count,
-                        target: _target,
-                        lapCount: _lapCount,
-                        colors: colors,
-                        onTap: _increment,
-                      ),
+                  const SizedBox(height: 8),
 
-                      // Target Presets Segment Bar
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _TargetChip(
-                              label: '33',
-                              isSelected: _target == 33,
-                              onTap: () => setState(() {
-                                _target = 33;
-                                _count = 0;
-                              }),
-                            ),
-                            const SizedBox(width: 6),
-                            _TargetChip(
-                              label: '100',
-                              isSelected: _target == 100,
-                              onTap: () => setState(() {
-                                _target = 100;
-                                _count = 0;
-                              }),
-                            ),
-                            const SizedBox(width: 6),
-                            _TargetChip(
-                              label: _target != 33 && _target != 100
-                                  ? (l10n?.tasbihCustomTargetCount(_target.toString()) ?? 'Custom ($_target)')
-                                  : (l10n?.tasbihCustomTarget ?? 'Custom'),
-                              isSelected: _target != 33 && _target != 100,
-                              onTap: _showCustomTargetDialog,
-                            ),
-                            const SizedBox(width: 6),
-                            _AutoNextChip(
-                              key: const ValueKey('auto_next_chip'),
-                              isEnabled: _autoNext,
-                              onTap: () => setState(() {
-                                _autoNext = !_autoNext;
-                                _saveTasbihState();
-                              }),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // ─── ACTION ROW (Reset on Left, Next Dhikr on Right) ─────────────
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: _AppleResetButton(
-                              key: const ValueKey('reset_button'),
-                              onPressed: _reset,
-                            ),
-                          ),
+                  // ─── 2. ZIKR SELECTION BAR ──────────────────────────────────────
+                  SizedBox(
+                    height: 52,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: list.length,
+                      separatorBuilder: (context, index) =>
                           const SizedBox(width: 8),
-                          Expanded(
-                            flex: 3,
-                            child: SizedBox(
-                              height: 36,
-                              child: Semantics(
-                                button: true,
-                                label: 'Next Dhikr: ${nextDhikr.getLocalizedTitle(context)}',
-                                hint: 'Double tap to skip to ${nextDhikr.getLocalizedTitle(context)}',
-                                child: OutlinedButton.icon(
-                                  key: const ValueKey('next_dhikr_button'),
-                                  onPressed: _nextDhikr,
-                                  icon: Icon(Icons.arrow_forward_rounded, size: 14, color: colors.primaryText),
-                                  label: Text(
-                                    l10n?.tasbihNextDhikr(nextDhikr.getLocalizedTitle(context)) ??
-                                        'Next: ${nextDhikr.title}',
-                                    style: TextStyle(
-                                      color: colors.primaryText,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  style: OutlinedButton.styleFrom(
-                                    backgroundColor: colors.primarySoft.withValues(alpha: 0.5),
-                                    side: BorderSide(color: colors.primary.withValues(alpha: 0.3), width: 1),
-                                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                      itemBuilder: (context, index) {
+                        final dhikr = list[index];
+                        final isSelected = index == _selectedDhikrIndex;
+                        return _DhikrSelectorCard(
+                          key: ValueKey('dhikr_chip_${dhikr.title}'),
+                          title: dhikr.getLocalizedTitle(context),
+                          arabic: dhikr.arabic,
+                          target: dhikr.defaultTarget,
+                          isSelected: isSelected,
+                          colors: colors,
+                          onTap: () {
+                            setState(() {
+                              _selectedDhikrIndex = index;
+                              _count = 0;
+                              _lapCount = 0;
+                              _target =
+                                  list[index].defaultTarget;
+                            });
+                            _saveTasbihState();
+                          },
+                        );
+                      },
+                    ),
                   ),
-                ),
+
+                  const SizedBox(height: 8),
+
+                  // ─── 3. MERGED ACTIVE ZIKR & COUNTER WORKSPACE CARD ─────────────
+                  _buildWorkspaceCard(
+                    context: context,
+                    colors: colors,
+                    l10n: l10n,
+                    activeDhikr: activeDhikr,
+                    nextDhikr: nextDhikr,
+                    progress: progress,
+                    navBarClearance: navBarClearance,
+                    isShortScreen: isShortScreen,
+                  ),
+                ],
+              ),
+            );
+
+            if (isShortScreen) {
+              return SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: content,
+              );
+            }
+            return content;
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWorkspaceCard({
+    required BuildContext context,
+    required AppCustomColors colors,
+    required AppLocalizations? l10n,
+    required DhikrItem activeDhikr,
+    required DhikrItem nextDhikr,
+    required double progress,
+    required double navBarClearance,
+    required bool isShortScreen,
+  }) {
+    final workspaceContent = Column(
+      mainAxisAlignment: isShortScreen
+          ? MainAxisAlignment.start
+          : MainAxisAlignment.spaceEvenly,
+      mainAxisSize: isShortScreen ? MainAxisSize.min : MainAxisSize.max,
+      children: [
+        // Merged Active Dhikr Display Header
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              activeDhikr.arabic,
+              style: AppTypography.quranicStyle(
+                fontSize: 28,
+                color: colors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              activeDhikr.getLocalizedTranslation(context),
+              style: AppTypography.quoteTranslationStyle(
+                fontSize: 12,
+                color: colors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        if (isShortScreen) const SizedBox(height: 12),
+
+        // ─── 2D ILLUSTRATED ANIMATED HORIZONTAL TASBIH BEADS ─────────────
+        _Illustrated2DTasbihBeads(
+          slideAnimation: _slideAnimation,
+          scaleAnimation: _scaleAnimation,
+          progress: progress,
+          count: _count,
+          target: _target,
+          lapCount: _lapCount,
+          colors: colors,
+          onTap: _increment,
+        ),
+        if (isShortScreen) const SizedBox(height: 12),
+
+        // Target Presets Segment Bar
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _TargetChip(
+                label: '33',
+                isSelected: _target == 33,
+                onTap: () => setState(() {
+                  _target = 33;
+                  _count = 0;
+                }),
+              ),
+              const SizedBox(width: 6),
+              _TargetChip(
+                label: '100',
+                isSelected: _target == 100,
+                onTap: () => setState(() {
+                  _target = 100;
+                  _count = 0;
+                }),
+              ),
+              const SizedBox(width: 6),
+              _TargetChip(
+                label: _target != 33 && _target != 100
+                    ? (l10n?.tasbihCustomTargetCount(_target.toString()) ??
+                          'Custom ($_target)')
+                    : (l10n?.tasbihCustomTarget ?? 'Custom'),
+                isSelected: _target != 33 && _target != 100,
+                onTap: _showCustomTargetDialog,
+              ),
+              const SizedBox(width: 6),
+              _AutoNextChip(
+                key: const ValueKey('auto_next_chip'),
+                isEnabled: _autoNext,
+                onTap: () => setState(() {
+                  _autoNext = !_autoNext;
+                  _saveTasbihState();
+                }),
               ),
             ],
           ),
         ),
-      ),
+        if (isShortScreen) const SizedBox(height: 12),
+
+        // ─── ACTION ROW (Reset on Left, Next Dhikr on Right) ─────────────
+        Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: _AppleResetButton(
+                key: const ValueKey('reset_button'),
+                onPressed: _reset,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 3,
+              child: SizedBox(
+                height: 36,
+                child: Semantics(
+                  button: true,
+                  label: 'Next Dhikr: ${nextDhikr.getLocalizedTitle(context)}',
+                  hint:
+                      'Double tap to skip to ${nextDhikr.getLocalizedTitle(context)}',
+                  child: OutlinedButton.icon(
+                    key: const ValueKey('next_dhikr_button'),
+                    onPressed: _nextDhikr,
+                    icon: Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 14,
+                      color: colors.primaryText,
+                    ),
+                    label: Text(
+                      l10n?.tasbihNextDhikr(
+                            nextDhikr.getLocalizedTitle(context),
+                          ) ??
+                          'Next: ${nextDhikr.title}',
+                      style: TextStyle(
+                        color: colors.primaryText,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: colors.primarySoft.withValues(
+                        alpha: 0.5,
+                      ),
+                      side: BorderSide(
+                        color: colors.primary.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
+
+    final cardContainer = Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(bottom: navBarClearance),
+      decoration: ShapeDecoration(
+        color: colors.surface,
+        shape: ContinuousRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: colors.divider, width: 1.0),
+        ),
+        shadows: [
+          BoxShadow(
+            color: colors.shadow.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: workspaceContent,
+    );
+
+    if (isShortScreen) {
+      return cardContainer;
+    }
+    return Expanded(child: cardContainer);
   }
 }
 
@@ -639,22 +839,33 @@ class _DhikrSelectorCard extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      color: isSelected ? colors.primaryText : colors.textPrimary,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                      color: isSelected
+                          ? colors.primaryText
+                          : colors.textPrimary,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w600,
                       fontSize: 12,
                     ),
                   ),
                   const SizedBox(width: 4),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 1,
+                    ),
                     decoration: BoxDecoration(
-                      color: isSelected ? colors.primary.withValues(alpha: 0.2) : colors.surfaceHover,
+                      color: isSelected
+                          ? colors.primary.withValues(alpha: 0.2)
+                          : colors.surfaceHover,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       '$target',
                       style: TextStyle(
-                        color: isSelected ? colors.primaryText : colors.textTertiary,
+                        color: isSelected
+                            ? colors.primaryText
+                            : colors.textTertiary,
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
                       ),
@@ -682,10 +893,7 @@ class _DhikrSelectorCard extends StatelessWidget {
 class _AppleResetButton extends StatefulWidget {
   final VoidCallback onPressed;
 
-  const _AppleResetButton({
-    super.key,
-    required this.onPressed,
-  });
+  const _AppleResetButton({super.key, required this.onPressed});
 
   @override
   State<_AppleResetButton> createState() => _AppleResetButtonState();
@@ -720,7 +928,9 @@ class _AppleResetButtonState extends State<_AppleResetButton> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(
-                  color: _isPressed ? colors.primary.withValues(alpha: 0.4) : colors.divider,
+                  color: _isPressed
+                      ? colors.primary.withValues(alpha: 0.4)
+                      : colors.divider,
                   width: 1.0,
                 ),
               ),
@@ -742,10 +952,12 @@ class _AppleResetButtonState extends State<_AppleResetButton> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: _isPressed ? colors.primaryText : colors.textSecondary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
-                        ),
+                      color: _isPressed
+                          ? colors.primaryText
+                          : colors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
@@ -775,7 +987,9 @@ class _TargetChip extends StatelessWidget {
       button: true,
       selected: isSelected,
       label: 'Set target to $label',
-      hint: isSelected ? 'Currently active target' : 'Double tap to set target to $label',
+      hint: isSelected
+          ? 'Currently active target'
+          : 'Double tap to set target to $label',
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
@@ -795,10 +1009,10 @@ class _TargetChip extends StatelessWidget {
           child: Text(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: isSelected ? colors.primaryText : colors.textSecondary,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  fontSize: 11,
-                ),
+              color: isSelected ? colors.primaryText : colors.textSecondary,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              fontSize: 11,
+            ),
           ),
         ),
       ),
@@ -823,7 +1037,9 @@ class _AutoNextChip extends StatelessWidget {
       button: true,
       toggled: isEnabled,
       label: 'Auto advance to next Dhikr',
-      hint: isEnabled ? 'Auto advance is on' : 'Auto advance is off, double tap to toggle',
+      hint: isEnabled
+          ? 'Auto advance is on'
+          : 'Auto advance is off, double tap to toggle',
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
@@ -844,7 +1060,9 @@ class _AutoNextChip extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                isEnabled ? Icons.autorenew_rounded : Icons.sync_disabled_rounded,
+                isEnabled
+                    ? Icons.autorenew_rounded
+                    : Icons.sync_disabled_rounded,
                 size: 13,
                 color: isEnabled ? colors.primaryText : colors.textTertiary,
               ),
@@ -852,10 +1070,10 @@ class _AutoNextChip extends StatelessWidget {
               Text(
                 AppLocalizations.of(context)?.tasbihAutoNext ?? 'Auto Next',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: isEnabled ? colors.primaryText : colors.textSecondary,
-                      fontWeight: isEnabled ? FontWeight.bold : FontWeight.w500,
-                      fontSize: 11,
-                    ),
+                  color: isEnabled ? colors.primaryText : colors.textSecondary,
+                  fontWeight: isEnabled ? FontWeight.bold : FontWeight.w500,
+                  fontSize: 11,
+                ),
               ),
             ],
           ),
@@ -898,11 +1116,11 @@ class _Illustrated2DTasbihBeads extends StatelessWidget {
   static const _slots = <(double x, double size, double dark)>[
     (-155.0, 12.0, 0.90), // [0] off-screen left  (entering)
     (-118.0, 18.0, 0.75), // [1] far-left
-    (-82.0, 28.0, 0.55),  // [2] near-left
-    (0.0, 130.0, 0.0),    // [3] center (active)
-    (82.0, 28.0, 0.55),   // [4] near-right
-    (118.0, 18.0, 0.75),  // [5] far-right
-    (155.0, 12.0, 0.90),  // [6] off-screen right (exiting)
+    (-82.0, 28.0, 0.55), // [2] near-left
+    (0.0, 130.0, 0.0), // [3] center (active)
+    (82.0, 28.0, 0.55), // [4] near-right
+    (118.0, 18.0, 0.75), // [5] far-right
+    (155.0, 12.0, 0.90), // [6] off-screen right (exiting)
   ];
 
   @override
@@ -927,85 +1145,92 @@ class _Illustrated2DTasbihBeads extends StatelessWidget {
               alignment: Alignment.center,
               clipBehavior: Clip.none,
               children: [
-              // ─── TASBIH STRING ──────────────────────────────────────
-              Positioned(
-                left: 20,
-                right: 20,
-                child: Container(
-                  height: 3,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [
-                      colors.primary.withValues(alpha: 0.08),
-                      colors.primary.withValues(alpha: 0.45),
-                      colors.primary.withValues(alpha: 0.08),
-                    ]),
-                    borderRadius: BorderRadius.circular(2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.primary.withValues(alpha: 0.15),
-                        blurRadius: 3,
+                // ─── TASBIH STRING ──────────────────────────────────────
+                Positioned(
+                  left: 20,
+                  right: 20,
+                  child: Container(
+                    height: 3,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          colors.primary.withValues(alpha: 0.08),
+                          colors.primary.withValues(alpha: 0.45),
+                          colors.primary.withValues(alpha: 0.08),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // ─── BEADS (6 beads, each slides from slot[i] → slot[i+1]) ──
-              AnimatedBuilder(
-                animation: slideAnimation,
-                builder: (context, _) {
-                  final t = slideAnimation.value; // 0.0 → 1.0
-                  return Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      for (int i = 0; i < _slots.length - 1; i++)
-                        _buildBead(context, _slots[i], _slots[i + 1], t),
-                    ],
-                  );
-                },
-              ),
-
-              // ─── FINGER COUNTING NOTE UNDER BEADS ─────────────────────
-              Positioned(
-                bottom: -16,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: colors.primarySoft.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: colors.primary.withValues(alpha: 0.15),
-                      width: 0.8,
+                      borderRadius: BorderRadius.circular(2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colors.primary.withValues(alpha: 0.15),
+                          blurRadius: 3,
+                        ),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.front_hand_rounded,
-                        size: 12,
-                        color: colors.primary,
+                ),
+
+                // ─── BEADS (6 beads, each slides from slot[i] → slot[i+1]) ──
+                AnimatedBuilder(
+                  animation: slideAnimation,
+                  builder: (context, _) {
+                    final t = slideAnimation.value; // 0.0 → 1.0
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        for (int i = 0; i < _slots.length - 1; i++)
+                          _buildBead(context, _slots[i], _slots[i + 1], t),
+                      ],
+                    );
+                  },
+                ),
+
+                // ─── FINGER COUNTING NOTE UNDER BEADS ─────────────────────
+                Positioned(
+                  bottom: -16,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.primarySoft.withValues(alpha: 0.25),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: colors.primary.withValues(alpha: 0.15),
+                        width: 0.8,
                       ),
-                      const SizedBox(width: 5),
-                      Text(
-                        AppLocalizations.of(context)?.tasbihBestOnFingers ?? "It's best to count on fingers",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: colors.textSecondary,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                            ),
-                      ),
-                    ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.front_hand_rounded,
+                          size: 12,
+                          color: colors.primary,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          AppLocalizations.of(context)?.tasbihBestOnFingers ??
+                              "It's best to count on fingers",
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: colors.textSecondary,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   // ─── SINGLE TRANSITIONING BEAD ───────────────────────────────────────────
   Widget _buildBead(
@@ -1024,12 +1249,12 @@ class _Illustrated2DTasbihBeads extends StatelessWidget {
     final textOpacity = ((size - 80) / 50).clamp(0.0, 1.0);
 
     // Color lerps for 2D spherical shading (solid 100% opaque to cover rope line completely)
-    final highlight = Color.lerp(colors.primary, colors.surfaceHover, darkness)!;
-    final body = Color.lerp(
+    final highlight = Color.lerp(
       colors.primary,
-      colors.surface,
+      colors.surfaceHover,
       darkness,
     )!;
+    final body = Color.lerp(colors.primary, colors.surface, darkness)!;
     final rim = Color.lerp(
       Color.lerp(colors.primary, Colors.black, 0.25)!,
       colors.elevatedBackground,
@@ -1050,8 +1275,11 @@ class _Illustrated2DTasbihBeads extends StatelessWidget {
               colors: [highlight, body, rim],
             ),
             border: Border.all(
-              color: Color.lerp(colors.primary, colors.textTertiary, darkness)!
-                  .withValues(alpha: 0.45),
+              color: Color.lerp(
+                colors.primary,
+                colors.textTertiary,
+                darkness,
+              )!.withValues(alpha: 0.45),
               width: size > 60 ? 3.0 : 1.5,
             ),
             boxShadow: [
@@ -1119,10 +1347,11 @@ class _Illustrated2DTasbihBeads extends StatelessWidget {
                   color: Colors.white.withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 child: Text(
-                  AppLocalizations.of(context)?.tasbihLap(lapCount.toString()) ??
+                  AppLocalizations.of(
+                        context,
+                      )?.tasbihLap(lapCount.toString()) ??
                       'Lap $lapCount',
                   style: const TextStyle(
                     color: Colors.white,

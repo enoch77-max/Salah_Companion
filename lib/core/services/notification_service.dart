@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -46,7 +48,8 @@ class NotificationService {
 
   static const String reflectionChannelId = 'daily_reflection_channel';
   static const String reflectionChannelName = 'Daily Reflection';
-  static const String reflectionChannelDesc = 'Daily Hadith and Ayah reflections';
+  static const String reflectionChannelDesc =
+      'Daily Hadith and Ayah reflections';
 
   static const String forbiddenChannelId = 'forbidden_times_channel';
   static const String forbiddenChannelName = 'Forbidden Nafl Times';
@@ -74,7 +77,7 @@ class NotificationService {
   /// Returns the notification channel ID for a given adhan voice.
   static String adhanChannelIdForVoice(String voiceName) {
     final resource = adhanVoiceResources[voiceName] ?? 'adhan_makkah';
-    return 'adhan_channel_v2_$resource';
+    return 'adhan_channel_v4_$resource';
   }
 
   /// Returns the display name for a given adhan voice notification channel.
@@ -82,9 +85,10 @@ class NotificationService {
     return 'Prayer Adhan — $voiceName';
   }
 
-  static const String adhanChannelDesc = 'Notifications for daily prayer times with adhan audio';
+  static const String adhanChannelDesc =
+      'Notifications for daily prayer times with adhan audio';
 
-  static const String prayerStandardChannelId = 'prayer_standard_channel_v2';
+  static const String prayerStandardChannelId = 'prayer_standard_channel_v4';
   static const String prayerStandardChannelName = 'Prayer Notifications';
   static const String prayerStandardChannelDesc =
       'Notifications for daily prayer times with standard device notification sound';
@@ -103,10 +107,9 @@ class NotificationService {
     'Isha': 106,
   };
 
-  NotificationService({
-    FlutterLocalNotificationsPlugin? notificationsPlugin,
-  }) : notificationsPlugin =
-            notificationsPlugin ?? FlutterLocalNotificationsPlugin();
+  NotificationService({FlutterLocalNotificationsPlugin? notificationsPlugin})
+    : notificationsPlugin =
+          notificationsPlugin ?? FlutterLocalNotificationsPlugin();
 
   /// Configures [tz.local] by matching the device's local timezone offset
   /// against available locations in [tz.timeZoneDatabase.locations].
@@ -146,8 +149,9 @@ class NotificationService {
     tz.initializeTimeZones();
     configureLocalTimeZone();
 
-    const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = DarwinInitializationSettings();
     const initSettings = InitializationSettings(
       android: androidSettings,
@@ -158,15 +162,22 @@ class NotificationService {
 
     final androidImpl = notificationsPlugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (androidImpl != null) {
       // Create a separate notification channel for each adhan voice.
-      // Android locks sound & audio attributes to the channel at creation time,
-      // so we delete legacy v1 channels and register v2 channels with AudioAttributeUsage.alarm
-      // to prevent Android OS from cutting off full adhan audio at 30 seconds.
+      // Clean up legacy v1, v2, and v3 channels from Android device settings.
       for (final entry in adhanVoiceResources.entries) {
         final resource = entry.value;
-        await androidImpl.deleteNotificationChannel(channelId: 'adhan_channel_$resource');
+        await androidImpl.deleteNotificationChannel(
+          channelId: 'adhan_channel_$resource',
+        );
+        await androidImpl.deleteNotificationChannel(
+          channelId: 'adhan_channel_v2_$resource',
+        );
+        await androidImpl.deleteNotificationChannel(
+          channelId: 'adhan_channel_v3_$resource',
+        );
 
         final channelId = adhanChannelIdForVoice(entry.key);
         final channelName = adhanChannelNameForVoice(entry.key);
@@ -176,11 +187,22 @@ class NotificationService {
             channelName,
             description: adhanChannelDesc,
             importance: Importance.max,
+            playSound: true,
             sound: RawResourceAndroidNotificationSound(resource),
             audioAttributesUsage: AudioAttributesUsage.alarm,
+            enableVibration: true,
           ),
         );
       }
+      await androidImpl.deleteNotificationChannel(
+        channelId: 'prayer_silent_channel',
+      );
+      await androidImpl.deleteNotificationChannel(
+        channelId: 'prayer_standard_channel_v2',
+      );
+      await androidImpl.deleteNotificationChannel(
+        channelId: 'prayer_standard_channel_v3',
+      );
       await androidImpl.createNotificationChannel(
         const AndroidNotificationChannel(
           prayerStandardChannelId,
@@ -189,6 +211,7 @@ class NotificationService {
           importance: Importance.high,
           playSound: true,
           enableVibration: true,
+          audioAttributesUsage: AudioAttributesUsage.notification,
         ),
       );
       await androidImpl.createNotificationChannel(
@@ -216,20 +239,18 @@ class NotificationService {
   Future<bool> requestPermissions() async {
     final androidImpl = notificationsPlugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (androidImpl != null) {
       await androidImpl.requestNotificationsPermission();
       await androidImpl.requestExactAlarmsPermission();
     }
     final iosImpl = notificationsPlugin
         .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>();
+          IOSFlutterLocalNotificationsPlugin
+        >();
     if (iosImpl != null) {
-      await iosImpl.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+      await iosImpl.requestPermissions(alert: true, badge: true, sound: true);
     }
     return true;
   }
@@ -269,21 +290,25 @@ class NotificationService {
   }) {
     final list = <PrayerNotificationData>[];
     prayerTimes.forEach((prayerName, scheduledTime) {
-      final isEnabled = enabledPrayers[prayerName] ??
+      final isEnabled =
+          enabledPrayers[prayerName] ??
           enabledPrayers[prayerName.toLowerCase()] ??
           enabledPrayers[prayerName.toUpperCase()] ??
           true;
-      final id = (customNotificationIds != null &&
+      final id =
+          (customNotificationIds != null &&
               customNotificationIds.containsKey(prayerName))
           ? customNotificationIds[prayerName]!
           : (defaultPrayerIds[prayerName] ?? prayerName.hashCode);
 
-      list.add(PrayerNotificationData(
-        prayerName: prayerName,
-        scheduledTime: scheduledTime,
-        isEnabled: isEnabled,
-        notificationId: id,
-      ));
+      list.add(
+        PrayerNotificationData(
+          prayerName: prayerName,
+          scheduledTime: scheduledTime,
+          isEnabled: isEnabled,
+          notificationId: id,
+        ),
+      );
     });
     return list;
   }
@@ -300,13 +325,40 @@ class NotificationService {
     Map<String, int>? customNotificationIds,
   }) async {
     for (final entry in defaultPrayerIds.entries) {
-      final baseId = (customNotificationIds != null &&
+      final baseId =
+          (customNotificationIds != null &&
               customNotificationIds.containsKey(entry.key))
           ? customNotificationIds[entry.key]!
           : entry.value;
       await notificationsPlugin.cancel(id: baseId);
       await notificationsPlugin.cancel(id: baseId + 1000);
       await notificationsPlugin.cancel(id: baseId + 2000);
+    }
+  }
+
+  /// Returns the localized prayer name corresponding to [prayerName] using [localizations].
+  static String getLocalizedPrayerName(
+    AppLocalizations? localizations,
+    String prayerName,
+  ) {
+    if (localizations == null) return prayerName;
+    switch (prayerName.toLowerCase()) {
+      case 'fajr':
+        return localizations.prayerFajr;
+      case 'sunrise':
+        return localizations.prayerSunrise;
+      case 'dhuhr':
+        return localizations.prayerDhuhr;
+      case 'asr':
+        return localizations.prayerAsr;
+      case 'maghrib':
+        return localizations.prayerMaghrib;
+      case 'isha':
+        return localizations.prayerIsha;
+      case 'sunset':
+        return localizations.prayerSunset;
+      default:
+        return prayerName;
     }
   }
 
@@ -322,8 +374,18 @@ class NotificationService {
     String adhanVoice = 'Makkah (Ali Mulla)',
     AppLocalizations? localizations,
   }) async {
+    var effectiveLoc = localizations;
+    if (effectiveLoc == null) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final langCode = prefs.getString('selected_language_code') ?? 'en';
+        effectiveLoc = lookupAppLocalizations(Locale(langCode));
+      } catch (_) {}
+    }
+
     final now = nowOverride ?? DateTime.now();
-    if (tz.local.name == 'Etc/UTC' && DateTime.now().timeZoneOffset != Duration.zero) {
+    if (tz.local.name == 'Etc/UTC' &&
+        DateTime.now().timeZoneOffset != Duration.zero) {
       configureLocalTimeZone();
     }
     final models = buildPrayerNotificationModels(
@@ -357,20 +419,20 @@ class NotificationService {
       }
 
       // 1. Start Notification (T = 0)
-      final tzScheduledDate = tz.TZDateTime.from(
-        targetTime,
-        tz.local,
-      );
+      final tzScheduledDate = tz.TZDateTime.from(targetTime, tz.local);
 
       // Cancel previous start alarm before rescheduling
       await notificationsPlugin.cancel(id: model.notificationId);
 
-      final effectiveChannelId =
-          playAdhanSound ? channelId : prayerStandardChannelId;
-      final effectiveChannelName =
-          playAdhanSound ? channelName : prayerStandardChannelName;
-      final effectiveChannelDesc =
-          playAdhanSound ? adhanChannelDesc : prayerStandardChannelDesc;
+      final effectiveChannelId = playAdhanSound
+          ? channelId
+          : prayerStandardChannelId;
+      final effectiveChannelName = playAdhanSound
+          ? channelName
+          : prayerStandardChannelName;
+      final effectiveChannelDesc = playAdhanSound
+          ? adhanChannelDesc
+          : prayerStandardChannelDesc;
 
       final androidDetails = AndroidNotificationDetails(
         effectiveChannelId,
@@ -382,20 +444,30 @@ class NotificationService {
             ? RawResourceAndroidNotificationSound(resourceName)
             : null,
         playSound: true,
-        audioAttributesUsage:
-            playAdhanSound ? AudioAttributesUsage.alarm : AudioAttributesUsage.notification,
+        audioAttributesUsage: playAdhanSound
+            ? AudioAttributesUsage.alarm
+            : AudioAttributesUsage.notification,
+        enableVibration: true,
       );
-      final iosDetails = const DarwinNotificationDetails(
+      final iosDetails = DarwinNotificationDetails(
         presentSound: true,
+        sound: playAdhanSound ? '$resourceName.mp3' : null,
       );
       final notificationDetails = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );
 
-      final startTitle = localizations?.notificationPrayerTitle(model.prayerName) ??
-          '${model.prayerName} Prayer';
-      final startBody = localizations?.notificationPrayerStartBody(model.prayerName) ??
+      final localizedPrayer = getLocalizedPrayerName(
+        effectiveLoc,
+        model.prayerName,
+      );
+
+      final startTitle =
+          effectiveLoc?.notificationPrayerTitle(localizedPrayer) ??
+          '$localizedPrayer Prayer';
+      final startBody =
+          effectiveLoc?.notificationPrayerStartBody(localizedPrayer) ??
           SunnahReminders.getStartMessage(model.prayerName);
 
       await _safeZonedSchedule(
@@ -423,11 +495,13 @@ class NotificationService {
             iOS: DarwinNotificationDetails(),
           );
 
-          final msg = localizations?.notificationEarlyReminderBody(model.prayerName) ??
+          final msg =
+              effectiveLoc?.notificationEarlyReminderBody(localizedPrayer) ??
               (SunnahReminders.post15MinReminders[model.prayerName] ??
-                  '15 minutes into ${model.prayerName} time. Have you prayed yet?');
-          final earlyTitle = localizations?.notificationEarlyReminderTitle(model.prayerName) ??
-              'Early Prayer Reminder — ${model.prayerName}';
+                  '15 minutes into $localizedPrayer time. Have you prayed yet?');
+          final earlyTitle =
+              effectiveLoc?.notificationEarlyReminderTitle(localizedPrayer) ??
+              'Early Prayer Reminder — $localizedPrayer';
 
           await _safeZonedSchedule(
             id: model.notificationId + 1000,
@@ -456,11 +530,17 @@ class NotificationService {
               iOS: DarwinNotificationDetails(),
             );
 
-            final msg = localizations?.notificationUrgentWarningBody(model.prayerName) ??
+            final msg =
+                effectiveLoc?.notificationUrgentWarningBody(
+                  localizedPrayer,
+                ) ??
                 (SunnahReminders.pre30MinReminders[model.prayerName] ??
-                    'Only 30 minutes left for ${model.prayerName} prayer. Have you prayed yet?');
-            final urgentTitle = localizations?.notificationUrgentWarningTitle(model.prayerName) ??
-                'Urgent — 30 Mins Left for ${model.prayerName}';
+                    'Only 30 minutes left for $localizedPrayer prayer. Have you prayed yet?');
+            final urgentTitle =
+                effectiveLoc?.notificationUrgentWarningTitle(
+                  localizedPrayer,
+                ) ??
+                'Urgent — 30 Mins Left for $localizedPrayer';
 
             await _safeZonedSchedule(
               id: model.notificationId + 2000,
@@ -491,7 +571,8 @@ class NotificationService {
 
     var targetTime = scheduledTime;
     final now = nowOverride ?? DateTime.now();
-    if (tz.local.name == 'Etc/UTC' && DateTime.now().timeZoneOffset != Duration.zero) {
+    if (tz.local.name == 'Etc/UTC' &&
+        DateTime.now().timeZoneOffset != Duration.zero) {
       configureLocalTimeZone();
     }
     if (!targetTime.isAfter(now)) {
@@ -499,7 +580,10 @@ class NotificationService {
     }
 
     final tzScheduledDate = tz.TZDateTime.from(targetTime, tz.local);
-    final truncatedBody = truncateNotificationBody(content.translationText, 120);
+    final truncatedBody = truncateNotificationBody(
+      content.translationText,
+      120,
+    );
     final payload = formatNotificationPayload(content);
 
     const androidDetails = AndroidNotificationDetails(
@@ -562,8 +646,18 @@ class NotificationService {
 
     if (!enabled) return;
 
+    var effectiveLoc = localizations;
+    if (effectiveLoc == null) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final langCode = prefs.getString('selected_language_code') ?? 'en';
+        effectiveLoc = lookupAppLocalizations(Locale(langCode));
+      } catch (_) {}
+    }
+
     final now = nowOverride ?? DateTime.now();
-    if (tz.local.name == 'Etc/UTC' && DateTime.now().timeZoneOffset != Duration.zero) {
+    if (tz.local.name == 'Etc/UTC' &&
+        DateTime.now().timeZoneOffset != Duration.zero) {
       configureLocalTimeZone();
     }
 
@@ -581,10 +675,11 @@ class NotificationService {
         id: forbiddenSunriseNotificationId,
         start: sunriseStart,
         end: sunriseEnd,
-        title: localizations?.forbiddenNaflSunriseHeader ??
+        title:
+            effectiveLoc?.forbiddenNaflSunriseHeader ??
             'FORBIDDEN NAFL TIME • SUNRISE',
         generateBody: (DateTime s, DateTime e) =>
-            localizations?.forbiddenNaflSunriseBody(
+            effectiveLoc?.forbiddenNaflSunriseBody(
               _formatTime(s),
               _formatTime(e),
             ) ??
@@ -594,10 +689,11 @@ class NotificationService {
         id: forbiddenZawalNotificationId,
         start: zawalStart,
         end: zawalEnd,
-        title: localizations?.forbiddenNaflZawalHeader ??
+        title:
+            effectiveLoc?.forbiddenNaflZawalHeader ??
             'FORBIDDEN NAFL TIME • ZENITH (ZAWAL)',
         generateBody: (DateTime s, DateTime e) =>
-            localizations?.forbiddenNaflZawalBody(
+            effectiveLoc?.forbiddenNaflZawalBody(
               _formatTime(s),
               _formatTime(e),
             ) ??
@@ -607,10 +703,11 @@ class NotificationService {
         id: forbiddenSunsetNotificationId,
         start: sunsetStart,
         end: sunsetEnd,
-        title: localizations?.forbiddenNaflSunsetHeader ??
+        title:
+            effectiveLoc?.forbiddenNaflSunsetHeader ??
             'FORBIDDEN NAFL TIME • SUNSET',
         generateBody: (DateTime s, DateTime e) =>
-            localizations?.forbiddenNaflSunsetBody(
+            effectiveLoc?.forbiddenNaflSunsetBody(
               _formatTime(s),
               _formatTime(e),
             ) ??
@@ -742,12 +839,15 @@ class NotificationService {
     final channelId = adhanChannelIdForVoice(adhanVoice);
     final channelName = adhanChannelNameForVoice(adhanVoice);
 
-    final effectiveChannelId =
-        playAdhanSound ? channelId : prayerStandardChannelId;
-    final effectiveChannelName =
-        playAdhanSound ? channelName : prayerStandardChannelName;
-    final effectiveChannelDesc =
-        playAdhanSound ? adhanChannelDesc : prayerStandardChannelDesc;
+    final effectiveChannelId = playAdhanSound
+        ? channelId
+        : prayerStandardChannelId;
+    final effectiveChannelName = playAdhanSound
+        ? channelName
+        : prayerStandardChannelName;
+    final effectiveChannelDesc = playAdhanSound
+        ? adhanChannelDesc
+        : prayerStandardChannelDesc;
 
     final androidDetails = AndroidNotificationDetails(
       effectiveChannelId,
@@ -759,13 +859,16 @@ class NotificationService {
           ? RawResourceAndroidNotificationSound(resourceName)
           : null,
       playSound: true,
-      audioAttributesUsage:
-          playAdhanSound ? AudioAttributesUsage.alarm : AudioAttributesUsage.notification,
+      audioAttributesUsage: playAdhanSound
+          ? AudioAttributesUsage.alarm
+          : AudioAttributesUsage.notification,
+      enableVibration: true,
     );
     final notificationDetails = NotificationDetails(
       android: androidDetails,
-      iOS: const DarwinNotificationDetails(
+      iOS: DarwinNotificationDetails(
         presentSound: true,
+        sound: playAdhanSound ? '$resourceName.mp3' : null,
       ),
     );
 
@@ -809,19 +912,29 @@ abstract final class SunnahReminders {
   };
 
   static const post15MinReminders = <String, String>{
-    'Fajr': '15 minutes into Fajr time. Have you prayed yet? The Prophet ﷺ emphasized praying at the earliest time.',
-    'Dhuhr': '15 minutes into Dhuhr time. Take a moment to pray Dhuhr and refresh your soul.',
-    'Asr': '15 minutes into Asr time. Do not delay Asr prayer; perform it with devotion.',
-    'Maghrib': '15 minutes into Maghrib time. Maghrib time passes quickly—hasten to pray.',
-    'Isha': '15 minutes into Isha time. Complete your Isha prayer to rest with tranquility.',
+    'Fajr':
+        '15 minutes into Fajr time. Have you prayed yet? The Prophet ﷺ emphasized praying at the earliest time.',
+    'Dhuhr':
+        '15 minutes into Dhuhr time. Take a moment to pray Dhuhr and refresh your soul.',
+    'Asr':
+        '15 minutes into Asr time. Do not delay Asr prayer; perform it with devotion.',
+    'Maghrib':
+        '15 minutes into Maghrib time. Maghrib time passes quickly—hasten to pray.',
+    'Isha':
+        '15 minutes into Isha time. Complete your Isha prayer to rest with tranquility.',
   };
 
   static const pre30MinReminders = <String, String>{
-    'Fajr': 'Only 30 minutes left for Fajr prayer before Sunrise. Make Wudu and pray now!',
-    'Dhuhr': 'Only 30 minutes left for Dhuhr prayer before Asr. Have you prayed yet?',
-    'Asr': 'Only 30 minutes left for Asr prayer before Maghrib. Perform your prayer now!',
-    'Maghrib': 'Only 30 minutes left for Maghrib prayer before Isha. Have you prayed yet?',
-    'Isha': 'Only 30 minutes left for Isha prayer before midnight. Complete your prayer now!',
+    'Fajr':
+        'Only 30 minutes left for Fajr prayer before Sunrise. Make Wudu and pray now!',
+    'Dhuhr':
+        'Only 30 minutes left for Dhuhr prayer before Asr. Have you prayed yet?',
+    'Asr':
+        'Only 30 minutes left for Asr prayer before Maghrib. Perform your prayer now!',
+    'Maghrib':
+        'Only 30 minutes left for Maghrib prayer before Isha. Have you prayed yet?',
+    'Isha':
+        'Only 30 minutes left for Isha prayer before midnight. Complete your prayer now!',
   };
 
   static String getStartMessage(String prayerName) {

@@ -27,28 +27,28 @@ class AppLocalizationsBs extends AppLocalizations {
   String get navCalendar => 'Calendar';
 
   @override
-  String get prayerFajr => 'Fajr';
+  String get prayerFajr => 'Sabah';
 
   @override
-  String get prayerSunrise => 'Sunrise';
+  String get prayerSunrise => 'Izlazak sunca';
 
   @override
-  String get prayerDhuhr => 'Dhuhr';
+  String get prayerDhuhr => 'Podne';
 
   @override
-  String get prayerAsr => 'Asr';
+  String get prayerAsr => 'Ikindija';
 
   @override
-  String get prayerMaghrib => 'Maghrib';
+  String get prayerMaghrib => 'Akšam';
 
   @override
-  String get prayerIsha => 'Isha';
+  String get prayerIsha => 'Jacija';
 
   @override
-  String get upcomingPrayer => 'UPCOMING PRAYER';
+  String get upcomingPrayer => 'Sljedeći namaz';
 
   @override
-  String get currentSalah => 'CURRENT SALAH';
+  String get currentSalah => 'Trenutni namaz';
 
   @override
   String get remaining => 'preostalo';
@@ -375,7 +375,7 @@ class AppLocalizationsBs extends AppLocalizations {
   String get navTracker => 'Tracker';
 
   @override
-  String get prayerSunset => 'Sunset';
+  String get prayerSunset => 'Zalazak sunca';
 
   @override
   String get statusNotPrayed => 'Not Prayed';
@@ -947,6 +947,9 @@ class AppLocalizationsBs extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'La ilahe illallah';
 
   @override
+  String get dhikrSalawat => 'Salawat';
+
+  @override
   String get dhikrSubhanAllahTranslation =>
       'Slavljen neka je Allah i čist od svakog nedostatka';
 
@@ -964,6 +967,12 @@ class AppLocalizationsBs extends AppLocalizations {
   @override
   String get dhikrLaIlahaIllallahTranslation =>
       'Nema istinskog boga dostojnog obožavanja osim Allaha';
+
+  @override
+  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+
+  @override
+  String get doSalawat => 'Do Salawat';
 
   @override
   String tasbihNextDhikr(String dhikr) {
@@ -996,43 +1005,213 @@ class AppLocalizationsBs extends AppLocalizations {
   }
 
   @override
-  String get forbiddenTimesNotificationTitle => 'Forbidden Time Notifications';
+  String get forbiddenTimesNotificationTitle =>
+      'Obavještenja o zabranjenom vremenu';
 
   @override
   String get forbiddenTimesNotificationSubtitle =>
-      'Alerts for Sunrise, Zenith & Sunset prohibited windows';
+      'Upozorenje za zabranjeno vrijeme nafila namaza';
 
   @override
   String get forbiddenNaflUpcomingSunriseHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNRISE';
+      'NASTUPAJUĆE ZABRANJENO VRIJEME • IZLAZAK SUNCA';
 
   @override
   String forbiddenNaflUpcomingSunriseBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time as the sun rises. Conclude voluntary prayers before this time.';
+    return 'Dobrovoljni (nafila) namazi postaju zabranjeni u $time tokom izlaska sunca. Završite nafile prije ovog vremena.';
   }
 
   @override
   String get forbiddenNaflUpcomingZawalHeader =>
-      'UPCOMING FORBIDDEN TIME • ZENITH (ZAWAL)';
+      'NASTUPAJUĆE ZABRANJENO VRIJEME • ZENIT (ZEVAL)';
 
   @override
   String forbiddenNaflUpcomingZawalBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time during solar zenith. Conclude voluntary prayers before this time.';
+    return 'Dobrovoljni (nafila) namazi postaju zabranjeni u $time tokom zenita sunca. Završite nafile prije ovog vremena.';
   }
 
   @override
   String get forbiddenNaflUpcomingSunsetHeader =>
-      'UPCOMING FORBIDDEN TIME • SUNSET';
+      'NASTUPAJUĆE ZABRANJENO VRIJEME • ZALAZAK SUNCA';
 
   @override
   String forbiddenNaflUpcomingSunsetBody(String time) {
-    return 'Voluntary (Nafl) prayers become prohibited at $time before sunset. Conclude voluntary prayers before this time.';
+    return 'Dobrovoljni (nafila) namazi postaju zabranjeni u $time prije zalaska sunca. Završite nafile prije ovog vremena.';
   }
 
   @override
-  String get forbiddenNaflConcludedHeader => 'FORBIDDEN TIME CONCLUDED';
+  String get forbiddenNaflConcludedHeader => 'ZABRANJENO VRIJEME ZAVRŠENO';
 
   @override
   String get forbiddenNaflConcludedBody =>
-      'The prohibited window has ended. Voluntary (Nafl) prayers are now permissible.';
+      'Zabranjeni period je završen. Dobrovoljni (nafila) namazi su sada dozvoljeni.';
+
+  @override
+  String get solarTimingsTitle => 'Solarna vremena';
+
+  @override
+  String get daylightWindowNote =>
+      'Dnevni prozor: Sabah završava tačno izlaskom sunca. Akšam počinje zalaskom sunca.';
+
+  @override
+  String get prayerStarts => 'Počinje';
+
+  @override
+  String get prayerStarted => 'Počelo';
+
+  @override
+  String get prayerEnds => 'Završava';
+
+  @override
+  String get badgeCurrent => 'TRENUTNO';
+
+  @override
+  String get badgeNext => 'SLJEDEĆE';
+
+  @override
+  String get shuruqBadge => 'Izlazak sunca (Išrak)';
+
+  @override
+  String get continueToPrayerTimes => 'Nastavi na namaska vremena';
+
+  @override
+  String tomorrowAt(String time) {
+    return 'Sutra u $time';
+  }
+
+  @override
+  String get fridayJumuahTitle => 'Džuma';
+
+  @override
+  String get fridayLocationLabel => 'Lokacija';
+
+  @override
+  String get fridayAtMosque => 'U džamiji';
+
+  @override
+  String get fridayAtHome => 'Kod kuće';
+
+  @override
+  String get fridaySunnahRulingsTitle => 'Propisi i sunneti džume';
+
+  @override
+  String get fridayBeforeLabel => 'Prije';
+
+  @override
+  String get fridayAfterLabel => 'Poslije';
+
+  @override
+  String get fridayMosqueBeforeDesc =>
+      'Tehijjetul-mesdžid i opće dobrovoljne nafile do početka hutbe.';
+
+  @override
+  String get fridayMosqueAfterDesc =>
+      '4 rekata sunneta (u džamiji) ili 2 rekata sunneta (ako klanjate kod kuće).';
+
+  @override
+  String get fridayHomeBeforeDesc =>
+      '4 rekata sunneta prije podne-namaza (za one koji klanjaju podne kod kuće).';
+
+  @override
+  String get fridayHomeAfterDesc =>
+      '2 rekata sunneta poslije podne-namaza (za one koji klanjaju podne kod kuće).';
+
+  @override
+  String get fridayClickToReadFull =>
+      'Dodirnite za pregled vjerodostojnih hadisa i propisa';
+
+  @override
+  String get fridaySuiteHeader => 'DŽUMANSKI SUNNETI I POSEBNA DJELA';
+
+  @override
+  String get fridayTodayOnly => 'Dostupno petkom';
+
+  @override
+  String get surahKahfTitle => 'Sura El-Kehf';
+
+  @override
+  String get surahKahfBadge => 'Svjetlost između dvije džume';
+
+  @override
+  String get surahKahfHadith =>
+      'Ko petkom prouči suru El-Kehf, obasjat će ga svjetlost između dvije džume. (El-Bejheki)';
+
+  @override
+  String get markAsRead => 'Označi kao proučeno';
+
+  @override
+  String get readCompleted => 'Proučeno';
+
+  @override
+  String get salawatTitle => 'Obilno donošenje salavata na Poslanika ﷺ';
+
+  @override
+  String get salawatBadge => 'Direktno predočeno';
+
+  @override
+  String get salawatHadith =>
+      'Donosite mnogo salavata na mene petkom, jer se vaši salavati meni predočavaju. (Ebu Davud)';
+
+  @override
+  String get salawatCountLabel => 'Doneseno salavata danas';
+
+  @override
+  String get salawatTapBtn => 'Donesi salavat (+1)';
+
+  @override
+  String get fridayEtiquettesTitle => 'Sunneti i adabi petka';
+
+  @override
+  String get fridayEtiquettesRef => 'Vjerodostojni sunneti petka';
+
+  @override
+  String get fridayGhusl => 'Kupanje (gusul) prije namaza';
+
+  @override
+  String get fridaySiwak => 'Upotreba misvaka i lijep miris';
+
+  @override
+  String get fridayCleanClothes => 'Oblačenje najljepše i čiste odjeće';
+
+  @override
+  String get fridayEarlyMosque => 'Rani odlazak u džamiju na hutbu';
+
+  @override
+  String get istijabahTitle => 'Čas uslišenja dove (Sa\'at el-istidžabe)';
+
+  @override
+  String get istijabahBadge => 'Dova se prima';
+
+  @override
+  String get istijabahHadith =>
+      'U petku ima čas u kojem rob musliman, ako zamoli Allaha za neko dobro, Allah će mu to dati — tražite ga u zadnjem času poslije ikindije. (Ebu Davud, En-Nesai)';
+
+  @override
+  String get fridayHadithGuideSheetTitle =>
+      'Vodič kroz džumanske sunnete: Hadisi';
+
+  @override
+  String get fridayHadithBeforeCardTitle => 'Prije džume / podne-namaza';
+
+  @override
+  String get fridayHadithBeforeCardDesc =>
+      'U džamiji: Pri ulasku klanjati 2 rekata tehijjetul-mesdžida, zatim opće nafile dok se imam ne popne na minber. Kod kuće (podne): 4 rekata pritvrđenog sunneta prije podne-namaza.';
+
+  @override
+  String get fridayHadithAfterMosqueTitle =>
+      'Poslije džume u džamiji (4 rekata)';
+
+  @override
+  String get fridayHadithAfterMosqueDesc =>
+      'Ebu Hurejre prenosi da je Allahov Poslanik ﷺ rekao: \'Kada neko od vas klanja džumu, neka poslije nje klanja četiri rekata.\' (Sahih Muslim 881)';
+
+  @override
+  String get fridayHadithAfterHomeTitle => 'Poslije džume kod kuće (2 rekata)';
+
+  @override
+  String get fridayHadithAfterHomeDesc =>
+      'Ibn Omer prenosi: \'Poslanik ﷺ ne bi klanjao poslije džume dok ne ode, a zatim bi u svojoj kući klanjao dva rekata.\' (Sahih el-Buhari 937, Sahih Muslim 882)';
+
+  @override
+  String get closeGuideBtn => 'Zatvori vodič';
 }
