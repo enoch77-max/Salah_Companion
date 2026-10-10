@@ -62,7 +62,7 @@ class OpenSourceSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        border: Border.all(color: colors.dividerStrong, width: 1.0),
+        border: Border.all(color: colors.cardBorder, width: 0.8),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.25),
@@ -174,7 +174,7 @@ class OpenSourceSheet extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: colors.surfaceHover.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: colors.divider, width: 1.0),
+                  border: Border.all(color: colors.cardBorder, width: 0.8),
                 ),
                 child: Column(
                   children: [
@@ -188,7 +188,7 @@ class OpenSourceSheet extends StatelessWidget {
                     Divider(
                       height: 1,
                       thickness: 1,
-                      color: colors.divider,
+                      color: colors.cardBorder,
                       indent: 0,
                       endIndent: 0,
                     ),
@@ -202,7 +202,7 @@ class OpenSourceSheet extends StatelessWidget {
                     Divider(
                       height: 1,
                       thickness: 1,
-                      color: colors.divider,
+                      color: colors.cardBorder,
                       indent: 0,
                       endIndent: 0,
                     ),
@@ -224,7 +224,7 @@ class OpenSourceSheet extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: colors.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: colors.dividerStrong),
+                  border: Border.all(color: colors.cardBorder, width: 0.8),
                 ),
                 child: Row(
                   children: [

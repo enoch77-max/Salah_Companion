@@ -11,7 +11,7 @@ import '../../../reflection/domain/models/daily_content.dart';
 ///
 /// Features:
 /// - Background: Surface fill with subtle elevation border
-/// - Continuous squircle curvature (`ContinuousRectangleBorder(borderRadius: BorderRadius.circular(18))`)
+/// - Clean rounded curvature (`RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))`)
 /// - Header: Type tag badge (`HADITH` / `AYAH`), gold quotation mark, share action, and animated favorite star toggle
 /// - Arabic text: Amiri font (`quranicStyle`/`hadithStyle`), RTL direction with dynamic height
 /// - Hairline divider separating Arabic and English
@@ -86,9 +86,9 @@ class DailyReflectionCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
         color: colors.paperBackground,
-        shape: ContinuousRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: BorderSide(color: colors.dividerStrong, width: 1.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: colors.cardBorder, width: 0.8),
         ),
       ),
       child: Stack(
@@ -168,7 +168,7 @@ class DailyReflectionCard extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: [
                         colors.divider.withValues(alpha: 0.0),
-                        colors.dividerStrong,
+                        colors.cardBorder,
                         colors.divider.withValues(alpha: 0.0),
                       ],
                     ),
@@ -209,11 +209,11 @@ class DailyReflectionCard extends StatelessWidget {
                         ),
                         decoration: ShapeDecoration(
                           color: emeraldGreen.withValues(alpha: 0.12),
-                          shape: ContinuousRectangleBorder(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6),
                             side: BorderSide(
                               color: emeraldGreen.withValues(alpha: 0.3),
-                              width: 1,
+                              width: 0.8,
                             ),
                           ),
                         ),

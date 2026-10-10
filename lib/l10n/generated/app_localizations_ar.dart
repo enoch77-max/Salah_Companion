@@ -967,6 +967,13 @@ class AppLocalizationsAr extends AppLocalizations {
       'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ';
 
   @override
+  String get dhikrDuroodIbrahim => 'الصَّلَاةُ الإِبْرَاهِيمِيَّةُ';
+
+  @override
+  String get dhikrDuroodIbrahimTranslation =>
+      'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ، اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ';
+
+  @override
   String get doSalawat => 'صَلِّ على النبي';
 
   @override
@@ -1083,7 +1090,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fridayAtHome => 'في البيت';
 
   @override
-  String get fridaySunnahRulingsTitle => 'أحكام سنن يوم الجمعة';
+  String get fridaySunnahRulingsTitle => 'أحكام سنن الجمعة';
 
   @override
   String get fridayBeforeLabel => 'قبل الصلاة';
@@ -1112,10 +1119,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'اضغط للاطلاع على الأحكام والأحاديث النبوية';
 
   @override
-  String get fridaySuiteHeader => 'سنن وفضائل يوم الجمعة';
+  String get fridaySuiteHeader => 'سنن وفضائل الجمعة';
 
   @override
-  String get fridayTodayOnly => 'متاح يوم الجمعة';
+  String get fridayTodayOnly => 'متاح للجمعة';
 
   @override
   String get surahKahfTitle => 'سورة الكهف';
@@ -1150,7 +1157,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get salawatTapBtn => 'صَلِّ على النبي (+١)';
 
   @override
-  String get fridayEtiquettesTitle => 'سنن وآداب يوم الجمعة';
+  String get fridayEtiquettesTitle => 'سنن وآداب الجمعة';
 
   @override
   String get fridayEtiquettesRef => 'السنن النبوية للجمعة';

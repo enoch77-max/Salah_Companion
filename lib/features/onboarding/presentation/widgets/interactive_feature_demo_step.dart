@@ -142,7 +142,7 @@ class _InteractiveFeatureDemoStepState
           decoration: BoxDecoration(
             color: colors.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: colors.divider),
+            border: Border.all(color: colors.cardBorder, width: 0.8),
           ),
           child: Row(
             children: [
@@ -360,7 +360,7 @@ class _InteractiveFeatureDemoStepState
             ],
           ),
           const SizedBox(height: 14),
-          Divider(height: 1, color: colors.divider),
+          Divider(height: 1, color: colors.cardBorder),
           const SizedBox(height: 12),
           Text(
             'Interactive Alert Mode (Tap to test):',
@@ -389,7 +389,9 @@ class _InteractiveFeatureDemoStepState
                           : colors.elevatedBackground,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: isSel ? const Color(0xFFF59E0B) : colors.divider,
+                        color:
+                            isSel ? const Color(0xFFF59E0B) : colors.cardBorder,
+                        width: 0.8,
                       ),
                     ),
                     child: Center(
@@ -428,8 +430,8 @@ class _InteractiveFeatureDemoStepState
             color: colors.surface,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: _isQiblaAligned ? colors.success : colors.divider,
-              width: _isQiblaAligned ? 1.5 : 1.0,
+              color: _isQiblaAligned ? colors.success : colors.cardBorder,
+              width: _isQiblaAligned ? 1.5 : 0.8,
             ),
           ),
           child: Column(

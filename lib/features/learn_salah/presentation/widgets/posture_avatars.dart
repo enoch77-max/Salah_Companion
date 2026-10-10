@@ -41,11 +41,11 @@ class PostureAvatarWidget extends StatelessWidget {
       height: height,
       decoration: ShapeDecoration(
         color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-        shape: ContinuousRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
           side: BorderSide(
             color: avatarPrimary.withValues(alpha: 0.3),
-            width: 1.5,
+            width: 0.8,
           ),
         ),
         shadows: [

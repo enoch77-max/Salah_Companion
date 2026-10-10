@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,6 +10,8 @@ import '../../../../app/theme/app_theme.dart';
 import '../../../../core/services/app_haptics.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../animation/card_expand_route.dart';
+import 'friday_hadith_guide_popup.dart';
 
 enum PrayerStatus {
   pending,
@@ -243,9 +245,9 @@ class _PrayerListCardState extends State<PrayerListCard> {
     return Container(
       decoration: ShapeDecoration(
         color: colors.elevatedBackground,
-        shape: ContinuousRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: colors.dividerStrong, width: 1.0),
+          side: BorderSide(color: colors.cardBorder, width: 0.8),
         ),
       ),
       padding: const EdgeInsets.all(16.0),
@@ -407,6 +409,7 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
+  final GlobalKey _fridaySunnahCardKey = GlobalKey();
 
   @override
   void initState() {
@@ -622,6 +625,15 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
       cardOpacity = 0.70;
     }
 
+    final effectiveCardColor = isSelected
+        ? (isDark ? colors.surfaceHover : colors.surface)
+        : (isPrayed
+            ? Color.alphaBlend(
+                colors.surface.withValues(alpha: 0.35),
+                colors.elevatedBackground,
+              )
+            : colors.surface);
+
     return ScaleTransition(
       scale: _scaleAnimation,
       child: GestureDetector(
@@ -633,12 +645,8 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
           curve: Curves.easeOutCubic,
           margin: EdgeInsets.symmetric(horizontal: isSelected ? 0.0 : 8.0),
           decoration: ShapeDecoration(
-            color: isSelected
-                ? (isDark ? colors.surfaceHover : colors.surface)
-                : (isPrayed
-                      ? colors.surface.withValues(alpha: 0.35)
-                      : colors.surface),
-            shape: ContinuousRectangleBorder(
+            color: effectiveCardColor,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
               side: BorderSide(
                 color: isSelected
@@ -646,7 +654,7 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
                           ? const Color(0xFFD4A574)
                           : const Color(0xFF0F766E))
                     : (isPrayed
-                          ? colors.divider.withValues(alpha: isDark ? 0.4 : 0.6)
+                          ? Colors.transparent
                           : (item.isNext
                                 ? (isDark
                                       ? const Color(
@@ -655,8 +663,8 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
                                       : const Color(
                                           0xFFB45309,
                                         ).withValues(alpha: 0.35))
-                                : colors.divider)),
-                width: 1.0,
+                                : colors.cardBorder)),
+                width: 0.8,
               ),
             ),
             shadows: selectedShadows,
@@ -684,7 +692,10 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
                   height: isSelected ? 40 : 34,
                   decoration: BoxDecoration(
                     color: isPrayed
-                        ? colors.success.withValues(alpha: 0.20)
+                        ? Color.alphaBlend(
+                            colors.success.withValues(alpha: 0.20),
+                            effectiveCardColor,
+                          )
                         : squircleColor,
                     borderRadius: BorderRadius.circular(isSelected ? 13 : 11),
                     boxShadow: isSelected && !isPrayed
@@ -708,14 +719,14 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
                                     widget.isFridayMosqueMode,
                                   ),
                             key: ValueKey(
-                              'icon_${item.name}_${item.status.name}_${widget.isFridayMosqueMode}',
+                              'icon_${item.name}_${item.status.name}',
                             ),
                             size: isSelected ? 20 : 17,
                             color: isPrayed ? colors.successText : Colors.white,
                           )
                           .animate(
                             key: ValueKey(
-                              'anim_icon_${item.name}_${item.status.name}_${widget.isFridayMosqueMode}',
+                              'anim_icon_${item.name}_${item.status.name}',
                             ),
                           )
                           .scale(
@@ -852,21 +863,22 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
                         curve: Curves.easeOutCubic,
                         decoration: ShapeDecoration(
                           color: isPrayed
-                              ? colors.surface.withValues(alpha: 0.4)
+                              ? Color.alphaBlend(
+                                  colors.surface.withValues(alpha: 0.4),
+                                  effectiveCardColor,
+                                )
                               : badgeBg,
-                          shape: ContinuousRectangleBorder(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
                               isSelected ? 11 : 10,
                             ),
                             side: BorderSide(
-                              color: isSelected
-                                  ? (isPrayed
-                                        ? colors.divider.withValues(alpha: 0.3)
-                                        : colors.primary.withValues(alpha: 0.4))
-                                  : (isPrayed
-                                        ? colors.divider.withValues(alpha: 0.3)
-                                        : colors.dividerStrong),
-                              width: 1,
+                              color: isPrayed
+                                  ? Colors.transparent
+                                  : (isSelected
+                                        ? colors.primary.withValues(alpha: 0.4)
+                                        : colors.cardBorder),
+                              width: 0.8,
                             ),
                           ),
                         ),
@@ -928,7 +940,7 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
                   Container(
                     decoration: ShapeDecoration(
                       color: colors.surfaceHover,
-                      shape: ContinuousRectangleBorder(
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
@@ -1024,34 +1036,30 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
     bool isDark,
   ) {
     final isMosque = widget.isFridayMosqueMode;
+    final activeBg = isDark
+        ? const Color(0xFFD4A574).withValues(alpha: 0.22)
+        : const Color(0xFFCCFBF1);
+    final activeBorder = isDark
+        ? const Color(0xFFD4A574).withValues(alpha: 0.45)
+        : const Color(0xFF0F766E).withValues(alpha: 0.28);
+    final activeColor =
+        isDark ? const Color(0xFFE8C9A0) : const Color(0xFF0F766E);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-      decoration: BoxDecoration(
-        color: isDark
-            ? colors.surface.withValues(alpha: 0.45)
-            : colors.surfaceHover.withValues(alpha: 0.65),
-        borderRadius: BorderRadius.circular(9),
-        border: Border.all(
-          color: colors.divider.withValues(alpha: isDark ? 0.35 : 0.5),
-          width: 0.8,
-        ),
-      ),
-      child: Wrap(
-        alignment: WrapAlignment.spaceBetween,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 6.0,
-        runSpacing: 5.0,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.place_outlined,
-                size: 13,
+                size: 13.5,
                 color: colors.textSecondary,
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 4.5),
               Text(
                 l10n?.fridayLocationLabel ?? 'Location',
                 softWrap: true,
@@ -1064,96 +1072,175 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
               ),
             ],
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Mosque Capsule
-              _buildLocationCapsule(
-                label: l10n?.fridayAtMosque ?? 'At Mosque',
-                icon: Icons.mosque_rounded,
-                isActive: isMosque,
-                isDark: isDark,
-                colors: colors,
-                onTap: () {
-                  if (!isMosque) {
-                    widget.onFridayLocationChanged?.call(true);
-                  }
-                },
-              ),
-              const SizedBox(width: 6),
-              // Home Capsule
-              _buildLocationCapsule(
-                label: l10n?.fridayAtHome ?? 'At Home',
-                icon: Icons.home_rounded,
-                isActive: !isMosque,
-                isDark: isDark,
-                colors: colors,
-                onTap: () {
-                  if (isMosque) {
-                    widget.onFridayLocationChanged?.call(false);
-                  }
-                },
-              ),
-            ],
+          // Clean low-profile segmented pill control
+          Container(
+            width: 196,
+            height: 28,
+            padding: const EdgeInsets.all(2.0),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? colors.surface.withValues(alpha: 0.45)
+                  : colors.surfaceHover.withValues(alpha: 0.55),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Stack(
+              children: [
+                // Sliding capsule indicator
+                Positioned.fill(
+                  child: AnimatedAlign(
+                    alignment: isMosque
+                        ? Alignment.centerLeft
+                        : Alignment.centerRight,
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeOutCubic,
+                    child: FractionallySizedBox(
+                      widthFactor: 0.5,
+                      heightFactor: 1.0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: activeBg,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: activeBorder,
+                            width: 0.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isDark
+                                  ? const Color(0xFFD4A574)
+                                      .withValues(alpha: 0.14)
+                                  : const Color(0xFF0F766E)
+                                      .withValues(alpha: 0.10),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Segmented options
+                Row(
+                  children: [
+                    // Mosque option
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          if (!isMosque) {
+                            widget.onFridayLocationChanged?.call(true);
+                          }
+                        },
+                        child: Center(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 4.0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.mosque_rounded,
+                                  size: 12.0,
+                                  color: isMosque
+                                      ? activeColor
+                                      : colors.textTertiary,
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: AnimatedDefaultTextStyle(
+                                      duration:
+                                          const Duration(milliseconds: 220),
+                                      curve: Curves.easeOutCubic,
+                                      style: TextStyle(
+                                        fontSize: 10.5,
+                                        fontWeight: isMosque
+                                            ? FontWeight.w700
+                                            : FontWeight.w500,
+                                        color: isMosque
+                                            ? activeColor
+                                            : colors.textTertiary,
+                                      ),
+                                      child: Text(
+                                        l10n?.fridayAtMosque ?? 'At Mosque',
+                                        maxLines: 1,
+                                        softWrap: false,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Home option
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          if (isMosque) {
+                            widget.onFridayLocationChanged?.call(false);
+                          }
+                        },
+                        child: Center(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 4.0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.home_rounded,
+                                  size: 12.0,
+                                  color: !isMosque
+                                      ? activeColor
+                                      : colors.textTertiary,
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: AnimatedDefaultTextStyle(
+                                      duration:
+                                          const Duration(milliseconds: 220),
+                                      curve: Curves.easeOutCubic,
+                                      style: TextStyle(
+                                        fontSize: 10.5,
+                                        fontWeight: !isMosque
+                                            ? FontWeight.w700
+                                            : FontWeight.w500,
+                                        color: !isMosque
+                                            ? activeColor
+                                            : colors.textTertiary,
+                                      ),
+                                      child: Text(
+                                        l10n?.fridayAtHome ?? 'At Home',
+                                        maxLines: 1,
+                                        softWrap: false,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildLocationCapsule({
-    required String label,
-    required IconData icon,
-    required bool isActive,
-    required bool isDark,
-    required AppCustomColors colors,
-    required VoidCallback onTap,
-  }) {
-    final activeBg = isDark
-        ? const Color(0xFFD4A574).withValues(alpha: 0.22)
-        : const Color(0xFF0F766E).withValues(alpha: 0.12);
-    final activeBorder = isDark
-        ? const Color(0xFFD4A574).withValues(alpha: 0.60)
-        : const Color(0xFF0F766E).withValues(alpha: 0.40);
-    final activeColor =
-        isDark ? const Color(0xFFE8C9A0) : const Color(0xFF0F766E);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(7),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 3.5),
-        decoration: BoxDecoration(
-          color: isActive ? activeBg : Colors.transparent,
-          borderRadius: BorderRadius.circular(7),
-          border: Border.all(
-            color: isActive
-                ? activeBorder
-                : colors.divider.withValues(alpha: isDark ? 0.35 : 0.5),
-            width: 0.8,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 11.5,
-              color: isActive ? activeColor : colors.textTertiary,
-            ),
-            const SizedBox(width: 3.5),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10.0,
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                color: isActive ? activeColor : colors.textTertiary,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -1185,108 +1272,131 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
     final accentColor =
         isDark ? const Color(0xFFE8C9A0) : const Color(0xFF0F766E);
 
-    return InkWell(
-      onTap: () => _showHadithGuideSheet(context),
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7.5),
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: cardBorder, width: 1.0),
+    return Container(
+      key: _fridaySunnahCardKey,
+      child: InkWell(
+        onTap: () => _showHadithGuidePopup(context),
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7.5),
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: cardBorder, width: 1.0),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Header Row: Icon + Title
+              Row(
+                children: [
+                  Icon(
+                    Icons.menu_book_rounded,
+                    size: 13,
+                    color: accentColor,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      l10n?.fridaySunnahRulingsTitle ?? "Jumu'ah Sunnah Rulings",
+                      softWrap: true,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        color: accentColor,
+                        letterSpacing: 0.1,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6.0),
+              _buildFridaySunnahBody(
+                context,
+                colors,
+                l10n,
+                isDark,
+                accentColor,
+                beforeDesc,
+                afterDesc,
+              ),
+            ],
+          ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      ),
+    );
+  }
+
+  Widget _buildFridaySunnahBody(
+    BuildContext context,
+    AppCustomColors colors,
+    AppLocalizations? l10n,
+    bool isDark,
+    Color accentColor,
+    String beforeDesc,
+    String afterDesc,
+  ) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Row 1: BEFORE
+        _buildSunnahDescRow(
+          badgeText: l10n?.fridayBeforeLabel ?? 'Before',
+          description: beforeDesc,
+          isDark: isDark,
+          accentColor: accentColor,
+          colors: colors,
+        ),
+        const SizedBox(height: 5.0),
+
+        // Row 2: AFTER
+        _buildSunnahDescRow(
+          badgeText: l10n?.fridayAfterLabel ?? 'After',
+          description: afterDesc,
+          isDark: isDark,
+          accentColor: accentColor,
+          colors: colors,
+        ),
+        const SizedBox(height: 6.0),
+
+        // Hairline subtle divider
+        Container(
+          height: 0.5,
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.10)
+              : colors.divider.withValues(alpha: 0.5),
+        ),
+        const SizedBox(height: 4.5),
+
+        // Centered bottom prompt: "Tap to view authentic rulings and hadith references"
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Header Row: Icon + Title + Open In New Icon
-            Row(
-              children: [
-                Icon(
-                  Icons.menu_book_rounded,
-                  size: 13,
+            Flexible(
+              child: Text(
+                l10n?.fridayClickToReadFull ??
+                    'Tap to view authentic rulings and hadith references',
+                textAlign: TextAlign.center,
+                softWrap: true,
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w600,
                   color: accentColor,
+                  letterSpacing: 0.1,
                 ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    l10n?.fridaySunnahRulingsTitle ?? 'Friday Sunnah Rulings',
-                    softWrap: true,
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
-                      color: accentColor,
-                      letterSpacing: 0.1,
-                    ),
-                  ),
-                ),
-                Icon(
-                  Icons.open_in_new_rounded,
-                  size: 12,
-                  color: accentColor.withValues(alpha: 0.75),
-                ),
-              ],
+              ),
             ),
-            const SizedBox(height: 6.0),
-
-            // Row 1: BEFORE
-            _buildSunnahDescRow(
-              badgeText: l10n?.fridayBeforeLabel ?? 'Before',
-              description: beforeDesc,
-              isDark: isDark,
-              accentColor: accentColor,
-              colors: colors,
-            ),
-            const SizedBox(height: 5.0),
-
-            // Row 2: AFTER
-            _buildSunnahDescRow(
-              badgeText: l10n?.fridayAfterLabel ?? 'After',
-              description: afterDesc,
-              isDark: isDark,
-              accentColor: accentColor,
-              colors: colors,
-            ),
-            const SizedBox(height: 6.0),
-
-            // Hairline subtle divider
-            Container(
-              height: 0.5,
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.10)
-                  : colors.divider.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 4.5),
-
-            // Centered bottom prompt: "Tap to view authentic rulings and hadith references"
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Text(
-                    l10n?.fridayClickToReadFull ??
-                        'Tap to view authentic rulings and hadith references',
-                    textAlign: TextAlign.center,
-                    softWrap: true,
-                    style: TextStyle(
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.w600,
-                      color: accentColor,
-                      letterSpacing: 0.1,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 3),
-                Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 10,
-                  color: accentColor,
-                ),
-              ],
+            const SizedBox(width: 3),
+            Icon(
+              Icons.arrow_forward_rounded,
+              size: 10,
+              color: accentColor,
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 
@@ -1341,236 +1451,69 @@ class _PrayerRowItemState extends State<_PrayerRowItem>
     );
   }
 
-  void _showHadithGuideSheet(BuildContext context) {
+  void _showHadithGuidePopup(BuildContext context) {
     AppHaptics.selection();
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) => const _FridayHadithGuideSheet(),
-    );
-  }
-}
+    final renderBox =
+        _fridaySunnahCardKey.currentContext?.findRenderObject() as RenderBox?;
+    final originRect = renderBox != null
+        ? renderBox.localToGlobal(Offset.zero) & renderBox.size
+        : null;
 
-/// Authentic Friday Hadith Guide modal bottom sheet with modern borderless depth
-/// and pure typography. Displays authentic hadiths for Before Jumu'ah,
-/// After Jumu'ah at Mosque, and After Jumu'ah at Home.
-class _FridayHadithGuideSheet extends StatelessWidget {
-  const _FridayHadithGuideSheet();
-
-  @override
-  Widget build(BuildContext context) {
     final colors = context.appColors;
-    final l10n = AppLocalizations.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // Bottom sheet tonal invariant from learnings.md:
-    // In dark mode: background #0D0F14, cards recessed #06080C.
-    // In light mode: background #F5EBE4, cards warmer lighter #FFF7F2.
-    final sheetBg = isDark ? const Color(0xFF0D0F14) : const Color(0xFFF5EBE4);
-    final cardBg = isDark ? const Color(0xFF06080C) : const Color(0xFFFFF7F2);
-    final accentGoldOrEmerald =
-        isDark ? const Color(0xFFD4A574) : const Color(0xFF0F766E);
-    final accentText =
+    final l10n = AppLocalizations.of(context);
+    final accentColor =
         isDark ? const Color(0xFFE8C9A0) : const Color(0xFF0F766E);
 
-    return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-      child: Container(
-        decoration: ShapeDecoration(
-          color: sheetBg,
-          shape: const ContinuousRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(32),
-              topRight: Radius.circular(32),
-            ),
-          ),
+    final isMosque = widget.isFridayMosqueMode;
+    final beforeDesc = isMosque
+        ? (l10n?.fridayMosqueBeforeDesc ??
+            'Tahiyyat al-Masjid & general voluntary prayers until Khutbah begins.')
+        : (l10n?.fridayHomeBeforeDesc ??
+            '4 Sunnah Rak\'ahs before Dhuhr (for those praying Dhuhr at home).');
+    final afterDesc = isMosque
+        ? (l10n?.fridayMosqueAfterDesc ??
+            '4 Sunnah Rak\'ahs (at mosque) or 2 Sunnah Rak\'ahs (if prayed at home).')
+        : (l10n?.fridayHomeAfterDesc ??
+            '2 Sunnah Rak\'ahs after Dhuhr (for those praying Dhuhr at home).');
+
+    Navigator.of(context).push<void>(
+      CardExpandRoute<void>(
+        originRect: originRect,
+        targetHeight: 560.0,
+        startRadius: 10.0,
+        headerConfig: SharedHeaderConfig(
+          icon: Icons.menu_book_rounded,
+          startTitle: l10n?.fridaySunnahRulingsTitle ?? "Jumu'ah Sunnah Rulings",
+          endTitle: l10n?.fridayHadithGuideSheetTitle ??
+              "Sunnah Prayers of Jumu'ah: Hadith Guide",
+          endSubtitle: 'Authentic Sunnah Rulings • Bukhari & Muslim',
+          startIconSize: 13.0,
+          startIconBoxSize: 26.0,
+          endIconSize: 18.0,
+          endIconBoxSize: 36.0,
+          startFontSize: 11.5,
+          endFontSize: 15.0,
+          startPadding:
+              const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7.5),
+          endPadding:
+              const EdgeInsets.only(left: 18.0, right: 14.0, top: 14.0, bottom: 8.0),
+          accentColor: accentColor,
+          startTextColor: accentColor,
+          endTextColor: colors.textPrimary,
         ),
-        padding: EdgeInsets.fromLTRB(
-          18,
-          12,
-          18,
-          MediaQuery.paddingOf(context).bottom + 16,
+        originCardBody: _buildFridaySunnahBody(
+          context,
+          colors,
+          l10n,
+          isDark,
+          accentColor,
+          beforeDesc,
+          afterDesc,
         ),
-        child: SafeArea(
-          top: false,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Top drag handle
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.white24 : colors.dividerStrong,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-
-                // Sheet Header: Squircle icon + Title + Close icon
-                Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: accentGoldOrEmerald.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        Icons.menu_book_rounded,
-                        size: 18,
-                        color: accentText,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        l10n?.fridayHadithGuideSheetTitle ??
-                            'Sunnah Prayers of Friday: Hadith Guide',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 15.0,
-                              color: colors.textPrimary,
-                            ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close_rounded, size: 20),
-                      color: colors.textSecondary,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Card 1: Before Jumu'ah / Dhuhr Prayer
-                _buildHadithCard(
-                  title: l10n?.fridayHadithBeforeCardTitle ??
-                      'Before Jumu\'ah / Dhuhr Prayer',
-                  desc: l10n?.fridayHadithBeforeCardDesc ??
-                      'At the mosque: When you enter, pray Tahiyyat al-Masjid (2 Rak\'ahs), then voluntary prayers until the Imam ascends the pulpit. At home (Dhuhr): Pray 4 Rak\'ahs Sunnah Mu\'akkadah before Dhuhr.',
-                  icon: Icons.wb_sunny_rounded,
-                  cardBg: cardBg,
-                  accentColor: accentText,
-                  colors: colors,
-                ),
-                const SizedBox(height: 10),
-
-                // Card 2: After Jumu'ah at Mosque (4 Rak'ahs)
-                _buildHadithCard(
-                  title: l10n?.fridayHadithAfterMosqueTitle ??
-                      'After Jumu\'ah at the Mosque (4 Rak\'ahs)',
-                  desc: l10n?.fridayHadithAfterMosqueDesc ??
-                      'Abu Hurairah reported: The Messenger of Allah ﷺ said: \'When one of you prays Jumu\'ah, let him pray four Rak\'ahs after it.\' (Sahih Muslim 881)',
-                  icon: Icons.mosque_rounded,
-                  cardBg: cardBg,
-                  accentColor: accentText,
-                  colors: colors,
-                  isHadithQuote: true,
-                ),
-                const SizedBox(height: 10),
-
-                // Card 3: After Jumu'ah at Home (2 Rak'ahs)
-                _buildHadithCard(
-                  title: l10n?.fridayHadithAfterHomeTitle ??
-                      'After Jumu\'ah at Home (2 Rak\'ahs)',
-                  desc: l10n?.fridayHadithAfterHomeDesc ??
-                      'Ibn Umar reported: \'The Prophet ﷺ would not pray after Jumu\'ah until he departed, and then he would pray two Rak\'ahs in his house.\' (Sahih al-Bukhari 937, Sahih Muslim 882)',
-                  icon: Icons.home_rounded,
-                  cardBg: cardBg,
-                  accentColor: accentText,
-                  colors: colors,
-                  isHadithQuote: true,
-                ),
-                const SizedBox(height: 18),
-
-                // Centered Close Guide Button (No checkmark icon!)
-                SizedBox(
-                  height: 48,
-                  child: FilledButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: accentGoldOrEmerald,
-                      foregroundColor:
-                          isDark ? const Color(0xFF12151C) : Colors.white,
-                      elevation: 0,
-                      shape: ContinuousRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Text(
-                      l10n?.closeGuideBtn ?? 'Close Guide',
-                      style: TextStyle(
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? const Color(0xFF12151C) : Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        builder: (popupContext, animation) => FridayHadithGuidePopup(
+          animation: animation,
         ),
-      ),
-    );
-  }
-
-  Widget _buildHadithCard({
-    required String title,
-    required String desc,
-    required IconData icon,
-    required Color cardBg,
-    required Color accentColor,
-    required AppCustomColors colors,
-    bool isHadithQuote = false,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(14.0),
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 15, color: accentColor),
-              const SizedBox(width: 7),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 13.0,
-                    fontWeight: FontWeight.w700,
-                    color: colors.textPrimary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 7),
-          Text(
-            desc,
-            style: TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w400,
-              fontStyle: isHadithQuote ? FontStyle.italic : FontStyle.normal,
-              color: colors.textSecondary,
-              height: 1.4,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -1924,11 +1867,11 @@ class _ForbiddenNaflNoteState extends State<_ForbiddenNaflNote>
       child: Container(
         decoration: ShapeDecoration(
           color: accentColor.withValues(alpha: 0.12),
-          shape: ContinuousRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
               color: accentColor.withValues(alpha: 0.4),
-              width: 1,
+              width: 0.8,
             ),
           ),
         ),
@@ -1998,8 +1941,8 @@ class _TimeCapsulePill extends StatelessWidget {
           color: isDark ? colors.surfaceHover : const Color(0xFFFCF2EB),
           borderRadius: BorderRadius.circular(9999),
           border: Border.all(
-            color: isDark ? colors.divider : const Color(0xFFEAE1DA),
-            width: 1.0,
+            color: isDark ? colors.cardBorder : const Color(0xFFEAE1DA),
+            width: 0.8,
           ),
         ),
         child: Row(
@@ -2030,7 +1973,7 @@ class _TimeCapsulePill extends StatelessWidget {
                   height: 8.0,
                   color: isDark
                       ? colors.dividerStrong.withValues(alpha: 0.45)
-                      : const Color(0xFFD6CBC3),
+                      : colors.dividerStrong,
                 ),
               ),
               Text(

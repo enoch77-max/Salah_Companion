@@ -62,14 +62,14 @@ class PrayerStreakSheet extends StatelessWidget {
       child: Container(
         decoration: ShapeDecoration(
           color: colors.elevatedBackground.withValues(alpha: 0.95),
-          shape: ContinuousRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(32),
               topRight: Radius.circular(32),
             ),
             side: BorderSide(
               color: colors.success.withValues(alpha: 0.4),
-              width: 1.2,
+              width: 0.8,
             ),
           ),
           shadows: [
@@ -231,9 +231,9 @@ class PrayerStreakSheet extends StatelessWidget {
                 ),
                 decoration: ShapeDecoration(
                   color: colors.surface.withValues(alpha: 0.6),
-                  shape: ContinuousRectangleBorder(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: colors.dividerStrong, width: 1),
+                    side: BorderSide(color: colors.cardBorder, width: 0.8),
                   ),
                 ),
                 child: Column(
@@ -280,7 +280,7 @@ class PrayerStreakSheet extends StatelessWidget {
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     elevation: 0,
-                    shape: ContinuousRectangleBorder(
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),

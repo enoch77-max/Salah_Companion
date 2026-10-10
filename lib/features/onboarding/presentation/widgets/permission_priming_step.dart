@@ -321,8 +321,8 @@ class _PermissionPrimingStepState extends State<PermissionPrimingStep>
         color: colors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isGranted ? gradientColors.first : colors.divider,
-          width: isGranted ? 1.5 : 1.0,
+          color: isGranted ? gradientColors.first : colors.cardBorder,
+          width: isGranted ? 1.5 : 0.8,
         ),
       ),
       child: Row(

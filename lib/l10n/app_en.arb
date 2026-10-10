@@ -428,6 +428,8 @@
   "dhikrAstaghfirullahTranslation": "I seek forgiveness from Allah",
   "dhikrLaIlahaIllallahTranslation": "There is no deity except Allah",
   "dhikrSalawatTranslation": "O Allah, send blessings upon Muhammad",
+  "dhikrDuroodIbrahim": "Durood Ibrahim",
+  "dhikrDuroodIbrahimTranslation": "Allahumma salli 'ala Muhammadin wa 'ala ali Muhammad, kama sallayta 'ala Ibrahima wa 'ala ali Ibrahim, innaka Hamidun Majid. Allahumma barik 'ala Muhammadin wa 'ala ali Muhammad, kama barakta 'ala Ibrahima wa 'ala ali Ibrahim, innaka Hamidun Majid.",
   "doSalawat": "Do Salawat",
   "tasbihNextDhikr": "Next: {dhikr}",
   "tasbihCustomTarget": "Custom",
@@ -565,7 +567,7 @@
   "fridayLocationLabel": "Location",
   "fridayAtMosque": "At Mosque",
   "fridayAtHome": "At Home",
-  "fridaySunnahRulingsTitle": "Friday Sunnah Rulings",
+  "fridaySunnahRulingsTitle": "Jumu'ah Sunnah Rulings",
   "fridayBeforeLabel": "Before",
   "fridayAfterLabel": "After",
   "fridayMosqueBeforeDesc": "Tahiyyat al-Masjid & general voluntary prayers until Khutbah begins.",
@@ -573,28 +575,28 @@
   "fridayHomeBeforeDesc": "4 Sunnah Rak'ahs before Dhuhr (for those praying Dhuhr at home).",
   "fridayHomeAfterDesc": "2 Sunnah Rak'ahs after Dhuhr (for those praying Dhuhr at home).",
   "fridayClickToReadFull": "Tap to view authentic rulings and hadith references",
-  "fridaySuiteHeader": "FRIDAY SUNNAH & SPECIAL DEEDS",
-  "fridayTodayOnly": "Available on Friday",
+  "fridaySuiteHeader": "JUMU'AH SUNNAH & SPECIAL DEEDS",
+  "fridayTodayOnly": "Available on Jumu'ah",
   "surahKahfTitle": "Surah Al-Kahf",
-  "surahKahfBadge": "Light Between Two Fridays",
-  "surahKahfHadith": "Whoever recites Surah Al-Kahf on Friday will have a light shining for him between the two Fridays. (Al-Bayhaqi)",
+  "surahKahfBadge": "Light Between Two Jumu'ahs",
+  "surahKahfHadith": "Whoever recites Surah Al-Kahf on Jumu'ah will have a light shining for him between the two Jumu'ahs. (Al-Bayhaqi)",
   "markAsRead": "Mark as Read",
   "readCompleted": "Completed",
   "salawatTitle": "Abundant Salawat upon the Prophet ﷺ",
   "salawatBadge": "Presented Directly",
-  "salawatHadith": "Increase your supplications for blessings upon me on Friday, for your supplications are presented to me. (Abu Dawud)",
+  "salawatHadith": "Increase your supplications for blessings upon me on Jumu'ah, for your supplications are presented to me. (Abu Dawud)",
   "salawatCountLabel": "Recitations Today",
   "salawatTapBtn": "Send Salawat (+1)",
-  "fridayEtiquettesTitle": "Sunnahs & Etiquettes of Friday",
-  "fridayEtiquettesRef": "Authentic Traditions of Friday",
+  "fridayEtiquettesTitle": "Sunnahs & Etiquettes of Jumu'ah",
+  "fridayEtiquettesRef": "Authentic Traditions of Jumu'ah",
   "fridayGhusl": "Ghusl (Ritual Bath) before prayer",
   "fridaySiwak": "Using the Siwak (Tooth-stick) & perfume",
   "fridayCleanClothes": "Wearing one's best and cleanest garments",
   "fridayEarlyMosque": "Arriving early to the mosque for Khutbah",
   "istijabahTitle": "Hour of Response (Sa'at al-Istijabah)",
   "istijabahBadge": "Supplication Accepted",
-  "istijabahHadith": "On Friday there is an hour when no Muslim servant asks Allah for something good but He grants it to him — seek it in the last hour after Asr. (Abu Dawud, An-Nasa'i)",
-  "fridayHadithGuideSheetTitle": "Sunnah Prayers of Friday: Hadith Guide",
+  "istijabahHadith": "On Jumu'ah there is an hour when no Muslim servant asks Allah for something good but He grants it to him — seek it in the last hour after Asr. (Abu Dawud, An-Nasa'i)",
+  "fridayHadithGuideSheetTitle": "Sunnah Prayers of Jumu'ah: Hadith Guide",
   "fridayHadithBeforeCardTitle": "Before Jumu'ah / Dhuhr Prayer",
   "fridayHadithBeforeCardDesc": "At the mosque: When you enter, pray Tahiyyat al-Masjid (2 Rak'ahs), then voluntary prayers until the Imam ascends the pulpit. At home (Dhuhr): Pray 4 Rak'ahs Sunnah Mu'akkadah before Dhuhr.",
   "fridayHadithAfterMosqueTitle": "After Jumu'ah at the Mosque (4 Rak'ahs)",
@@ -603,7 +605,7 @@
   "fridayHadithAfterHomeDesc": "Ibn Umar reported: 'The Prophet ﷺ would not pray after Jumu'ah until he departed, and then he would pray two Rak'ahs in his house.' (Sahih al-Bukhari 937, Sahih Muslim 882)",
   "closeGuideBtn": "Close Guide",
   "@fridayJumuahTitle": {
-    "description": "Title for Friday Jumu'ah prayer"
+    "description": "Title for Jumu'ah prayer"
   },
   "@fridayLocationLabel": {
     "description": "Label for prayer location toggle"
@@ -612,10 +614,10 @@
     "description": "Option for praying Jumu'ah at the mosque"
   },
   "@fridayAtHome": {
-    "description": "Option for praying Dhuhr at home on Friday"
+    "description": "Option for praying Dhuhr at home on Jumu'ah"
   },
   "@fridaySunnahRulingsTitle": {
-    "description": "Title for the Friday Sunnah prayer rulings card"
+    "description": "Title for the Jumu'ah Sunnah prayer rulings card"
   },
   "@fridayBeforeLabel": {
     "description": "Label indicating sunnah prayers before the main prayer"
@@ -639,10 +641,10 @@
     "description": "Hint text to tap and read authentic hadiths and rulings"
   },
   "@fridaySuiteHeader": {
-    "description": "Header for Friday companion suite actions"
+    "description": "Header for Jumu'ah companion suite actions"
   },
   "@fridayTodayOnly": {
-    "description": "Badge indicating feature is active on Friday"
+    "description": "Badge indicating feature is active on Jumu'ah"
   },
   "@surahKahfTitle": {
     "description": "Title for Surah Al-Kahf card"
@@ -651,7 +653,7 @@
     "description": "Badge highlight for Surah Al-Kahf"
   },
   "@surahKahfHadith": {
-    "description": "Hadith text about reciting Surah Al-Kahf on Friday"
+    "description": "Hadith text about reciting Surah Al-Kahf on Jumu'ah"
   },
   "@markAsRead": {
     "description": "Button to mark recitation as completed"
@@ -666,7 +668,7 @@
     "description": "Badge for Salawat card"
   },
   "@salawatHadith": {
-    "description": "Hadith text encouraging Salawat on Friday"
+    "description": "Hadith text encouraging Salawat on Jumu'ah"
   },
   "@salawatCountLabel": {
     "description": "Label for daily salawat count"
@@ -675,22 +677,22 @@
     "description": "Tap button to increment salawat count"
   },
   "@fridayEtiquettesTitle": {
-    "description": "Title for Friday etiquettes checklist card"
+    "description": "Title for Jumu'ah etiquettes checklist card"
   },
   "@fridayEtiquettesRef": {
-    "description": "Subtitle / reference for Friday etiquettes"
+    "description": "Subtitle / reference for Jumu'ah etiquettes"
   },
   "@fridayGhusl": {
-    "description": "Friday etiquette: Ghusl before prayer"
+    "description": "Jumu'ah etiquette: Ghusl before prayer"
   },
   "@fridaySiwak": {
-    "description": "Friday etiquette: Siwak and perfume"
+    "description": "Jumu'ah etiquette: Siwak and perfume"
   },
   "@fridayCleanClothes": {
-    "description": "Friday etiquette: Clean garments"
+    "description": "Jumu'ah etiquette: Clean garments"
   },
   "@fridayEarlyMosque": {
-    "description": "Friday etiquette: Arriving early to mosque"
+    "description": "Jumu'ah etiquette: Arriving early to mosque"
   },
   "@istijabahTitle": {
     "description": "Title for Sa'at al-Istijabah reminder card"
@@ -699,10 +701,10 @@
     "description": "Badge for Sa'at al-Istijabah"
   },
   "@istijabahHadith": {
-    "description": "Hadith text about the hour of response on Friday"
+    "description": "Hadith text about the hour of response on Jumu'ah"
   },
   "@fridayHadithGuideSheetTitle": {
-    "description": "Title of the bottom sheet modal for Friday hadith guide"
+    "description": "Title of the bottom sheet modal for Jumu'ah hadith guide"
   },
   "@fridayHadithBeforeCardTitle": {
     "description": "Header for prayers before Jumu'ah/Dhuhr in the guide"
@@ -724,5 +726,11 @@
   },
   "@closeGuideBtn": {
     "description": "Button to close the hadith guide sheet"
+  },
+  "@dhikrDuroodIbrahim": {
+    "description": "Title for Durood Ibrahim in Tasbih screen"
+  },
+  "@dhikrDuroodIbrahimTranslation": {
+    "description": "Translation of Durood Ibrahim in Tasbih screen"
   }
 }

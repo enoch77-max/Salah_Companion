@@ -23,6 +23,7 @@ abstract final class AppColors {
   static const Color darkTextTertiary = Color(0xFF5A5F68);
   static const Color darkDivider = Color(0x0DFFFFFF);
   static const Color darkDividerStrong = Color(0x17FFFFFF);
+  static const Color darkCardBorder = Color(0x12FFFFFF);
   static const Color darkShadow = Color(0x80000000);
 
   // Light mode color tokens (Stitch Serene Sanctuary Palette)
@@ -45,7 +46,8 @@ abstract final class AppColors {
   static const Color lightTextSecondary = Color(0xFF53433A);
   static const Color lightTextTertiary = Color(0xFF85736B);
   static const Color lightDivider = Color(0xFFEAE1DA);
-  static const Color lightDividerStrong = Color(0xFFD6CBC3);
+  static const Color lightDividerStrong = Color(0xFFE4DAD2);
+  static const Color lightCardBorder = Color(0x0F1F1B17);
   static const Color lightShadow = Color(0x1F78716C);
 
   // Written Paper & Green Accent tokens
@@ -77,6 +79,7 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
   final Color textTertiary;
   final Color divider;
   final Color dividerStrong;
+  final Color cardBorder;
   final Color shadow;
   final Color paperBackground;
   final Color currentSalahGreen;
@@ -102,6 +105,7 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
     required this.textTertiary,
     required this.divider,
     required this.dividerStrong,
+    required this.cardBorder,
     required this.shadow,
     required this.paperBackground,
     required this.currentSalahGreen,
@@ -128,6 +132,7 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
     textTertiary: AppColors.darkTextTertiary,
     divider: AppColors.darkDivider,
     dividerStrong: AppColors.darkDividerStrong,
+    cardBorder: AppColors.darkCardBorder,
     shadow: AppColors.darkShadow,
     paperBackground: AppColors.darkPaperBackground,
     currentSalahGreen: AppColors.currentSalahGreen,
@@ -154,6 +159,7 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
     textTertiary: AppColors.lightTextTertiary,
     divider: AppColors.lightDivider,
     dividerStrong: AppColors.lightDividerStrong,
+    cardBorder: AppColors.lightCardBorder,
     shadow: AppColors.lightShadow,
     paperBackground: AppColors.lightPaperBackground,
     currentSalahGreen: AppColors.currentSalahGreen,
@@ -181,6 +187,7 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
     Color? textTertiary,
     Color? divider,
     Color? dividerStrong,
+    Color? cardBorder,
     Color? shadow,
     Color? paperBackground,
     Color? currentSalahGreen,
@@ -206,6 +213,7 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
       textTertiary: textTertiary ?? this.textTertiary,
       divider: divider ?? this.divider,
       dividerStrong: dividerStrong ?? this.dividerStrong,
+      cardBorder: cardBorder ?? this.cardBorder,
       shadow: shadow ?? this.shadow,
       paperBackground: paperBackground ?? this.paperBackground,
       currentSalahGreen: currentSalahGreen ?? this.currentSalahGreen,
@@ -240,6 +248,7 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
       textTertiary: Color.lerp(textTertiary, other.textTertiary, t)!,
       divider: Color.lerp(divider, other.divider, t)!,
       dividerStrong: Color.lerp(dividerStrong, other.dividerStrong, t)!,
+      cardBorder: Color.lerp(cardBorder, other.cardBorder, t)!,
       shadow: Color.lerp(shadow, other.shadow, t)!,
       paperBackground: Color.lerp(paperBackground, other.paperBackground, t)!,
       currentSalahGreen: Color.lerp(

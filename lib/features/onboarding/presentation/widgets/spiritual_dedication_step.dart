@@ -150,7 +150,7 @@ class _SpiritualDedicationStepState extends State<SpiritualDedicationStep>
         ),
         const SizedBox(height: 8),
         _buildReassurancePill(
-          icon: Icons.auto_awesome_rounded,
+          icon: Icons.verified_rounded,
           iconGradient: const [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
           text: 'Authentic Sunnah & Precision Astrometry',
           colors: colors,
@@ -170,7 +170,7 @@ class _SpiritualDedicationStepState extends State<SpiritualDedicationStep>
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.divider),
+        border: Border.all(color: colors.cardBorder, width: 0.8),
       ),
       child: Row(
         children: [

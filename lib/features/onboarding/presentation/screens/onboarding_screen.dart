@@ -133,7 +133,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         decoration: BoxDecoration(
                           color: colors.surface,
                           shape: BoxShape.circle,
-                          border: Border.all(color: colors.divider),
+                          border: Border.all(
+                            color: colors.cardBorder,
+                            width: 0.8,
+                          ),
                         ),
                         child: Icon(
                           Icons.arrow_back_rounded,
@@ -151,7 +154,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         decoration: BoxDecoration(
                           color: colors.surface,
                           shape: BoxShape.circle,
-                          border: Border.all(color: colors.divider),
+                          border: Border.all(
+                            color: colors.cardBorder,
+                            width: 0.8,
+                          ),
                         ),
                         child: Icon(
                           Icons.close_rounded,
@@ -218,7 +224,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         decoration: BoxDecoration(
                           color: colors.surface,
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: colors.divider),
+                          border: Border.all(
+                            color: colors.cardBorder,
+                            width: 0.8,
+                          ),
                         ),
                         child: Text(
                           l10n?.onboardingSkip ?? 'Skip',
@@ -235,7 +244,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
 
-            const Divider(height: 1),
+            Divider(height: 1, color: colors.cardBorder),
 
             // Scrollable Content Viewport
             Expanded(
@@ -270,7 +279,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
 
-            const Divider(height: 1),
+            Divider(height: 1, color: colors.cardBorder),
 
             // Bottom Floating Action Bar with Back & Continue/Complete CTAs
             Padding(
@@ -295,11 +304,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                           decoration: ShapeDecoration(
                             color: colors.surface,
-                            shape: ContinuousRectangleBorder(
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(24),
                               side: BorderSide(
-                                color: colors.divider,
-                                width: 1.2,
+                                color: colors.cardBorder,
+                                width: 0.8,
                               ),
                             ),
                           ),
@@ -347,7 +356,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                           decoration: ShapeDecoration(
                             color: colors.primary,
-                            shape: ContinuousRectangleBorder(
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(24),
                             ),
                             shadows: [

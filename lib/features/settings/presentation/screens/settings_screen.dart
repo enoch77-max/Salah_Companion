@@ -942,11 +942,11 @@ class _SettingsScreenState extends State<SettingsScreen>
             color: isSelected
                 ? colors.primary.withValues(alpha: 0.12)
                 : colors.elevatedBackground,
-            shape: ContinuousRectangleBorder(
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
               side: BorderSide(
-                color: isSelected ? colors.primary : colors.divider,
-                width: isSelected ? 1.5 : 1.0,
+                color: isSelected ? colors.primary : colors.cardBorder,
+                width: isSelected ? 1.5 : 0.8,
               ),
             ),
           ),
@@ -1661,9 +1661,9 @@ class _IOSGroupedCard extends StatelessWidget {
     final colors = context.appColors;
     return Material(
       color: colors.surface,
-      shape: ContinuousRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: colors.divider, width: 1.0),
+        side: BorderSide(color: colors.cardBorder, width: 0.8),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(mainAxisSize: MainAxisSize.min, children: children),

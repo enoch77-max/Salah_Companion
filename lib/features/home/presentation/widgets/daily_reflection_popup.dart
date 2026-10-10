@@ -93,11 +93,11 @@ class DailyReflectionPopup extends StatelessWidget {
               clipBehavior: Clip.antiAlias,
               decoration: ShapeDecoration(
                 color: colors.paperBackground,
-                shape: ContinuousRectangleBorder(
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(22),
                   side: BorderSide(
-                    color: colors.primary.withValues(alpha: 0.35),
-                    width: 1.0,
+                    color: colors.cardBorder,
+                    width: 0.8,
                   ),
                 ),
                 shadows: [
@@ -239,13 +239,13 @@ class DailyReflectionPopup extends StatelessWidget {
                                 ),
                                 decoration: ShapeDecoration(
                                   color: emeraldGreen.withValues(alpha: 0.12),
-                                  shape: ContinuousRectangleBorder(
+                                  shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(6),
                                     side: BorderSide(
                                       color: emeraldGreen.withValues(
                                         alpha: 0.3,
                                       ),
-                                      width: 1,
+                                      width: 0.8,
                                     ),
                                   ),
                                 ),
@@ -310,7 +310,7 @@ class DailyReflectionPopup extends StatelessWidget {
                           width: double.infinity,
                           decoration: ShapeDecoration(
                             color: colors.primary,
-                            shape: ContinuousRectangleBorder(
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
                           ),

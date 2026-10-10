@@ -950,7 +950,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'Ля иляха илляллах';
 
   @override
-  String get dhikrSalawat => 'Salawat';
+  String get dhikrSalawat => 'Салават';
 
   @override
   String get dhikrSubhanAllahTranslation =>
@@ -973,7 +973,14 @@ class AppLocalizationsRu extends AppLocalizations {
       'Нет истинного божества, кроме Единого Аллаха';
 
   @override
-  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+  String get dhikrSalawatTranslation => 'О Аллах, благослови Мухаммада';
+
+  @override
+  String get dhikrDuroodIbrahim => 'Салават Ибрахимийя';
+
+  @override
+  String get dhikrDuroodIbrahimTranslation =>
+      'Аллахумма салли ‘аля Мухаммадин ва ‘аля али Мухаммад, кя-ма салляйта ‘аля Ибрахима ва ‘аля али Ибрахим, инна-кя Хамидун Маджид. Аллахумма барик ‘аля Мухаммадин ва ‘аля али Мухаммад, кя-ма баракта ‘аля Ибрахима ва ‘аля али Ибрахим, инна-кя Хамидун Маджид.';
 
   @override
   String get doSalawat => 'Do Salawat';
@@ -1096,7 +1103,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get fridayAtHome => 'Дома';
 
   @override
-  String get fridaySunnahRulingsTitle => 'Сунны и положения пятничного дня';
+  String get fridaySunnahRulingsTitle => 'Сунны и положения дня Джума';
 
   @override
   String get fridayBeforeLabel => 'До';
@@ -1125,20 +1132,20 @@ class AppLocalizationsRu extends AppLocalizations {
       'Нажмите, чтобы просмотреть хадисы и подробные положения';
 
   @override
-  String get fridaySuiteHeader => 'СУННЫ И БЛАГИЕ ДЕЛА ПЯТНИЦЫ';
+  String get fridaySuiteHeader => 'СУННЫ И БЛАГИЕ ДЕЛА ДЖУМА';
 
   @override
-  String get fridayTodayOnly => 'Доступно только в пятницу';
+  String get fridayTodayOnly => 'Доступно только в день Джума';
 
   @override
   String get surahKahfTitle => 'Сура Аль-Кахф';
 
   @override
-  String get surahKahfBadge => 'Свет между двумя пятницами';
+  String get surahKahfBadge => 'Свет между двумя Джума';
 
   @override
   String get surahKahfHadith =>
-      'Кто прочитает суру \'Аль-Кахф\' в пятницу, того озарит свет между двумя пятницами. (Аль-Байхаки)';
+      'Кто прочитает суру \'Аль-Кахф\' в день Джума, того озарит свет между двумя Джума. (Аль-Байхаки)';
 
   @override
   String get markAsRead => 'Отметить как прочитанное';
@@ -1154,7 +1161,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get salawatHadith =>
-      'Чаще благословляйте меня в пятницу, ибо ваши благословения представляются мне. (Абу Давуд)';
+      'Чаще благословляйте меня в день Джума, ибо ваши благословения представляются мне. (Абу Давуд)';
 
   @override
   String get salawatCountLabel => 'Прочитано салаватов сегодня';
@@ -1163,10 +1170,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get salawatTapBtn => 'Отправить салават (+1)';
 
   @override
-  String get fridayEtiquettesTitle => 'Сунны и адабы пятничного дня';
+  String get fridayEtiquettesTitle => 'Сунны и адабы дня Джума';
 
   @override
-  String get fridayEtiquettesRef => 'Достоверные сунны пятницы';
+  String get fridayEtiquettesRef => 'Достоверные сунны дня Джума';
 
   @override
   String get fridayGhusl => 'Гусль (полное омовение) перед намазом';
@@ -1188,10 +1195,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get istijabahHadith =>
-      'В пятницу есть такой час, когда раб-мусульманин не попросит у Аллаха блага, кроме как Он дарует ему это — ищите его в последний час после Асра. (Абу Давуд, Ан-Насаи)';
+      'В день Джума есть такой час, когда раб-мусульманин не попросит у Аллаха блага, кроме как Он дарует ему это — ищите его в последний час после Асра. (Абу Давуд, Ан-Насаи)';
 
   @override
-  String get fridayHadithGuideSheetTitle => 'Сунны пятничной молитвы: Хадисы';
+  String get fridayHadithGuideSheetTitle => 'Сунны молитвы Джума: Хадисы';
 
   @override
   String get fridayHadithBeforeCardTitle => 'Перед молитвой Джума / Зухр';

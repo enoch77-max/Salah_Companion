@@ -987,7 +987,15 @@ class AppLocalizationsFr extends AppLocalizations {
       'Nulle divinité ne mérite d\'être adorée sauf Allah';
 
   @override
-  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+  String get dhikrSalawatTranslation =>
+      'Ô Allah, répands Tes bénédictions sur Muhammad';
+
+  @override
+  String get dhikrDuroodIbrahim => 'Salat Ibrahimiyya';
+
+  @override
+  String get dhikrDuroodIbrahimTranslation =>
+      'Allahoumma salli \'ala Mouhammad wa \'ala ali Mouhammad, kama sallayta \'ala Ibrahim wa \'ala ali Ibrahim, innaka Hamidoun Majid. Allahoumma barik \'ala Mouhammad wa \'ala ali Mouhammad, kama barakta \'ala Ibrahim wa \'ala ali Ibrahim, innaka Hamidoun Majid.';
 
   @override
   String get doSalawat => 'Do Salawat';
@@ -1110,7 +1118,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get fridayAtHome => 'À la maison';
 
   @override
-  String get fridaySunnahRulingsTitle => 'Règles des Sunnahs du vendredi';
+  String get fridaySunnahRulingsTitle => 'Règles des Sunnahs de Joumou\'a';
 
   @override
   String get fridayBeforeLabel => 'Avant';
@@ -1139,20 +1147,20 @@ class AppLocalizationsFr extends AppLocalizations {
       'Appuyez pour voir les règles et hadiths authentiques';
 
   @override
-  String get fridaySuiteHeader => 'SUNNAHS DU VENDREDI & BONNES ACTIONS';
+  String get fridaySuiteHeader => 'SUNNAHS DE JOUMOU\'A & BONNES ACTIONS';
 
   @override
-  String get fridayTodayOnly => 'Disponible le vendredi';
+  String get fridayTodayOnly => 'Disponible pour Joumou\'a';
 
   @override
   String get surahKahfTitle => 'Sourate Al-Kahf';
 
   @override
-  String get surahKahfBadge => 'Lumière entre deux vendredis';
+  String get surahKahfBadge => 'Lumière entre deux Joumou\'as';
 
   @override
   String get surahKahfHadith =>
-      'Quiconque récite la sourate Al-Kahf le vendredi verra une lumière briller pour lui entre les deux vendredis. (Al-Bayhaqi)';
+      'Quiconque récite la sourate Al-Kahf le jour de Joumou\'a verra une lumière briller pour lui entre les deux Joumou\'as. (Al-Bayhaqi)';
 
   @override
   String get markAsRead => 'Marquer comme lu';
@@ -1168,7 +1176,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get salawatHadith =>
-      'Multipliez les prières sur moi le vendredi, car vos prières me sont présentées. (Abou Dawoud)';
+      'Multipliez les prières sur moi le jour de Joumou\'a, car vos prières me sont présentées. (Abou Dawoud)';
 
   @override
   String get salawatCountLabel => 'Récitations aujourd\'hui';
@@ -1177,10 +1185,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get salawatTapBtn => 'Envoyer Salawat (+1)';
 
   @override
-  String get fridayEtiquettesTitle => 'Sunnahs & bienséances du vendredi';
+  String get fridayEtiquettesTitle => 'Sunnahs & bienséances de Joumou\'a';
 
   @override
-  String get fridayEtiquettesRef => 'Traditions authentiques du vendredi';
+  String get fridayEtiquettesRef => 'Traditions authentiques de Joumou\'a';
 
   @override
   String get fridayGhusl => 'Ghusl (Bain rituel) avant la prière';
@@ -1203,11 +1211,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get istijabahHadith =>
-      'Le vendredi comporte une heure où tout musulman demandant un bien à Allah le verra exaucé — cherchez-la dans la dernière heure après Asr. (Abou Dawoud, An-Nasa\'i)';
+      'Le jour de Joumou\'a comporte une heure où tout musulman demandant un bien à Allah le verra exaucé — cherchez-la dans la dernière heure après Asr. (Abou Dawoud, An-Nasa\'i)';
 
   @override
   String get fridayHadithGuideSheetTitle =>
-      'Prières du vendredi : Guide des hadiths';
+      'Prières de Joumou\'a : Guide des hadiths';
 
   @override
   String get fridayHadithBeforeCardTitle =>
@@ -1223,7 +1231,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get fridayHadithAfterMosqueDesc =>
-      'D\'après Abou Hourayra, le Messager d\'Allah ﷺ a dit : \'Quand l\'un de vous a prié le vendredi, qu\'il prie quatre Rak\'ahs après.\' (Sahih Muslim 881)';
+      'D\'après Abou Hourayra, le Messager d\'Allah ﷺ a dit : \'Quand l\'un de vous a prié Joumou\'a, qu\'il prie quatre Rak\'ahs après.\' (Sahih Muslim 881)';
 
   @override
   String get fridayHadithAfterHomeTitle =>
@@ -1231,7 +1239,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get fridayHadithAfterHomeDesc =>
-      'D\'après Ibn Omar : \'Le Prophète ﷺ ne priait pas après le vendredi jusqu\'à rentrer chez lui, où il priait deux Rak\'ahs.\' (Sahih al-Bukhari 937, Sahih Muslim 882)';
+      'D\'après Ibn Omar : \'Le Prophète ﷺ ne priait pas après Joumou\'a jusqu\'à rentrer chez lui, où il priait deux Rak\'ahs.\' (Sahih al-Bukhari 937, Sahih Muslim 882)';
 
   @override
   String get closeGuideBtn => 'Fermer le guide';

@@ -60,7 +60,7 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
           decoration: BoxDecoration(
             color: colors.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: colors.divider),
+            border: Border.all(color: colors.cardBorder, width: 0.8),
           ),
           child: Row(
             children: [
@@ -328,7 +328,7 @@ class _VisualFeatureShowcaseStepState extends State<VisualFeatureShowcaseStep> {
                   decoration: BoxDecoration(
                     color: colors.surface,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: colors.divider),
+                    border: Border.all(color: colors.cardBorder, width: 0.8),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,

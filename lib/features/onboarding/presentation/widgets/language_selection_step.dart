@@ -148,7 +148,7 @@ class _LanguageSelectionStepState extends State<LanguageSelectionStep> {
           decoration: BoxDecoration(
             color: colors.surface,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: colors.divider),
+            border: Border.all(color: colors.cardBorder, width: 0.8),
           ),
           child: TextField(
             onChanged: (val) => setState(() => _searchQuery = val),
@@ -180,7 +180,7 @@ class _LanguageSelectionStepState extends State<LanguageSelectionStep> {
           decoration: BoxDecoration(
             color: colors.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: colors.divider),
+            border: Border.all(color: colors.cardBorder, width: 0.8),
           ),
           child: ListView.separated(
             shrinkWrap: true,
@@ -189,10 +189,10 @@ class _LanguageSelectionStepState extends State<LanguageSelectionStep> {
             itemCount: filteredLanguages.length,
             separatorBuilder: (context, index) => Divider(
               height: 1,
-              thickness: 1.0,
+              thickness: 0.8,
               indent: 0,
               endIndent: 0,
-              color: colors.divider,
+              color: colors.cardBorder,
             ),
             itemBuilder: (context, idx) {
               final lang = filteredLanguages[idx];
@@ -278,8 +278,8 @@ class _LanguageSelectionStepState extends State<LanguageSelectionStep> {
           color: isSelected ? colors.primarySoft : colors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? colors.primary : colors.divider,
-            width: isSelected ? 1.5 : 1.0,
+            color: isSelected ? colors.primary : colors.cardBorder,
+            width: isSelected ? 1.5 : 0.8,
           ),
           boxShadow: isSelected
               ? [

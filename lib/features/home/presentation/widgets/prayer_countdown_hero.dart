@@ -442,10 +442,8 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
             ),
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.16)
-                  : (colors.dividerStrong as Color),
-              width: 1,
+              color: colors.cardBorder as Color,
+              width: 0.8,
             ),
             boxShadow: [
               BoxShadow(
@@ -510,9 +508,8 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                             : (colors.surface as Color),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.08)
-                              : (colors.dividerStrong as Color),
+                          color: colors.cardBorder as Color,
+                          width: 0.8,
                         ),
                       ),
                       child: Column(
@@ -560,9 +557,8 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                             : (colors.surface as Color),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.08)
-                              : (colors.dividerStrong as Color),
+                          color: colors.cardBorder as Color,
+                          width: 0.8,
                         ),
                       ),
                       child: Column(
@@ -670,9 +666,9 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
           width: double.infinity,
           decoration: ShapeDecoration(
             gradient: _getBackgroundGradient(brightness),
-            shape: ContinuousRectangleBorder(
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
-              side: BorderSide(color: colors.dividerStrong, width: 1.0),
+              side: BorderSide(color: colors.cardBorder, width: 0.8),
             ),
           ),
           child: Column(
@@ -685,10 +681,8 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.06)
-                          : colors.dividerStrong,
-                      width: 1.0,
+                      color: colors.cardBorder,
+                      width: 0.8,
                     ),
                   ),
                 ),
@@ -830,9 +824,7 @@ class _PrayerCountdownHeroState extends State<PrayerCountdownHero>
                                           ),
                                     borderRadius: BorderRadius.circular(9999),
                                     border: Border.all(
-                                      color: isDark
-                                          ? Colors.white.withValues(alpha: 0.12)
-                                          : colors.dividerStrong,
+                                      color: colors.cardBorder,
                                       width: 0.8,
                                     ),
                                   ),

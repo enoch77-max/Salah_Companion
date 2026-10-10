@@ -396,9 +396,9 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                   padding: const EdgeInsets.all(4),
                   decoration: ShapeDecoration(
                     color: colors.surface,
-                    shape: ContinuousRectangleBorder(
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(color: colors.divider, width: 1.0),
+                      side: BorderSide(color: colors.cardBorder, width: 0.8),
                     ),
                   ),
                   child: LayoutBuilder(
@@ -417,13 +417,13 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                             child: Container(
                               decoration: ShapeDecoration(
                                 color: colors.primarySoft,
-                                shape: ContinuousRectangleBorder(
+                                shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   side: BorderSide(
                                     color: colors.primary.withValues(
                                       alpha: 0.5,
                                     ),
-                                    width: 1.0,
+                                    width: 0.8,
                                   ),
                                 ),
                                 shadows: [
@@ -551,9 +551,9 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                 Container(
                   decoration: ShapeDecoration(
                     color: colors.surface,
-                    shape: ContinuousRectangleBorder(
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(24),
-                      side: BorderSide(color: colors.divider, width: 1.0),
+                      side: BorderSide(color: colors.cardBorder, width: 0.8),
                     ),
                   ),
                   padding: const EdgeInsets.all(18.0),
@@ -627,15 +627,15 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                                                 alpha: 0.18,
                                               )
                                             : colors.elevatedBackground,
-                                        shape: ContinuousRectangleBorder(
+                                        shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             14,
                                           ),
                                           side: BorderSide(
                                             color: isSelected
                                                 ? colors.primary
-                                                : colors.divider,
-                                            width: isSelected ? 1.5 : 1.0,
+                                                : colors.cardBorder,
+                                            width: isSelected ? 1.5 : 0.8,
                                           ),
                                         ),
                                       ),
@@ -671,9 +671,9 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                 Container(
                   decoration: ShapeDecoration(
                     color: colors.surface,
-                    shape: ContinuousRectangleBorder(
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(24),
-                      side: BorderSide(color: colors.divider, width: 1.0),
+                      side: BorderSide(color: colors.cardBorder, width: 0.8),
                     ),
                   ),
                   padding: const EdgeInsets.all(20.0),
@@ -807,15 +807,15 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                                   : hasOccasion
                                   ? colors.primarySoft
                                   : colors.elevatedBackground,
-                              shape: ContinuousRectangleBorder(
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 side: BorderSide(
                                   color: isToday
                                       ? colors.primary
                                       : hasOccasion
                                       ? colors.primary.withValues(alpha: 0.5)
-                                      : colors.divider,
-                                  width: 1.0,
+                                      : colors.cardBorder,
+                                  width: 0.8,
                                 ),
                               ),
                             ),
@@ -881,9 +881,9 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                         padding: const EdgeInsets.all(20),
                         decoration: ShapeDecoration(
                           color: colors.surface,
-                          shape: ContinuousRectangleBorder(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
-                            side: BorderSide(color: colors.divider, width: 1.0),
+                            side: BorderSide(color: colors.cardBorder, width: 0.8),
                           ),
                         ),
                         child: Text(
@@ -897,9 +897,9 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                     : Container(
                         decoration: ShapeDecoration(
                           color: colors.surface,
-                          shape: ContinuousRectangleBorder(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24),
-                            side: BorderSide(color: colors.divider, width: 1.0),
+                            side: BorderSide(color: colors.cardBorder, width: 0.8),
                           ),
                         ),
                         clipBehavior: Clip.antiAlias,
@@ -1003,7 +1003,7 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
                                     thickness: 1.0,
                                     indent: 0,
                                     endIndent: 0,
-                                    color: colors.divider,
+                                    color: colors.cardBorder,
                                   ),
                               ],
                             );

@@ -944,7 +944,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'لا اله الا الله';
 
   @override
-  String get dhikrSalawat => 'Salawat';
+  String get dhikrSalawat => 'صلوات';
 
   @override
   String get dhikrSubhanAllahTranslation =>
@@ -967,7 +967,14 @@ class AppLocalizationsFa extends AppLocalizations {
       'هیچ معبودی جز خدای یگانه به حق نیست';
 
   @override
-  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+  String get dhikrSalawatTranslation => 'بار الها، بر محمد درود فرست';
+
+  @override
+  String get dhikrDuroodIbrahim => 'صلوات ابراهیمی';
+
+  @override
+  String get dhikrDuroodIbrahimTranslation =>
+      'اللهم صل علی محمد و علی آل محمد کما صَلیتَ علی ابراهیم و علی آل ابراهیم انک حمید مجید، اللهم بارک علی محمد و علی آل محمد کما بارکت علی ابراهیم و علی آل ابراهیم انک حمید مجید';
 
   @override
   String get doSalawat => 'Do Salawat';

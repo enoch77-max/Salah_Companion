@@ -947,7 +947,7 @@ class AppLocalizationsBs extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'La ilahe illallah';
 
   @override
-  String get dhikrSalawat => 'Salawat';
+  String get dhikrSalawat => 'Salavat';
 
   @override
   String get dhikrSubhanAllahTranslation =>
@@ -969,7 +969,15 @@ class AppLocalizationsBs extends AppLocalizations {
       'Nema istinskog boga dostojnog obožavanja osim Allaha';
 
   @override
-  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+  String get dhikrSalawatTranslation =>
+      'Allahu moj, donesi salavat na Muhammeda';
+
+  @override
+  String get dhikrDuroodIbrahim => 'Salavat Ibrahimijja';
+
+  @override
+  String get dhikrDuroodIbrahimTranslation =>
+      'Allahumme salli \'ala Muhammedin ve \'ala ali Muhammed, kema sallejte \'ala Ibrahime ve \'ala ali Ibrahim, inneke Hamidun Medžid. Allahumme barik \'ala Muhammedin ve \'ala ali Muhammed, kema barekte \'ala Ibrahime ve \'ala ali Ibrahim, inneke Hamidun Medžid.';
 
   @override
   String get doSalawat => 'Do Salawat';
@@ -1124,7 +1132,7 @@ class AppLocalizationsBs extends AppLocalizations {
   String get fridaySuiteHeader => 'DŽUMANSKI SUNNETI I POSEBNA DJELA';
 
   @override
-  String get fridayTodayOnly => 'Dostupno petkom';
+  String get fridayTodayOnly => 'Dostupno za džumu';
 
   @override
   String get surahKahfTitle => 'Sura El-Kehf';
@@ -1134,7 +1142,7 @@ class AppLocalizationsBs extends AppLocalizations {
 
   @override
   String get surahKahfHadith =>
-      'Ko petkom prouči suru El-Kehf, obasjat će ga svjetlost između dvije džume. (El-Bejheki)';
+      'Ko za džumu prouči suru El-Kehf, obasjat će ga svjetlost između dvije džume. (El-Bejheki)';
 
   @override
   String get markAsRead => 'Označi kao proučeno';
@@ -1150,7 +1158,7 @@ class AppLocalizationsBs extends AppLocalizations {
 
   @override
   String get salawatHadith =>
-      'Donosite mnogo salavata na mene petkom, jer se vaši salavati meni predočavaju. (Ebu Davud)';
+      'Donosite mnogo salavata na mene na dan džume, jer se vaši salavati meni predočavaju. (Ebu Davud)';
 
   @override
   String get salawatCountLabel => 'Doneseno salavata danas';
@@ -1159,10 +1167,10 @@ class AppLocalizationsBs extends AppLocalizations {
   String get salawatTapBtn => 'Donesi salavat (+1)';
 
   @override
-  String get fridayEtiquettesTitle => 'Sunneti i adabi petka';
+  String get fridayEtiquettesTitle => 'Sunneti i adabi džume';
 
   @override
-  String get fridayEtiquettesRef => 'Vjerodostojni sunneti petka';
+  String get fridayEtiquettesRef => 'Vjerodostojni sunneti džume';
 
   @override
   String get fridayGhusl => 'Kupanje (gusul) prije namaza';
@@ -1184,7 +1192,7 @@ class AppLocalizationsBs extends AppLocalizations {
 
   @override
   String get istijabahHadith =>
-      'U petku ima čas u kojem rob musliman, ako zamoli Allaha za neko dobro, Allah će mu to dati — tražite ga u zadnjem času poslije ikindije. (Ebu Davud, En-Nesai)';
+      'Na dan džume ima čas u kojem rob musliman, ako zamoli Allaha za neko dobro, Allah će mu to dati — tražite ga u zadnjem času poslije ikindije. (Ebu Davud, En-Nesai)';
 
   @override
   String get fridayHadithGuideSheetTitle =>

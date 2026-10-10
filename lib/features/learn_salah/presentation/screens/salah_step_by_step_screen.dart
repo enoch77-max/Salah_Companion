@@ -205,9 +205,9 @@ class _StepDetailCardState extends State<_StepDetailCard> {
             padding: const EdgeInsets.all(20.0),
             decoration: ShapeDecoration(
               color: colors.surface,
-              shape: ContinuousRectangleBorder(
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(28),
-                side: BorderSide(color: colors.divider, width: 1.0),
+                side: BorderSide(color: colors.cardBorder, width: 0.8),
               ),
             ),
             child: Column(
@@ -223,7 +223,7 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                         ),
                         decoration: ShapeDecoration(
                           color: colors.primary.withValues(alpha: 0.15),
-                          shape: ContinuousRectangleBorder(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
@@ -288,9 +288,9 @@ class _StepDetailCardState extends State<_StepDetailCard> {
             padding: const EdgeInsets.all(18.0),
             decoration: ShapeDecoration(
               color: colors.surface,
-              shape: ContinuousRectangleBorder(
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
-                side: BorderSide(color: colors.divider, width: 1.0),
+                side: BorderSide(color: colors.cardBorder, width: 0.8),
               ),
             ),
             child: Column(
@@ -350,11 +350,11 @@ class _StepDetailCardState extends State<_StepDetailCard> {
               padding: const EdgeInsets.all(20.0),
               decoration: ShapeDecoration(
                 color: colors.primary.withValues(alpha: 0.08),
-                shape: ContinuousRectangleBorder(
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                   side: BorderSide(
                     color: colors.primary.withValues(alpha: 0.3),
-                    width: 1.2,
+                    width: 0.8,
                   ),
                 ),
               ),
@@ -412,11 +412,11 @@ class _StepDetailCardState extends State<_StepDetailCard> {
           // Expandable Evidence & Hadiths Proof Tile
           Material(
             color: colors.surface,
-            shape: ContinuousRectangleBorder(
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
               side: BorderSide(
                 color: colors.primary.withValues(alpha: 0.4),
-                width: 1.2,
+                width: 0.8,
               ),
             ),
             clipBehavior: Clip.antiAlias,
@@ -482,11 +482,11 @@ class _StepDetailCardState extends State<_StepDetailCard> {
                                   padding: const EdgeInsets.all(14.0),
                                   decoration: ShapeDecoration(
                                     color: colors.elevatedBackground,
-                                    shape: ContinuousRectangleBorder(
+                                    shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(18),
                                       side: BorderSide(
-                                        color: colors.divider,
-                                        width: 1.0,
+                                        color: colors.cardBorder,
+                                        width: 0.8,
                                       ),
                                     ),
                                   ),

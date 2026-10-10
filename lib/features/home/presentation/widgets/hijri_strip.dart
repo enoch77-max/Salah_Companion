@@ -43,9 +43,9 @@ class HijriStrip extends StatelessWidget {
       width: double.infinity,
       decoration: ShapeDecoration(
         color: colors.elevatedBackground,
-        shape: ContinuousRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: colors.dividerStrong, width: 1.0),
+          side: BorderSide(color: colors.cardBorder, width: 0.8),
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
@@ -102,13 +102,13 @@ class HijriStrip extends StatelessWidget {
                     color: isLocationFallback
                         ? colors.primarySoft
                         : colors.surface,
-                    shape: ContinuousRectangleBorder(
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                       side: BorderSide(
                         color: isLocationFallback
                             ? colors.primary.withValues(alpha: 0.3)
-                            : colors.divider,
-                        width: 1.0,
+                            : colors.cardBorder,
+                        width: 0.8,
                       ),
                     ),
                   ),
@@ -155,9 +155,9 @@ class HijriStrip extends StatelessWidget {
                 key: const ValueKey('location_fallback_banner'),
                 decoration: ShapeDecoration(
                   color: colors.primarySoft,
-                  shape: ContinuousRectangleBorder(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
-                    side: BorderSide(color: colors.primaryGlow, width: 1.0),
+                    side: BorderSide(color: colors.primaryGlow, width: 0.8),
                   ),
                 ),
                 padding: const EdgeInsets.symmetric(
@@ -203,9 +203,9 @@ class HijriStrip extends StatelessWidget {
                 key: const ValueKey('timezone_mismatch_banner'),
                 decoration: ShapeDecoration(
                   color: colors.primarySoft,
-                  shape: ContinuousRectangleBorder(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
-                    side: BorderSide(color: colors.primaryGlow, width: 1.0),
+                    side: BorderSide(color: colors.primaryGlow, width: 0.8),
                   ),
                 ),
                 padding: const EdgeInsets.symmetric(

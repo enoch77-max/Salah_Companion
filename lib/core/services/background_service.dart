@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:adhan_dart/adhan_dart.dart';
-import 'package:drift/native.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -59,7 +58,7 @@ class MidnightRefreshHandler {
       NotificationService.configureLocalTimeZone();
 
       final effectivePrefs = prefs ?? await SharedPreferences.getInstance();
-      final effectiveDb = db ?? AppDatabase(NativeDatabase.memory());
+      final effectiveDb = db ?? AppDatabase.instance();
       final effectiveNotif = notificationService ?? NotificationService();
       await effectiveNotif.initialize();
       final effectiveLocation =

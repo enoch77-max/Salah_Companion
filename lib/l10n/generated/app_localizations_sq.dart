@@ -950,7 +950,7 @@ class AppLocalizationsSq extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'La ilahe il-lallah';
 
   @override
-  String get dhikrSalawat => 'Salawat';
+  String get dhikrSalawat => 'Salavate';
 
   @override
   String get dhikrSubhanAllahTranslation =>
@@ -973,7 +973,14 @@ class AppLocalizationsSq extends AppLocalizations {
       'Nuk ka të adhuruar tjetër me të drejtë përveç Allahut';
 
   @override
-  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+  String get dhikrSalawatTranslation => 'O Allah, bekoje Muhamedin';
+
+  @override
+  String get dhikrDuroodIbrahim => 'Salavatet Ibrahimije';
+
+  @override
+  String get dhikrDuroodIbrahimTranslation =>
+      'Allahumme sali \'ala Muhammedin ve \'ala ali Muhammed, kema salejte \'ala Ibrahime ve \'ala ali Ibrahim, inneke Hamidun Mexhid. Allahumme barik \'ala Muhammedin ve \'ala ali Muhammed, kema barekte \'ala Ibrahime ve \'ala ali Ibrahim, inneke Hamidun Mexhid.';
 
   @override
   String get doSalawat => 'Do Salawat';

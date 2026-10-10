@@ -362,6 +362,17 @@ class MainActivity : FlutterActivity() {
     private fun enableHighRefreshRate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
+                val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
+                if (powerManager?.isPowerSaveMode == true) {
+                    // Respect Android system power saver mode: revert preferred display mode to default
+                    val params = window.attributes
+                    if (params.preferredDisplayModeId != 0) {
+                        params.preferredDisplayModeId = 0
+                        window.attributes = params
+                    }
+                    return
+                }
+
                 val display = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     display
                 } else {

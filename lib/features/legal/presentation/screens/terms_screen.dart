@@ -113,9 +113,9 @@ class TermsScreen extends StatelessWidget {
 
     return Material(
       color: colors.surface,
-      shape: ContinuousRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: colors.divider, width: 1.0),
+        side: BorderSide(color: colors.cardBorder, width: 0.8),
       ),
       clipBehavior: Clip.antiAlias,
       child: Padding(

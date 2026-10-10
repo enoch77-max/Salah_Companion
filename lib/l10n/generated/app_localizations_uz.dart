@@ -957,7 +957,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'La ilaha illalloh';
 
   @override
-  String get dhikrSalawat => 'Salawat';
+  String get dhikrSalawat => 'Salovot';
 
   @override
   String get dhikrSubhanAllahTranslation =>
@@ -980,7 +980,14 @@ class AppLocalizationsUz extends AppLocalizations {
       'Allohdan o\'zga haqiqiy ibodatga loyiq iloh yo\'qdir';
 
   @override
-  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+  String get dhikrSalawatTranslation => 'Allohim, Muhammadga salovot yubor';
+
+  @override
+  String get dhikrDuroodIbrahim => 'Ibrohim Salovati';
+
+  @override
+  String get dhikrDuroodIbrahimTranslation =>
+      'Allohumma salli \'ala Muhammadin va \'ala oli Muhammad, kama sallayta \'ala Ibrohima va \'ala oli Ibrohim, innaka Hamidum Majid. Allohumma barik \'ala Muhammadin va \'ala oli Muhammad, kama barakta \'ala Ibrohima va \'ala oli Ibrohim, innaka Hamidum Majid.';
 
   @override
   String get doSalawat => 'Do Salawat';

@@ -46,6 +46,7 @@ class HomeScreen extends StatefulWidget {
   final ThemeMode currentThemeMode;
   final ValueChanged<ThemeMode>? onThemeModeChanged;
   final NotificationService? notificationService;
+  final LocationService? locationService;
   final Locale? currentLocale;
   final ValueChanged<Locale>? onLocaleChanged;
   final bool? overrideIsFriday;
@@ -64,6 +65,7 @@ class HomeScreen extends StatefulWidget {
     this.currentThemeMode = ThemeMode.dark,
     this.onThemeModeChanged,
     this.notificationService,
+    this.locationService,
     this.currentLocale,
     this.onLocaleChanged,
     this.overrideIsFriday,
@@ -89,7 +91,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<TasbihScreenState> _tasbihKey = GlobalKey<TasbihScreenState>();
   int _selectedNavIndex = 0;
@@ -140,6 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _currentLocationName = widget.locationName;
     _nextPrayerName = widget.nextPrayerName;
     _remainingDuration = widget.remainingDuration;
@@ -150,6 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _applyLocationAndCalculateSync(LocationService.savedLocation!);
     }
 
+    _startLocationUpdates();
     _initLocationAndPrayers();
 
     _periodicRefreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
@@ -205,9 +209,41 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _periodicRefreshTimer?.cancel();
-    _locationSubscription?.cancel();
+    _stopLocationUpdates();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.hidden) {
+      // Prevent battery-draining continuous satellite hardware queries when minimized/backgrounded
+      _stopLocationUpdates();
+    } else if (state == AppLifecycleState.resumed) {
+      // Resume high-accuracy location tracking and re-evaluate prayer calculations upon resume
+      _startLocationUpdates();
+      _reEvaluateCurrentPrayerState();
+    }
+  }
+
+  void _startLocationUpdates() {
+    if (_locationSubscription != null) return;
+    final locService = widget.locationService ?? LocationService();
+    _locationSubscription = locService.listenToHighAccuracyUpdates().listen((
+      freshLoc,
+    ) {
+      if (mounted) {
+        _applyLocationAndCalculate(freshLoc);
+      }
+    });
+  }
+
+  void _stopLocationUpdates() {
+    _locationSubscription?.cancel();
+    _locationSubscription = null;
   }
 
   Future<void> _reEvaluateCurrentPrayerState() async {
@@ -1070,7 +1106,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (_) {}
 
-    final locService = LocationService();
+    final locService = widget.locationService ?? LocationService();
 
     // 1. Instant startup hydration from local cache or memory
     try {
@@ -1113,14 +1149,8 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
-    // 3. Continuous Hardware GPS Precision Stream
-    _locationSubscription = locService.listenToHighAccuracyUpdates().listen((
-      freshLoc,
-    ) {
-      if (mounted) {
-        _applyLocationAndCalculate(freshLoc);
-      }
-    });
+    // 3. Continuous Hardware GPS Precision Stream (Lifecycle-managed)
+    _startLocationUpdates();
 
     // Safety net: if still unpopulated for any unexpected reason
     if (mounted &&

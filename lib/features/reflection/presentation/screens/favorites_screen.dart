@@ -205,11 +205,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     fontSize: 13,
                   ),
-                  shape: ContinuousRectangleBorder(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
-                      color: isSelected ? colors.primary : colors.dividerStrong,
-                      width: 1,
+                      color: isSelected ? colors.primary : colors.cardBorder,
+                      width: 0.8,
                     ),
                   ),
                   showCheckmark: false,
@@ -244,7 +244,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 height: 72,
                 decoration: ShapeDecoration(
                   color: colors.primarySoft,
-                  shape: ContinuousRectangleBorder(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24),
                   ),
                 ),

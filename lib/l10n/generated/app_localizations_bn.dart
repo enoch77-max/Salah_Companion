@@ -949,7 +949,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'লা ইলাহা ইল্লাল্লাহ';
 
   @override
-  String get dhikrSalawat => 'Salawat';
+  String get dhikrSalawat => 'দরূদ শরিফ';
 
   @override
   String get dhikrSubhanAllahTranslation =>
@@ -972,10 +972,18 @@ class AppLocalizationsBn extends AppLocalizations {
       'একমাত্র আল্লাহ ছাড়া আর কোনো সত্য উপাস্য নেই';
 
   @override
-  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+  String get dhikrSalawatTranslation =>
+      'হে আল্লাহ! মুহাম্মাদের ওপর রহমত বর্ষণ করুন';
 
   @override
-  String get doSalawat => 'Do Salawat';
+  String get dhikrDuroodIbrahim => 'দরূদে ইবরাহিম';
+
+  @override
+  String get dhikrDuroodIbrahimTranslation =>
+      'আল্লাহুম্মা সাল্লি ‘আলা মুহাম্মাদিঁও ওয়া ‘আলা আলি মুহাম্মাদ, কামা সাল্লাইতা ‘আলা ইবরাহিমা ওয়া ‘আলা আলি ইবরাহিম, ইন্নাকা হামিদুম মাজীদ। আল্লাহুম্মা বারিক ‘আলা মুহাম্মাদিঁও ওয়া ‘আলা আলি মুহাম্মাদ, কামা বারাকতা ‘আলা ইবরাহিমা ওয়া ‘আলা আলি ইবরাহিম, ইন্নাকা হামিদুম মাজীদ।';
+
+  @override
+  String get doSalawat => 'দরূদ পাঠ করুন';
 
   @override
   String tasbihNextDhikr(String dhikr) {

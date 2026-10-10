@@ -6,6 +6,9 @@ import '../../../../app/theme/app_theme.dart';
 import '../../../../core/presentation/widgets/tasbih_icon.dart';
 import '../../../../core/services/app_haptics.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../data/surah_kahf_data.dart';
+import '../animation/card_expand_route.dart';
+import 'surah_kahf_reader_popup.dart';
 
 /// Friday Companion Suite Widget.
 ///
@@ -64,6 +67,66 @@ class _FridayCompanionSuiteState extends State<FridayCompanionSuite> {
         _clothesChecked = prefs.getBool(_prefClothes) ?? false;
         _earlyMosqueChecked = prefs.getBool(_prefEarlyMosque) ?? false;
       });
+    }
+  }
+
+  final GlobalKey _kahfCardKey = GlobalKey();
+
+  Future<void> _openSurahKahfPopup() async {
+    AppHaptics.selection();
+    final renderBox = _kahfCardKey.currentContext?.findRenderObject() as RenderBox?;
+    final originRect = renderBox != null
+        ? renderBox.localToGlobal(Offset.zero) & renderBox.size
+        : null;
+
+    final colors = context.appColors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
+
+    final result = await Navigator.of(context).push<bool>(
+      CardExpandRoute<bool>(
+        originRect: originRect,
+        startRadius: 18.0,
+        headerConfig: SharedHeaderConfig(
+          icon: Icons.auto_stories_rounded,
+          startTitle: l10n?.surahKahfTitle ?? 'Surah Al-Kahf',
+          endTitle: SurahKahfData.surahNameEnglish,
+          endArabicTitle: SurahKahfData.surahNameArabic,
+          endSubtitle: "110 Verses • Makki • Jumu'ah Sunnah",
+          startIconSize: 16.0,
+          startIconBoxSize: 32.0,
+          endIconSize: 19.0,
+          endIconBoxSize: 38.0,
+          startFontSize: 15.0,
+          endFontSize: 16.5,
+          startPadding: const EdgeInsets.all(16.0),
+          endPadding: const EdgeInsets.only(left: 18.0, right: 14.0, top: 14.0, bottom: 8.0),
+          accentColor: colors.primary,
+          startTextColor: colors.textPrimary,
+          endTextColor: colors.textPrimary,
+        ),
+        originCardBody: _buildKahfCardBody(
+          context,
+          colors,
+          l10n,
+          isDark,
+          isInteractive: false,
+        ),
+        builder: (popupContext, animation) => SurahKahfReaderPopup(
+          isInitiallyCompleted: _kahfCompleted,
+          animation: animation,
+        ),
+      ),
+    );
+
+    if (result != null && mounted) {
+      if (result != _kahfCompleted) {
+        setState(() {
+          _kahfCompleted = result;
+        });
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(_prefKahfCompleted, result);
+      }
     }
   }
 
@@ -152,14 +215,14 @@ class _FridayCompanionSuiteState extends State<FridayCompanionSuite> {
       child: Row(
         children: [
           Icon(
-            Icons.auto_awesome_rounded,
+            Icons.mosque_rounded,
             size: 13,
             color: accentColor,
           ),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
-              l10n?.fridaySuiteHeader ?? 'FRIDAY SUNNAH & SPECIAL DEEDS',
+              l10n?.fridaySuiteHeader ?? "JUMU'AH SUNNAH & SPECIAL DEEDS",
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: colors.textSecondary,
                 letterSpacing: 1.2,
@@ -172,26 +235,45 @@ class _FridayCompanionSuiteState extends State<FridayCompanionSuite> {
     );
   }
 
-  /// Card 1: Surah Al-Kahf with 110 Ayat badge, Hadith, and tap-to-complete
+  /// Card 1: Surah Al-Kahf with 110 Ayat badge, Hadith, expanding reader popup, and Read / Read Again actions
   Widget _buildKahfCard(
     BuildContext context,
     AppCustomColors colors,
     AppLocalizations? l10n,
     bool isDark,
   ) {
-    final accentColor = isDark ? const Color(0xFFD4A574) : const Color(0xFF0F766E);
-    final accentText = isDark ? const Color(0xFFE8C9A0) : const Color(0xFF0F766E);
+    return Container(
+      key: _kahfCardKey,
+      child: _buildKahfCardSurface(
+        context,
+        colors,
+        l10n,
+        isDark,
+        isInteractive: true,
+      ),
+    );
+  }
+
+  /// Visual surface of Surah Al-Kahf card, composed of header and body
+  Widget _buildKahfCardSurface(
+    BuildContext context,
+    AppCustomColors colors,
+    AppLocalizations? l10n,
+    bool isDark, {
+    required bool isInteractive,
+  }) {
+    final Color themeBorder = colors.primary.withValues(alpha: isDark ? 0.40 : 0.28);
 
     return Container(
       decoration: ShapeDecoration(
         color: colors.surface,
-        shape: ContinuousRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
           side: BorderSide(
             color: _kahfCompleted
-                ? colors.success.withValues(alpha: 0.45)
-                : colors.dividerStrong,
-            width: 1.0,
+                ? themeBorder
+                : colors.cardBorder,
+            width: 0.8,
           ),
         ),
       ),
@@ -199,140 +281,96 @@ class _FridayCompanionSuiteState extends State<FridayCompanionSuite> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header: Icon + Title
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(9),
-                ),
-                child: Icon(
-                  Icons.auto_stories_rounded,
-                  size: 16,
-                  color: accentText,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  l10n?.surahKahfTitle ?? 'Surah Al-Kahf',
-                  softWrap: true,
-                  style: TextStyle(
-                    fontSize: 15.0,
-                    fontWeight: FontWeight.w800,
-                    color: colors.textPrimary,
-                  ),
-                ),
-              ),
-            ],
+          _buildKahfCardHeader(
+            context,
+            colors,
+            l10n,
+            isDark,
+            isInteractive: isInteractive,
           ),
           const SizedBox(height: 8),
-
-          // Badges: 110 Ayat + Light Between Two Fridays
-          Wrap(
-            spacing: 6,
-            runSpacing: 4,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                decoration: BoxDecoration(
-                  color: colors.surfaceHover,
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(
-                    color: colors.divider,
-                    width: 0.8,
-                  ),
-                ),
-                child: Text(
-                  '110 Ayat',
-                  style: TextStyle(
-                    fontSize: 10.0,
-                    fontWeight: FontWeight.w600,
-                    color: colors.textSecondary,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 2.0),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(
-                    color: accentColor.withValues(alpha: 0.30),
-                    width: 0.8,
-                  ),
-                ),
-                child: Text(
-                  l10n?.surahKahfBadge ?? 'Light Between Two Fridays',
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w700,
-                    color: accentText,
-                    letterSpacing: 0.1,
-                  ),
-                ),
-              ),
-            ],
+          _buildKahfCardBody(
+            context,
+            colors,
+            l10n,
+            isDark,
+            isInteractive: isInteractive,
           ),
-          const SizedBox(height: 9),
+        ],
+      ),
+    );
+  }
 
-          // Hadith Quote Text
-          Text(
-            l10n?.surahKahfHadith ??
-                'Whoever recites Surah Al-Kahf on Friday will have a light shining for him between the two Fridays. (Al-Bayhaqi)',
+  /// Top header row of Surah Al-Kahf card (icon + title + done badge)
+  Widget _buildKahfCardHeader(
+    BuildContext context,
+    AppCustomColors colors,
+    AppLocalizations? l10n,
+    bool isDark, {
+    required bool isInteractive,
+  }) {
+    final Color themeLuminous = isDark ? colors.primaryText : colors.primary;
+    final Color themeSoft = colors.primarySoft;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: themeSoft,
+            borderRadius: BorderRadius.circular(9),
+          ),
+          child: Icon(
+            Icons.auto_stories_rounded,
+            size: 16,
+            color: themeLuminous,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            l10n?.surahKahfTitle ?? 'Surah Al-Kahf',
+            softWrap: true,
             style: TextStyle(
-              fontSize: 12.0,
-              fontWeight: FontWeight.w400,
-              fontStyle: FontStyle.italic,
-              color: colors.textSecondary,
-              height: 1.35,
+              fontSize: 15.0,
+              fontWeight: FontWeight.w800,
+              color: colors.textPrimary,
             ),
           ),
-          const SizedBox(height: 14),
-
-          // Completion Action Button
+        ),
+        // Done tick mark badge when completed (success green tokens, tap to toggle if interactive)
+        if (_kahfCompleted) ...[
+          const SizedBox(width: 6),
           InkWell(
-            onTap: _toggleKahf,
-            borderRadius: BorderRadius.circular(10),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOutCubic,
-              padding: const EdgeInsets.symmetric(vertical: 9.0, horizontal: 12.0),
+            onTap: isInteractive ? _toggleKahf : null,
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.5),
               decoration: BoxDecoration(
-                color: _kahfCompleted
-                    ? colors.successSoft
-                    : accentColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
+                color: colors.successSoft,
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: _kahfCompleted
-                      ? colors.success.withValues(alpha: 0.6)
-                      : accentColor.withValues(alpha: 0.4),
+                  color: colors.success.withValues(alpha: isDark ? 0.40 : 0.28),
                   width: 1.0,
                 ),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    _kahfCompleted
-                        ? Icons.check_circle_rounded
-                        : Icons.check_circle_outline_rounded,
-                    size: 15,
-                    color: _kahfCompleted ? colors.successText : accentText,
+                    Icons.check_circle_rounded,
+                    size: 13,
+                    color: colors.successText,
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 4),
                   Text(
-                    _kahfCompleted
-                        ? (l10n?.readCompleted ?? 'Completed')
-                        : (l10n?.markAsRead ?? 'Mark as Read'),
+                    'Done',
                     style: TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w700,
-                      color: _kahfCompleted ? colors.successText : accentText,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w800,
+                      color: colors.successText,
                       letterSpacing: 0.2,
                     ),
                   ),
@@ -341,7 +379,151 @@ class _FridayCompanionSuiteState extends State<FridayCompanionSuite> {
             ),
           ),
         ],
-      ),
+      ],
+    );
+  }
+
+  /// Body content of Surah Al-Kahf card (badges, quote, and read button)
+  Widget _buildKahfCardBody(
+    BuildContext context,
+    AppCustomColors colors,
+    AppLocalizations? l10n,
+    bool isDark, {
+    required bool isInteractive,
+  }) {
+    final Color themePrimary = colors.primary;
+    final Color themeLuminous = isDark ? colors.primaryText : colors.primary;
+    final Color themeSoft = colors.primarySoft;
+    final Color themeBorder = colors.primary.withValues(alpha: isDark ? 0.40 : 0.28);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Badges: 110 Ayat + Light Between Two Fridays
+        Wrap(
+          spacing: 6,
+          runSpacing: 4,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+              decoration: BoxDecoration(
+                color: colors.surfaceHover,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(
+                  color: colors.divider,
+                  width: 0.8,
+                ),
+              ),
+              child: Text(
+                '110 Ayat',
+                style: TextStyle(
+                  fontSize: 10.0,
+                  fontWeight: FontWeight.w600,
+                  color: colors.textSecondary,
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 2.0),
+              decoration: BoxDecoration(
+                color: themeSoft,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(
+                  color: themeBorder,
+                  width: 0.8,
+                ),
+              ),
+              child: Text(
+                l10n?.surahKahfBadge ?? "Light Between Two Jumu'ahs",
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
+                  color: themeLuminous,
+                  letterSpacing: 0.1,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 9),
+
+        // Hadith Quote Text
+        Text(
+          l10n?.surahKahfHadith ??
+              "Whoever recites Surah Al-Kahf on Jumu'ah will have a light shining for him between the two Jumu'ahs. (Al-Bayhaqi)",
+          style: TextStyle(
+            fontSize: 12.0,
+            fontWeight: FontWeight.w400,
+            fontStyle: FontStyle.italic,
+            color: colors.textSecondary,
+            height: 1.35,
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // Action Button: "Read" (uncompleted) or "Read Again" (completed)
+        InkWell(
+          onTap: isInteractive ? _openSurahKahfPopup : null,
+          borderRadius: BorderRadius.circular(10),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14.0),
+            decoration: BoxDecoration(
+              color: _kahfCompleted ? themeSoft : themePrimary,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: _kahfCompleted ? themeBorder : themePrimary,
+                width: 1.0,
+              ),
+              boxShadow: _kahfCompleted
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: themePrimary.withValues(alpha: 0.28),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  _kahfCompleted
+                      ? Icons.refresh_rounded
+                      : Icons.auto_stories_rounded,
+                  size: 16,
+                  color: _kahfCompleted
+                      ? themeLuminous
+                      : (isDark ? const Color(0xFF1F1B17) : Colors.white),
+                ),
+                const SizedBox(width: 7),
+                Text(
+                  _kahfCompleted ? 'Read Again' : 'Read',
+                  style: TextStyle(
+                    fontSize: 13.0,
+                    fontWeight: FontWeight.w700,
+                    color: _kahfCompleted
+                        ? themeLuminous
+                        : (isDark ? const Color(0xFF1F1B17) : Colors.white),
+                    letterSpacing: 0.2,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 14,
+                  color: _kahfCompleted
+                      ? themeLuminous
+                      : (isDark ? const Color(0xFF1F1B17) : Colors.white),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -358,11 +540,11 @@ class _FridayCompanionSuiteState extends State<FridayCompanionSuite> {
     return Container(
       decoration: ShapeDecoration(
         color: colors.surface,
-        shape: ContinuousRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
           side: BorderSide(
-            color: colors.dividerStrong,
-            width: 1.0,
+            color: colors.cardBorder,
+            width: 0.8,
           ),
         ),
       ),
@@ -434,7 +616,7 @@ class _FridayCompanionSuiteState extends State<FridayCompanionSuite> {
           // Hadith Text
           Text(
             l10n?.salawatHadith ??
-                'Increase your supplications for blessings upon me on Friday, for your supplications are presented to me. (Abu Dawud)',
+                "Increase your supplications for blessings upon me on Jumu'ah, for your supplications are presented to me. (Abu Dawud)",
             style: TextStyle(
               fontSize: 12.0,
               fontWeight: FontWeight.w400,
@@ -511,11 +693,11 @@ class _FridayCompanionSuiteState extends State<FridayCompanionSuite> {
     return Container(
       decoration: ShapeDecoration(
         color: colors.surface,
-        shape: ContinuousRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
           side: BorderSide(
-            color: colors.dividerStrong,
-            width: 1.0,
+            color: colors.cardBorder,
+            width: 0.8,
           ),
         ),
       ),
@@ -546,7 +728,7 @@ class _FridayCompanionSuiteState extends State<FridayCompanionSuite> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      l10n?.fridayEtiquettesTitle ?? 'Sunnahs & Etiquettes of Friday',
+                      l10n?.fridayEtiquettesTitle ?? "Sunnahs & Etiquettes of Jumu'ah",
                       softWrap: true,
                       style: TextStyle(
                         fontSize: 14.5,
@@ -556,7 +738,7 @@ class _FridayCompanionSuiteState extends State<FridayCompanionSuite> {
                     ),
                     const SizedBox(height: 1),
                     Text(
-                      l10n?.fridayEtiquettesRef ?? 'Authentic Traditions of Friday',
+                      l10n?.fridayEtiquettesRef ?? "Authentic Traditions of Jumu'ah",
                       softWrap: true,
                       style: TextStyle(
                         fontSize: 10.5,
@@ -749,13 +931,13 @@ class _FridayCompanionSuiteState extends State<FridayCompanionSuite> {
     return Container(
       decoration: ShapeDecoration(
         color: colors.surface,
-        shape: ContinuousRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
           side: BorderSide(
             color: isActiveNow
                 ? colors.primary.withValues(alpha: 0.6)
-                : colors.dividerStrong,
-            width: isActiveNow ? 1.5 : 1.0,
+                : colors.cardBorder,
+            width: isActiveNow ? 1.2 : 0.8,
           ),
         ),
       ),
@@ -864,7 +1046,7 @@ class _FridayCompanionSuiteState extends State<FridayCompanionSuite> {
           // Hadith Text
           Text(
             l10n?.istijabahHadith ??
-                'On Friday there is an hour when no Muslim servant asks Allah for something good but He grants it to him — seek it in the last hour after Asr. (Abu Dawud, An-Nasa\'i)',
+                "On Jumu'ah there is an hour when no Muslim servant asks Allah for something good but He grants it to him — seek it in the last hour after Asr. (Abu Dawud, An-Nasa'i)",
             style: TextStyle(
               fontSize: 12.0,
               fontWeight: FontWeight.w400,

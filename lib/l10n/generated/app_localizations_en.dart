@@ -970,6 +970,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
 
   @override
+  String get dhikrDuroodIbrahim => 'Durood Ibrahim';
+
+  @override
+  String get dhikrDuroodIbrahimTranslation =>
+      'Allahumma salli \'ala Muhammadin wa \'ala ali Muhammad, kama sallayta \'ala Ibrahima wa \'ala ali Ibrahim, innaka Hamidun Majid. Allahumma barik \'ala Muhammadin wa \'ala ali Muhammad, kama barakta \'ala Ibrahima wa \'ala ali Ibrahim, innaka Hamidun Majid.';
+
+  @override
   String get doSalawat => 'Do Salawat';
 
   @override
@@ -1089,7 +1096,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fridayAtHome => 'At Home';
 
   @override
-  String get fridaySunnahRulingsTitle => 'Friday Sunnah Rulings';
+  String get fridaySunnahRulingsTitle => 'Jumu\'ah Sunnah Rulings';
 
   @override
   String get fridayBeforeLabel => 'Before';
@@ -1118,20 +1125,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tap to view authentic rulings and hadith references';
 
   @override
-  String get fridaySuiteHeader => 'FRIDAY SUNNAH & SPECIAL DEEDS';
+  String get fridaySuiteHeader => 'JUMU\'AH SUNNAH & SPECIAL DEEDS';
 
   @override
-  String get fridayTodayOnly => 'Available on Friday';
+  String get fridayTodayOnly => 'Available on Jumu\'ah';
 
   @override
   String get surahKahfTitle => 'Surah Al-Kahf';
 
   @override
-  String get surahKahfBadge => 'Light Between Two Fridays';
+  String get surahKahfBadge => 'Light Between Two Jumu\'ahs';
 
   @override
   String get surahKahfHadith =>
-      'Whoever recites Surah Al-Kahf on Friday will have a light shining for him between the two Fridays. (Al-Bayhaqi)';
+      'Whoever recites Surah Al-Kahf on Jumu\'ah will have a light shining for him between the two Jumu\'ahs. (Al-Bayhaqi)';
 
   @override
   String get markAsRead => 'Mark as Read';
@@ -1147,7 +1154,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get salawatHadith =>
-      'Increase your supplications for blessings upon me on Friday, for your supplications are presented to me. (Abu Dawud)';
+      'Increase your supplications for blessings upon me on Jumu\'ah, for your supplications are presented to me. (Abu Dawud)';
 
   @override
   String get salawatCountLabel => 'Recitations Today';
@@ -1156,10 +1163,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get salawatTapBtn => 'Send Salawat (+1)';
 
   @override
-  String get fridayEtiquettesTitle => 'Sunnahs & Etiquettes of Friday';
+  String get fridayEtiquettesTitle => 'Sunnahs & Etiquettes of Jumu\'ah';
 
   @override
-  String get fridayEtiquettesRef => 'Authentic Traditions of Friday';
+  String get fridayEtiquettesRef => 'Authentic Traditions of Jumu\'ah';
 
   @override
   String get fridayGhusl => 'Ghusl (Ritual Bath) before prayer';
@@ -1181,11 +1188,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get istijabahHadith =>
-      'On Friday there is an hour when no Muslim servant asks Allah for something good but He grants it to him — seek it in the last hour after Asr. (Abu Dawud, An-Nasa\'i)';
+      'On Jumu\'ah there is an hour when no Muslim servant asks Allah for something good but He grants it to him — seek it in the last hour after Asr. (Abu Dawud, An-Nasa\'i)';
 
   @override
   String get fridayHadithGuideSheetTitle =>
-      'Sunnah Prayers of Friday: Hadith Guide';
+      'Sunnah Prayers of Jumu\'ah: Hadith Guide';
 
   @override
   String get fridayHadithBeforeCardTitle => 'Before Jumu\'ah / Dhuhr Prayer';

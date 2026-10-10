@@ -143,9 +143,9 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet>
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: colors.surface,
-        shape: ContinuousRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: colors.divider, width: 1.0),
+          side: BorderSide(color: colors.cardBorder, width: 0.8),
         ),
         title: Row(
           children: [
@@ -215,9 +215,9 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet>
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: colors.surface,
-        shape: ContinuousRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: colors.divider, width: 1.0),
+          side: BorderSide(color: colors.cardBorder, width: 0.8),
         ),
         title: Row(
           children: [
@@ -356,7 +356,7 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet>
     return Container(
       decoration: ShapeDecoration(
         color: colors.background,
-        shape: const ContinuousRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
         ),
       ),
@@ -393,7 +393,7 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet>
                   height: 38,
                   decoration: ShapeDecoration(
                     color: colors.primarySoft,
-                    shape: ContinuousRectangleBorder(
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -446,9 +446,9 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet>
                 padding: const EdgeInsets.all(10),
                 decoration: ShapeDecoration(
                   color: const Color(0xFF181B24),
-                  shape: ContinuousRectangleBorder(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
-                    side: const BorderSide(color: Color(0xFF2D3748), width: 1),
+                    side: BorderSide(color: colors.cardBorder, width: 0.8),
                   ),
                 ),
                 child: Column(
@@ -520,9 +520,9 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet>
                 padding: const EdgeInsets.all(10),
                 decoration: ShapeDecoration(
                   color: const Color(0xFF181B24),
-                  shape: ContinuousRectangleBorder(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
-                    side: const BorderSide(color: Color(0xFF2D3748), width: 1),
+                    side: BorderSide(color: colors.cardBorder, width: 0.8),
                   ),
                 ),
                 child: Column(
@@ -607,9 +607,9 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet>
                 padding: const EdgeInsets.all(10),
                 decoration: ShapeDecoration(
                   color: const Color(0xFF181B24),
-                  shape: ContinuousRectangleBorder(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
-                    side: const BorderSide(color: Color(0xFF2D3748), width: 1),
+                    side: BorderSide(color: colors.cardBorder, width: 0.8),
                   ),
                 ),
                 child: Column(
@@ -650,10 +650,11 @@ class _WidgetPreviewSheetState extends State<WidgetPreviewSheet>
               padding: const EdgeInsets.all(14),
               decoration: ShapeDecoration(
                 color: colors.primarySoft.withValues(alpha: 0.15),
-                shape: ContinuousRectangleBorder(
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                   side: BorderSide(
                     color: colors.primary.withValues(alpha: 0.3),
+                    width: 0.8,
                   ),
                 ),
               ),
@@ -803,9 +804,9 @@ class _WidgetOptionCard extends StatelessWidget {
     return Container(
       decoration: ShapeDecoration(
         color: colors.surface,
-        shape: ContinuousRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: colors.divider, width: 1.0),
+          side: BorderSide(color: colors.cardBorder, width: 0.8),
         ),
       ),
       padding: const EdgeInsets.all(14),

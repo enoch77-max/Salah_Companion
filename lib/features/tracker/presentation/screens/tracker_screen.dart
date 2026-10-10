@@ -196,9 +196,9 @@ class _TrackerScreenState extends State<TrackerScreen> {
                       width: double.infinity,
                       decoration: ShapeDecoration(
                         color: colors.surface,
-                        shape: ContinuousRectangleBorder(
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
-                          side: BorderSide(color: colors.divider, width: 1.0),
+                          side: BorderSide(color: colors.cardBorder, width: 0.8),
                         ),
                       ),
                       padding: const EdgeInsets.all(20.0),
@@ -262,9 +262,9 @@ class _TrackerScreenState extends State<TrackerScreen> {
                       width: double.infinity,
                       decoration: ShapeDecoration(
                         color: colors.surface,
-                        shape: ContinuousRectangleBorder(
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
-                          side: BorderSide(color: colors.divider, width: 1.0),
+                          side: BorderSide(color: colors.cardBorder, width: 0.8),
                         ),
                       ),
                       padding: const EdgeInsets.all(20.0),
@@ -369,9 +369,9 @@ class _TrackerScreenState extends State<TrackerScreen> {
                     Container(
                       decoration: ShapeDecoration(
                         color: colors.surface,
-                        shape: ContinuousRectangleBorder(
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
-                          side: BorderSide(color: colors.divider, width: 1.0),
+                          side: BorderSide(color: colors.cardBorder, width: 0.8),
                         ),
                       ),
                       clipBehavior: Clip.antiAlias,
@@ -546,9 +546,9 @@ class _StatSummaryCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: ShapeDecoration(
         color: colors.elevatedBackground,
-        shape: ContinuousRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
-          side: BorderSide(color: colors.divider, width: 1.0),
+          side: BorderSide(color: colors.cardBorder, width: 0.8),
         ),
       ),
       child: Column(

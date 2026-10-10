@@ -7,9 +7,9 @@ import 'app_typography.dart';
 /// Apple Design Theme System for Salah Companion app.
 /// Mapped to exact tokens from PRD Section 5 & /apple-design.
 abstract final class AppTheme {
-  /// Card corner squircle radius (20pt ContinuousRectangleBorder).
-  static final cardShape = ContinuousRectangleBorder(
-    borderRadius: BorderRadius.circular(20),
+  /// Card corner radius (22pt RoundedRectangleBorder).
+  static final cardShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(22),
   );
 
   /// Button and chip squircle radius (12pt ContinuousRectangleBorder).
@@ -92,7 +92,13 @@ abstract final class AppTheme {
       cardTheme: CardThemeData(
         color: customColors.surface,
         elevation: 0,
-        shape: cardShape,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+          side: BorderSide(
+            color: customColors.cardBorder,
+            width: 0.8,
+          ),
+        ),
         margin: EdgeInsets.zero,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -211,7 +217,13 @@ abstract final class AppTheme {
       cardTheme: CardThemeData(
         color: customColors.surface,
         elevation: 0,
-        shape: cardShape,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+          side: BorderSide(
+            color: customColors.cardBorder,
+            width: 0.8,
+          ),
+        ),
         margin: EdgeInsets.zero,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(

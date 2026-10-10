@@ -41,7 +41,7 @@ class BatteryOptimizationSheet extends StatelessWidget {
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withValues(alpha: 0.5),
-      shape: const ContinuousRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
@@ -63,7 +63,7 @@ class BatteryOptimizationSheet extends StatelessWidget {
 
     return ClipPath(
       clipper: const ShapeBorderClipper(
-        shape: ContinuousRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(24),
             topRight: Radius.circular(24),
@@ -141,7 +141,7 @@ class BatteryOptimizationSheet extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: appColors.elevatedBackground,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: appColors.dividerStrong),
+                        border: Border.all(color: appColors.cardBorder, width: 0.8),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,7 +177,7 @@ class BatteryOptimizationSheet extends StatelessWidget {
                       style: FilledButton.styleFrom(
                         backgroundColor: appColors.primary,
                         foregroundColor: Colors.white,
-                        shape: ContinuousRectangleBorder(
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
@@ -203,8 +203,8 @@ class BatteryOptimizationSheet extends StatelessWidget {
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
                         foregroundColor: appColors.textPrimary,
-                        side: BorderSide(color: appColors.dividerStrong),
-                        shape: ContinuousRectangleBorder(
+                        side: BorderSide(color: appColors.cardBorder, width: 0.8),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
@@ -230,7 +230,7 @@ class BatteryOptimizationSheet extends StatelessWidget {
                     child: TextButton(
                       style: TextButton.styleFrom(
                         foregroundColor: appColors.textSecondary,
-                        shape: ContinuousRectangleBorder(
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),

@@ -93,10 +93,11 @@ class NotificationService {
   static const String prayerStandardChannelDesc =
       'Notifications for daily prayer times with standard device notification sound';
 
-  // Backwards-compatible aliases
-  static const String prayerSilentChannelId = prayerStandardChannelId;
-  static const String prayerSilentChannelName = prayerStandardChannelName;
-  static const String prayerSilentChannelDesc = prayerStandardChannelDesc;
+  // Dedicated silent notification channel (playSound: false)
+  static const String prayerSilentChannelId = 'prayer_silent_channel_v4';
+  static const String prayerSilentChannelName = 'Silent Prayer Reminders';
+  static const String prayerSilentChannelDesc =
+      'Silent notifications for daily prayer times without chimes or adhan audio';
 
   static const Map<String, int> defaultPrayerIds = {
     'Fajr': 101,
@@ -198,6 +199,12 @@ class NotificationService {
         channelId: 'prayer_silent_channel',
       );
       await androidImpl.deleteNotificationChannel(
+        channelId: 'prayer_silent_channel_v2',
+      );
+      await androidImpl.deleteNotificationChannel(
+        channelId: 'prayer_silent_channel_v3',
+      );
+      await androidImpl.deleteNotificationChannel(
         channelId: 'prayer_standard_channel_v2',
       );
       await androidImpl.deleteNotificationChannel(
@@ -212,6 +219,16 @@ class NotificationService {
           playSound: true,
           enableVibration: true,
           audioAttributesUsage: AudioAttributesUsage.notification,
+        ),
+      );
+      await androidImpl.createNotificationChannel(
+        const AndroidNotificationChannel(
+          prayerSilentChannelId,
+          prayerSilentChannelName,
+          description: prayerSilentChannelDesc,
+          importance: Importance.high,
+          playSound: false,
+          enableVibration: true,
         ),
       );
       await androidImpl.createNotificationChannel(
@@ -371,6 +388,7 @@ class NotificationService {
     Set<String>? completedPrayers,
     DateTime? nowOverride,
     bool playAdhanSound = true,
+    bool isSilent = false,
     String adhanVoice = 'Makkah (Ali Mulla)',
     AppLocalizations? localizations,
   }) async {
@@ -424,34 +442,50 @@ class NotificationService {
       // Cancel previous start alarm before rescheduling
       await notificationsPlugin.cancel(id: model.notificationId);
 
-      final effectiveChannelId = playAdhanSound
-          ? channelId
-          : prayerStandardChannelId;
-      final effectiveChannelName = playAdhanSound
-          ? channelName
-          : prayerStandardChannelName;
-      final effectiveChannelDesc = playAdhanSound
-          ? adhanChannelDesc
-          : prayerStandardChannelDesc;
+      final String effectiveChannelId;
+      final String effectiveChannelName;
+      final String effectiveChannelDesc;
+      final bool effectivePlaySound;
+      final AndroidNotificationSound? effectiveSound;
+      final AudioAttributesUsage effectiveAudioUsage =
+          playAdhanSound && !isSilent
+              ? AudioAttributesUsage.alarm
+              : AudioAttributesUsage.notification;
+
+      if (isSilent) {
+        effectiveChannelId = prayerSilentChannelId;
+        effectiveChannelName = prayerSilentChannelName;
+        effectiveChannelDesc = prayerSilentChannelDesc;
+        effectivePlaySound = false;
+        effectiveSound = null;
+      } else if (playAdhanSound) {
+        effectiveChannelId = channelId;
+        effectiveChannelName = channelName;
+        effectiveChannelDesc = adhanChannelDesc;
+        effectivePlaySound = true;
+        effectiveSound = RawResourceAndroidNotificationSound(resourceName);
+      } else {
+        effectiveChannelId = prayerStandardChannelId;
+        effectiveChannelName = prayerStandardChannelName;
+        effectiveChannelDesc = prayerStandardChannelDesc;
+        effectivePlaySound = true;
+        effectiveSound = null;
+      }
 
       final androidDetails = AndroidNotificationDetails(
         effectiveChannelId,
         effectiveChannelName,
         channelDescription: effectiveChannelDesc,
-        importance: playAdhanSound ? Importance.max : Importance.high,
+        importance: (isSilent || !playAdhanSound) ? Importance.high : Importance.max,
         priority: Priority.high,
-        sound: playAdhanSound
-            ? RawResourceAndroidNotificationSound(resourceName)
-            : null,
-        playSound: true,
-        audioAttributesUsage: playAdhanSound
-            ? AudioAttributesUsage.alarm
-            : AudioAttributesUsage.notification,
+        sound: effectiveSound,
+        playSound: effectivePlaySound,
+        audioAttributesUsage: effectiveAudioUsage,
         enableVibration: true,
       );
       final iosDetails = DarwinNotificationDetails(
-        presentSound: true,
-        sound: playAdhanSound ? '$resourceName.mp3' : null,
+        presentSound: !isSilent,
+        sound: isSilent ? null : (playAdhanSound ? '$resourceName.mp3' : null),
       );
       final notificationDetails = NotificationDetails(
         android: androidDetails,
@@ -834,41 +868,58 @@ class NotificationService {
     String body = 'Notifications and Adhan audio are configured properly.',
     String adhanVoice = 'Makkah (Ali Mulla)',
     bool playAdhanSound = true,
+    bool isSilent = false,
   }) async {
     final resourceName = adhanVoiceResources[adhanVoice] ?? 'adhan_makkah';
     final channelId = adhanChannelIdForVoice(adhanVoice);
     final channelName = adhanChannelNameForVoice(adhanVoice);
 
-    final effectiveChannelId = playAdhanSound
-        ? channelId
-        : prayerStandardChannelId;
-    final effectiveChannelName = playAdhanSound
-        ? channelName
-        : prayerStandardChannelName;
-    final effectiveChannelDesc = playAdhanSound
-        ? adhanChannelDesc
-        : prayerStandardChannelDesc;
+    final String effectiveChannelId;
+    final String effectiveChannelName;
+    final String effectiveChannelDesc;
+    final bool effectivePlaySound;
+    final AndroidNotificationSound? effectiveSound;
+    final AudioAttributesUsage effectiveAudioUsage =
+        playAdhanSound && !isSilent
+            ? AudioAttributesUsage.alarm
+            : AudioAttributesUsage.notification;
+
+    if (isSilent) {
+      effectiveChannelId = prayerSilentChannelId;
+      effectiveChannelName = prayerSilentChannelName;
+      effectiveChannelDesc = prayerSilentChannelDesc;
+      effectivePlaySound = false;
+      effectiveSound = null;
+    } else if (playAdhanSound) {
+      effectiveChannelId = channelId;
+      effectiveChannelName = channelName;
+      effectiveChannelDesc = adhanChannelDesc;
+      effectivePlaySound = true;
+      effectiveSound = RawResourceAndroidNotificationSound(resourceName);
+    } else {
+      effectiveChannelId = prayerStandardChannelId;
+      effectiveChannelName = prayerStandardChannelName;
+      effectiveChannelDesc = prayerStandardChannelDesc;
+      effectivePlaySound = true;
+      effectiveSound = null;
+    }
 
     final androidDetails = AndroidNotificationDetails(
       effectiveChannelId,
       effectiveChannelName,
       channelDescription: effectiveChannelDesc,
-      importance: playAdhanSound ? Importance.max : Importance.high,
+      importance: (isSilent || !playAdhanSound) ? Importance.high : Importance.max,
       priority: Priority.high,
-      sound: playAdhanSound
-          ? RawResourceAndroidNotificationSound(resourceName)
-          : null,
-      playSound: true,
-      audioAttributesUsage: playAdhanSound
-          ? AudioAttributesUsage.alarm
-          : AudioAttributesUsage.notification,
+      sound: effectiveSound,
+      playSound: effectivePlaySound,
+      audioAttributesUsage: effectiveAudioUsage,
       enableVibration: true,
     );
     final notificationDetails = NotificationDetails(
       android: androidDetails,
       iOS: DarwinNotificationDetails(
-        presentSound: true,
-        sound: playAdhanSound ? '$resourceName.mp3' : null,
+        presentSound: !isSilent,
+        sound: isSilent ? null : (playAdhanSound ? '$resourceName.mp3' : null),
       ),
     );
 

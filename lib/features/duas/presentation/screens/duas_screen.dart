@@ -887,15 +887,15 @@ class _DuasScreenState extends State<DuasScreen> {
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: colors.divider),
+                    borderSide: BorderSide(color: colors.cardBorder, width: 0.8),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: colors.divider),
+                    borderSide: BorderSide(color: colors.cardBorder, width: 0.8),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: colors.primary),
+                    borderSide: BorderSide(color: colors.primary, width: 1.2),
                   ),
                 ),
               ),
@@ -927,9 +927,10 @@ class _DuasScreenState extends State<DuasScreen> {
                           : FontWeight.w500,
                     ),
                     side: BorderSide(
-                      color: isSelected ? colors.primary : colors.divider,
+                      color: isSelected ? colors.primary : colors.cardBorder,
+                      width: 0.8,
                     ),
-                    shape: ContinuousRectangleBorder(
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     onSelected: (selected) {
@@ -994,11 +995,11 @@ class _DuasScreenState extends State<DuasScreen> {
                           child: Container(
                             decoration: ShapeDecoration(
                               color: colors.surface,
-                              shape: ContinuousRectangleBorder(
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(24),
                                 side: BorderSide(
-                                  color: colors.divider,
-                                  width: 1.0,
+                                  color: colors.cardBorder,
+                                  width: 0.8,
                                 ),
                               ),
                             ),
@@ -1041,7 +1042,7 @@ class _DuasScreenState extends State<DuasScreen> {
                                     Container(
                                       decoration: ShapeDecoration(
                                         color: colors.primarySoft,
-                                        shape: ContinuousRectangleBorder(
+                                        shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),

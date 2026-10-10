@@ -432,10 +432,12 @@ class _QiblaScreenState extends State<QiblaScreen>
                   vertical: 18,
                   horizontal: 16,
                 ),
-                decoration: BoxDecoration(
+                decoration: ShapeDecoration(
                   color: colors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: colors.divider),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(color: colors.cardBorder, width: 0.8),
+                  ),
                 ),
                 child: Column(
                   children: [
@@ -446,7 +448,7 @@ class _QiblaScreenState extends State<QiblaScreen>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Wave your phone in a Figure-8 (♾️) motion in the air 3 times',
+                      'Wave your phone in a Figure-8 motion in the air 3 times',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: colors.textPrimary,
                         fontWeight: FontWeight.w600,
@@ -821,7 +823,7 @@ class _QiblaScreenState extends State<QiblaScreen>
                           color: colors.textSecondary,
                         ),
                         label: Text(
-                          'How to Calibrate Compass ♾️',
+                          'How to Calibrate Compass',
                           style: Theme.of(context).textTheme.labelLarge
                               ?.copyWith(
                                 color: colors.textSecondary,
@@ -854,9 +856,9 @@ class _QiblaScreenState extends State<QiblaScreen>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: ShapeDecoration(
         color: colors.surface,
-        shape: ContinuousRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(22),
-          side: BorderSide(color: colors.divider, width: 1.0),
+          side: BorderSide(color: colors.cardBorder, width: 0.8),
         ),
       ),
       child: Row(
@@ -986,10 +988,12 @@ class _QiblaScreenState extends State<QiblaScreen>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
+      decoration: ShapeDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colors.divider, width: 1),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: colors.cardBorder, width: 0.8),
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1001,7 +1005,7 @@ class _QiblaScreenState extends State<QiblaScreen>
               colors: colors,
             ),
           ),
-          Container(height: 36, width: 1, color: colors.dividerStrong),
+          Container(height: 36, width: 1, color: colors.cardBorder),
           Expanded(
             child: _MetricDisplayTile(
               label: l10n?.qiblaBearingLabel ?? 'QIBLA BEARING',

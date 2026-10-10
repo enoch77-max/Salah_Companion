@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -127,6 +128,12 @@ class LocationService {
     );
 
     await for (final position in stream) {
+      // Guard against battery-draining satellite queries when app is minimized or backgrounded
+      final lifecycle = WidgetsBinding.instance.lifecycleState;
+      if (lifecycle != null && lifecycle != AppLifecycleState.resumed) {
+        continue;
+      }
+
       String? city;
       String? countryCode;
       String? countryName;

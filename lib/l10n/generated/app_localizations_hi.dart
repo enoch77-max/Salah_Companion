@@ -945,7 +945,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get dhikrLaIlahaIllallah => 'ला इलाहा इल्लल्लाह';
 
   @override
-  String get dhikrSalawat => 'Salawat';
+  String get dhikrSalawat => 'दुरूद शरीफ़';
 
   @override
   String get dhikrSubhanAllahTranslation =>
@@ -967,7 +967,14 @@ class AppLocalizationsHi extends AppLocalizations {
       'अल्लाह के सिवा कोई सच्चा माबूद नहीं है';
 
   @override
-  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+  String get dhikrSalawatTranslation => 'ऐ अल्लाह! मुहम्मद पर रहमत नाज़िल फरमा';
+
+  @override
+  String get dhikrDuroodIbrahim => 'दुरूद-ए-इब्राहीमी';
+
+  @override
+  String get dhikrDuroodIbrahimTranslation =>
+      'अल्लाहुम्मा सल्लि \'अला मुहम्मदिंव-व \'अला आलि मुहम्मद, कमा सल्लैता \'अला इब्राहीमा व \'अला आलि इब्राहीम, इन्नका हमीदुम मजीद। अल्लाहुम्मा बारिक \'अला मुहम्मदिंव-व \'अला आलि मुहम्मद, कमा बारक्ता \'अला इब्राहीमा व \'अला आलि इब्राहीम, इन्नका हमीदुम मजीद।';
 
   @override
   String get doSalawat => 'Do Salawat';

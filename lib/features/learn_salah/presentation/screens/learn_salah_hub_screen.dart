@@ -69,11 +69,11 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          shape: ContinuousRectangleBorder(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(28),
                             side: BorderSide(
                               color: colors.primary.withValues(alpha: 0.3),
-                              width: 1.5,
+                              width: 0.8,
                             ),
                           ),
                           shadows: [
@@ -101,7 +101,7 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                                       color: colors.primary.withValues(
                                         alpha: 0.15,
                                       ),
-                                      shape: ContinuousRectangleBorder(
+                                      shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                     ),
@@ -148,13 +148,13 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                               width: 90,
                               height: 110,
                               decoration: ShapeDecoration(
-                                shape: ContinuousRectangleBorder(
+                                shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                   side: BorderSide(
                                     color: colors.primary.withValues(
                                       alpha: 0.3,
                                     ),
-                                    width: 1.0,
+                                    width: 0.8,
                                   ),
                                 ),
                               ),
@@ -191,9 +191,9 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
               child: Container(
                 decoration: ShapeDecoration(
                   color: colors.surface,
-                  shape: ContinuousRectangleBorder(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
-                    side: BorderSide(color: colors.divider, width: 1.0),
+                    side: BorderSide(color: colors.cardBorder, width: 0.8),
                   ),
                 ),
                 child: TextField(
@@ -357,7 +357,7 @@ class _LearnSalahHubScreenState extends State<LearnSalahHubScreen> {
                       l10n?.learnSalahSunanSubtitle ??
                       'Verbal & action Sunnahs of Prophet Muhammad ﷺ',
                   badgeText: 'SUNNAH ACTS',
-                  icon: Icons.auto_awesome_rounded,
+                  icon: Icons.menu_book_rounded,
                   accentColor: const Color(0xFF8B5CF6), // Royal Purple
                   postureKey: 'tashahhud_finger',
                   onTap: () {
@@ -467,9 +467,9 @@ class _ModuleCard extends StatelessWidget {
 
     return Material(
       color: colors.surface,
-      shape: ContinuousRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: colors.divider, width: 1.0),
+        side: BorderSide(color: colors.cardBorder, width: 0.8),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -498,7 +498,7 @@ class _ModuleCard extends StatelessWidget {
                       ),
                       decoration: ShapeDecoration(
                         color: accentColor.withValues(alpha: 0.12),
-                        shape: ContinuousRectangleBorder(
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),

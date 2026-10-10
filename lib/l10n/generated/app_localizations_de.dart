@@ -980,7 +980,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Es gibt keinen wahrhaftigen Gott außer Allah';
 
   @override
-  String get dhikrSalawatTranslation => 'O Allah, send blessings upon Muhammad';
+  String get dhikrSalawatTranslation => 'O Allah, segne Muhammad';
+
+  @override
+  String get dhikrDuroodIbrahim => 'Salawat Ibrahimiyya';
+
+  @override
+  String get dhikrDuroodIbrahimTranslation =>
+      'Allahumma salli \'ala Muhammadin wa \'ala ali Muhammad, kama sallayta \'ala Ibrahima wa \'ala ali Ibrahim, innaka Hamidun Majid. Allahumma barik \'ala Muhammadin wa \'ala ali Muhammad, kama barakta \'ala Ibrahima wa \'ala ali Ibrahim, innaka Hamidun Majid.';
 
   @override
   String get doSalawat => 'Do Salawat';
@@ -1103,7 +1110,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get fridayAtHome => 'Zuhause';
 
   @override
-  String get fridaySunnahRulingsTitle => 'Sunnah-Regeln für den Freitag';
+  String get fridaySunnahRulingsTitle => 'Sunnah-Regeln der Dschum\'a';
 
   @override
   String get fridayBeforeLabel => 'Vorher';
@@ -1132,20 +1139,20 @@ class AppLocalizationsDe extends AppLocalizations {
       'Tippen für authentische Hadith-Belege und Regeln';
 
   @override
-  String get fridaySuiteHeader => 'FREITAGS-SUNNAH & BESONDERE TATEN';
+  String get fridaySuiteHeader => 'DSCHUM\'A-SUNNAH & BESONDERE TATEN';
 
   @override
-  String get fridayTodayOnly => 'Nur am Freitag verfügbar';
+  String get fridayTodayOnly => 'Nur an Dschum\'a verfügbar';
 
   @override
   String get surahKahfTitle => 'Sure Al-Kahf';
 
   @override
-  String get surahKahfBadge => 'Licht zwischen zwei Freitagen';
+  String get surahKahfBadge => 'Licht zwischen zwei Dschum\'as';
 
   @override
   String get surahKahfHadith =>
-      'Wer am Freitag die Sure Al-Kahf rezitiert, dem wird ein Licht zwischen den beiden Freitagen leuchten. (Al-Bayhaqi)';
+      'Wer an Dschum\'a die Sure Al-Kahf rezitiert, dem wird ein Licht zwischen den beiden Dschum\'as leuchten. (Al-Bayhaqi)';
 
   @override
   String get markAsRead => 'Als gelesen markieren';
@@ -1161,7 +1168,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get salawatHadith =>
-      'Sprecht am Freitag viele Segenswünsche für mich aus, denn eure Segenswünsche werden mir vorgelegt. (Abu Dawud)';
+      'Sprecht an Dschum\'a viele Segenswünsche für mich aus, denn eure Segenswünsche werden mir vorgelegt. (Abu Dawud)';
 
   @override
   String get salawatCountLabel => 'Segenswünsche heute';
@@ -1170,10 +1177,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get salawatTapBtn => 'Salawat senden (+1)';
 
   @override
-  String get fridayEtiquettesTitle => 'Sunnahs & Benimmregeln des Freitags';
+  String get fridayEtiquettesTitle => 'Sunnahs & Benimmregeln der Dschum\'a';
 
   @override
-  String get fridayEtiquettesRef => 'Authentische Sunnahs des Freitags';
+  String get fridayEtiquettesRef => 'Authentische Sunnahs der Dschum\'a';
 
   @override
   String get fridayGhusl => 'Ghusl (Ganzkörperwaschung) vor dem Gebet';
@@ -1196,10 +1203,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get istijabahHadith =>
-      'Am Freitag gibt es eine Stunde, in der kein muslimischer Diener Allah um etwas Gutes bittet, ohne dass Er es ihm gewährt — sucht sie in der letzten Stunde nach Asr. (Abu Dawud, An-Nasa\'i)';
+      'An Dschum\'a gibt es eine Stunde, in der kein muslimischer Diener Allah um etwas Gutes bittet, ohne dass Er es ihm gewährt — sucht sie in der letzten Stunde nach Asr. (Abu Dawud, An-Nasa\'i)';
 
   @override
-  String get fridayHadithGuideSheetTitle => 'Freitagsgebete: Hadith-Leitfaden';
+  String get fridayHadithGuideSheetTitle =>
+      'Dschum\'a-Gebete: Hadith-Leitfaden';
 
   @override
   String get fridayHadithBeforeCardTitle => 'Vor dem Dschum\'a- / Dhuhr-Gebet';

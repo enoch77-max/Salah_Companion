@@ -47,9 +47,9 @@ class AppNavigationDrawer extends StatelessWidget {
                         ),
                         decoration: ShapeDecoration(
                           color: colors.surface,
-                          shape: ContinuousRectangleBorder(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24),
-                            side: BorderSide(color: colors.divider, width: 1.0),
+                            side: BorderSide(color: colors.cardBorder, width: 0.8),
                           ),
                         ),
                         child: Row(
@@ -127,13 +127,13 @@ class AppNavigationDrawer extends StatelessWidget {
                           ),
                           Material(
                             color: colors.surface,
-                            shape: ContinuousRectangleBorder(
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(24),
                               side: BorderSide(
                                 color: const Color(
                                   0xFF7C3AED,
                                 ).withValues(alpha: 0.35),
-                                width: 1.2,
+                                width: 0.8,
                               ),
                             ),
                             clipBehavior: Clip.antiAlias,
@@ -193,11 +193,11 @@ class AppNavigationDrawer extends StatelessWidget {
                           ),
                           Material(
                             color: colors.surface,
-                            shape: ContinuousRectangleBorder(
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(24),
                               side: BorderSide(
-                                color: colors.divider,
-                                width: 1.0,
+                                color: colors.cardBorder,
+                                width: 0.8,
                               ),
                             ),
                             clipBehavior: Clip.antiAlias,
@@ -292,11 +292,11 @@ class AppNavigationDrawer extends StatelessWidget {
                           ),
                           Material(
                             color: colors.surface,
-                            shape: ContinuousRectangleBorder(
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(24),
                               side: BorderSide(
-                                color: colors.divider,
-                                width: 1.0,
+                                color: colors.cardBorder,
+                                width: 0.8,
                               ),
                             ),
                             clipBehavior: Clip.antiAlias,
@@ -478,9 +478,9 @@ class ThemeSegmentedControl extends StatelessWidget {
             height: 44,
             decoration: ShapeDecoration(
               color: colors.surface,
-              shape: ContinuousRectangleBorder(
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(22),
-                side: BorderSide(color: colors.divider, width: 1.0),
+                side: BorderSide(color: colors.cardBorder, width: 0.8),
               ),
             ),
             padding: const EdgeInsets.all(3.0),
@@ -505,7 +505,7 @@ class ThemeSegmentedControl extends StatelessWidget {
                         height: double.infinity,
                         decoration: ShapeDecoration(
                           color: colors.primary,
-                          shape: ContinuousRectangleBorder(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18),
                           ),
                           shadows: [

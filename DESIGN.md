@@ -17,7 +17,8 @@ The visual hierarchy implements a calibrated 60-30-10 distribution across Light 
   - Surface Hover: Soft sand (`#F6ECE6`)
 - **30% Structural (Borders, Dividers, Neutral Secondary)**:
   - Hairline Dividers: Warm stone (`#EAE1DA`)
-  - Strong Dividers & Outlines: Stone contour (`#D6CBC3`)
+  - Strong Dividers: Softened warm stone contour (`#E4DAD2`, `colors.dividerStrong`)
+  - Dedicated Card Border: Delicate 6% warm neutral contour `Color(0x0F1F1B17)` (`colors.cardBorder`) that naturally blends into warm cream/linen surfaces without muddy tan outlines
   - Typography: On-surface primary (`#1F1B17`), variant secondary (`#53433A`), subtle tertiary (`#85736B`)
 - **10% Accent Tokens**:
   - **Signature App Icon Emerald**: `#0F766E` (Active floating prayer card border & glow, primary controls, switches, chips)
@@ -34,6 +35,7 @@ The visual hierarchy implements a calibrated 60-30-10 distribution across Light 
 - **30% Structural (Borders, Dividers, Neutral Secondary)**:
   - Subtle Dividers: `0x0DFFFFFF` / `colors.divider`
   - Strong Dividers: `0x17FFFFFF` / `colors.dividerStrong`
+  - Dedicated Card Border: Subtle 7% white glass-edge rim `Color(0x12FFFFFF)` (`colors.cardBorder`) providing delicate edge definition on deep obsidian containers
   - Typography: Primary bone (`#F0EDE8`), Secondary mist (`#8B9099`), Tertiary slate (`#5A5F68`)
 - **10% Accent Tokens**:
   - **Signature Warm Gold Primary**: `#D4A574` (Active floating prayer card border & glow, primary controls, active text `#E8C9A0`)
@@ -43,10 +45,14 @@ The visual hierarchy implements a calibrated 60-30-10 distribution across Light 
 
 ---
 
-## 3. Shape Geometry & Typography
-- **Continuous Squircle**: `ContinuousRectangleBorder` with `BorderRadius.circular(16)` to `24` across cards, sheet containers, and active pills.
+## 3. Shape Geometry & Anti-Distortion Card Architecture
+- **Anti-Distortion Card Borders**: All container cards, dashboard surfaces, sheets, dialogs, navigation drawers, and grouped cards employ `RoundedRectangleBorder` with smooth, anti-aliased hairline strokes (`side: BorderSide(color: colors.cardBorder, width: 0.8)` or `border: Border.all(color: colors.cardBorder, width: 0.8)`).
+  - *Flutter Bézier Blooming Remediation*: Flutter's `ContinuousRectangleBorder` with stroking suffers from an un-inset path blooming defect where outer strokes bulge at the corners, creating muddy and distorted border visuals. Replacing stroked continuous rectangles with `RoundedRectangleBorder` at 0.8dp width guarantees razor-sharp, uniform, distortion-free contours across all high-DPI displays.
+  - *Universal Screen & Modal Coverage*: Modernized consistently across Home (`prayer_list_card.dart`, `daily_reflection_card.dart`, `hijri_strip.dart`), Duas (`duas_screen.dart`), Qibla (`qibla_screen.dart`), Hijri Calendar (`hijri_calendar_screen.dart`), Learn Salah (`learn_salah_hub_screen.dart`, `salah_step_by_step_screen.dart`, `salah_category_detail_screen.dart`, `posture_avatars.dart`), Navigation Drawer (`app_navigation_drawer.dart`), Bottom Sheets & Modals (`widget_preview_sheet.dart`, `battery_optimization_sheet.dart`, `prayer_streak_sheet.dart`, `daily_reflection_popup.dart`, `open_source_sheet.dart`), Legal Documentation (`terms_screen.dart`, `privacy_policy_screen.dart`, `calculation_docs_screen.dart`), Settings (`settings_screen.dart`), Tasbih (`tasbih_screen.dart`), Favorites (`favorites_screen.dart`), and Onboarding (`onboarding_screen.dart`, `language_selection_step.dart`, `visual_feature_showcase_step.dart`, `trust_manifesto_step.dart`, `permission_priming_step.dart`, `spiritual_dedication_step.dart`, `interactive_feature_demo_step.dart`).
+- **Continuous Squircle Usage**: Preserved exclusively for borderless filled chips, unbordered pill backgrounds, and inner icon badge fills where no stroked borders are drawn.
 - **Elevation**: 2-step lightness elevation with dual-light soft shadows; no harsh black drop-shadows.
 - **Tactile Depress**: Scaled micro-interactions on pointer/tap events (`scale(0.97)` depress feel).
+- **Animation Key Scoping Invariant (List Items & Dynamic Mode Toggles)**: Widget keys and animation keys (e.g. Flutter Animate `.animate(key: ...)`) on recurring list items (such as `_PrayerRowItem`) must strictly scope to item-specific identity and state (`'icon_${item.name}_${item.status.name}'` and `'anim_icon_${item.name}_${item.status.name}'`), strictly excluding global or sibling view mode toggles (such as `widget.isFridayMosqueMode`). Including container-level mode flags in row item keys invalidates widget keys across all list rows during mode toggles, causing Flutter Animate to unmount/remount and replay scale/fade entrance animations on all unchanged items simultaneously (producing visual flicker).
 
 ---
 
@@ -232,34 +238,7 @@ Located inside the home dashboard Today's Prayers list (`lib/features/home/prese
 
 ---
 
-## 11. Compact & Short Screen Ergonomic Hardening (Qibla & Tasbih)
-
-### A. Qibla Screen Responsive Scaling
-- **Dynamic Dial Sizing (`LayoutBuilder`)**:
-  - `dialSize`: `math.min(constraints.maxWidth - 24, 300.0).clamp(220.0, 320.0)`.
-  - `painterSize`: `(dialSize - 10.0).clamp(210.0, 310.0)`.
-  - Replaces hardcoded 300px dial and 290px painter sizes. On a 320px screen width (288px padded space), `dialSize` scales proportionally to 264px without distortion or overflow, maintaining full needle and compass dial clarity.
-- **Header & Metric Row Flex Adaptation**:
-  - Screen title: Wrapped in `Expanded` with single-line ellipsis to prevent collision with calibration button on narrow viewports.
-  - Numeric metrics tile: `_MetricDisplayTile` elements wrapped in `Expanded` with `FittedBox(fit: BoxFit.scaleDown)` typography, preventing horizontal RenderFlex overflows on screens <= 320px width.
-
-### B. Digital Tasbih Screen Height-Adaptive Ergonomics
-- Styled as a sleek rounded capsule (`BorderRadius.circular(9999)`), featuring `Icons.menu_book_rounded` (10px) and `Text` strictly locked to a single line (`maxLines: 1`, `softWrap: false`, `fontSize: 9.5`, `FontWeight.w600`).
-- **Padding & Alignment**: Calibrated `EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.5)` with `CrossAxisAlignment.center` and 4px icon-to-text spacing to guarantee zero text crowding or edge clipping.
-
-### F. Hard Calculation & Target Invariant Locks
-- **Zero Calculation Drift**: Absolute zero touch on `PrayerTimesCalculator`, astronomical math, notification schedulers, or background alarms.
-- **Target Prayer Selection Invariant**:
-  ```dart
-  final isSelected = item.isCurrent
-      ? !isPrayed
-      : (item.isNext && !widget.hasCurrentUnprayed && !isPrayed);
-  ```
-  Elevates the current unprayed prayer first; once marked prayed, seamlessly transfers elevation to the next upcoming prayer.
-
----
-
-## 13. Compact & Short Screen Ergonomic Hardening (Qibla & Tasbih)
+## 12. Compact & Short Screen Ergonomic Hardening (Qibla & Tasbih)
 
 ### A. Qibla Screen Responsive Scaling
 - **Dynamic Dial Sizing (`LayoutBuilder`)**:
@@ -279,16 +258,17 @@ Located inside the home dashboard Today's Prayers list (`lib/features/home/prese
 - **Standard & Large Viewports (`>= 680px`)**:
   - Preserves the clean `Expanded` workspace layout with `MainAxisAlignment.spaceEvenly` distribution and zero unnecessary scroll bounce.
 
+
 ---
 
-## 14. Friday Jumu'ah & Companion Suite Localization & Token Contract
+## 13. Friday Jumu'ah & Companion Suite Localization & Token Contract
 - **Contract Coverage**: Full 19-language parity (`en`, `ar`, `az`, `bn`, `bs`, `de`, `fa`, `fr`, `hi`, `id`, `kk`, `ky`, `ms`, `ru`, `sq`, `sw`, `tr`, `ur`, `uz`).
-- **Core Key Registry (41 Keys)**:
+- **Core Key Registry**:
   - **Jumu'ah Mode & Location**: `fridayJumuahTitle`, `fridayLocationLabel`, `fridayAtMosque`, `fridayAtHome`.
   - **Sunnah Rulings & Sub-strip**: `fridaySunnahRulingsTitle`, `fridayBeforeLabel`, `fridayAfterLabel`, `fridayMosqueBeforeDesc`, `fridayMosqueAfterDesc`, `fridayHomeBeforeDesc`, `fridayHomeAfterDesc`, `fridayClickToReadFull`.
   - **Special Deeds Suite**: `fridaySuiteHeader`, `fridayTodayOnly`.
   - **Surah Al-Kahf Action**: `surahKahfTitle`, `surahKahfBadge`, `surahKahfHadith`, `markAsRead`, `readCompleted`.
-  - **Salawat Counter**: `salawatTitle`, `salawatBadge`, `salawatHadith`, `salawatCountLabel`, `salawatTapBtn`.
+  - **Salawat Action & Tasbih**: `salawatTitle`, `salawatBadge`, `salawatHadith`, `doSalawat`, `dhikrSalawat`, `dhikrSalawatTranslation`.
   - **Friday Etiquettes (Sunan)**: `fridayEtiquettesTitle`, `fridayEtiquettesRef`, `fridayGhusl`, `fridaySiwak`, `fridayCleanClothes`, `fridayEarlyMosque`.
   - **Hour of Response (Sa'at al-Istijabah)**: `istijabahTitle`, `istijabahBadge`, `istijabahHadith`.
   - **Hadith Evidence Modal Guide**: `fridayHadithGuideSheetTitle`, `fridayHadithBeforeCardTitle`, `fridayHadithBeforeCardDesc`, `fridayHadithAfterMosqueTitle`, `fridayHadithAfterMosqueDesc`, `fridayHadithAfterHomeTitle`, `fridayHadithAfterHomeDesc`, `closeGuideBtn`.
@@ -296,7 +276,7 @@ Located inside the home dashboard Today's Prayers list (`lib/features/home/prese
 
 ---
 
-## 15. In-Card Friday Jumu'ah & Sunnah Rulings Implementation
+## 14. In-Card Friday Jumu'ah & Sunnah Rulings Implementation
 
 ### A. Architectural Overview & Context Detection
 - **Target File**: `lib/features/home/presentation/widgets/prayer_list_card.dart`
@@ -317,11 +297,13 @@ Located inside the home dashboard Today's Prayers list (`lib/features/home/prese
 ### C. Visual Ergonomics & In-Card Components
 - **Location Selector (`_buildFridayLocationSelector`)**:
   - Mounted directly above the Sunnah card when Friday Dhuhr is the selected prayer.
-  - Pill capsules (`_buildLocationCapsule`) for "At Mosque" and "At Home" with active accent fill (180ms easeOutCubic transition).
-  - Micro-icons: `Icons.mosque_rounded` and `Icons.home_rounded` at 11.5px.
+  - **Unboxed Floating Architecture**: Redundant outer tile container, background fill, and enclosing border completely eliminated (`Padding(padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0))`), creating an airy unboxed hierarchy that eliminates nested capsule-in-capsule visual clutter.
+  - **Clean Flat Track**: Low-profile recessed slider track (196px width, 28px height, 14dp pill radius, 2.0dp internal padding) with subtle background tint (`isDark ? colors.surface.withValues(alpha: 0.45) : colors.surfaceHover.withValues(alpha: 0.55)`) and zero harsh outer border.
+  - **Sliding Pill Indicator**: Smooth `AnimatedAlign` (`Alignment.centerLeft` vs `Alignment.centerRight`, `220ms` duration, `Curves.easeOutCubic`) with `FractionallySizedBox(widthFactor: 0.5, heightFactor: 1.0)`, 12dp concentric inner radius, ultra-thin crisp hairline border (`0.5dp` width; `Color(0xFF0F766E).withValues(alpha: 0.28)` in Light mode / `Color(0xFFD4A574).withValues(alpha: 0.45)` in Dark mode), vibrant luminous active capsule tint (`Color(0xFFCCFBF1)` in Light mode / `Color(0xFFD4A574).withValues(alpha: 0.22)` in Dark mode), high-contrast active typography (`#0F766E` in Light mode / `#E8C9A0` in Dark mode), and subtle elevation shadow.
+  - **Tactile Segmented Options**: Equal-width flex tiles with responsive text scale-down (`FittedBox(fit: BoxFit.scaleDown)`), cross-fading typography (`AnimatedDefaultTextStyle`, 220ms), and domain micro-icons (`Icons.mosque_rounded` and `Icons.home_rounded` at 12px) with zero tap highlight clutter.
 - **Compact Friday Sunnah Card (`_buildCompactFridaySunnahCard`)**:
   - Replaces single-line generic strip on Friday with a dedicated 2-tier structured card:
-    - **Header**: Book icon + `fridaySunnahRulingsTitle` + open-in-new external prompt icon.
+    - **Header**: Book icon (`Icons.menu_book_rounded`) + `fridaySunnahRulingsTitle` with full horizontal span.
     - **Row 1 (`BEFORE`)**: Badged micro-tag with voluntary / Tahiyyat al-Masjid guidance.
     - **Row 2 (`AFTER`)**: Badged micro-tag with 4 Rak'ahs (mosque) or 2 Rak'ahs (home) guidance.
     - **Footer Prompt**: Centered `fridayClickToReadFull` text with forward arrow, inviting user to explore authentic references.
@@ -336,7 +318,7 @@ Located inside the home dashboard Today's Prayers list (`lib/features/home/prese
 
 ---
 
-## 16. Friday Companion Suite Specification & Invariants
+## 15. Friday Companion Suite Specification & Invariants
 
 ### A. Architectural Placement & Conditional Lifecycle
 - **Target File**: `lib/features/home/presentation/widgets/friday_companion_suite.dart`
@@ -348,15 +330,24 @@ Located inside the home dashboard Today's Prayers list (`lib/features/home/prese
   Outside of Fridays, the widget tree completely skips mounting or returns `SizedBox.shrink()` (0 pixels footprint).
 
 ### B. The Four Sacred Friday Practice Cards
-1. **Surah Al-Kahf (`_buildKahfCard`)**:
-   - Features `110 Ayat` chapter badge and localized `surahKahfBadge` ("Light Between Two Fridays").
-   - Authentic citation from Al-Bayhaqi.
-   - Interactive completion button toggles between "Mark as Read" and "Completed" (`l10n.readCompleted`), backed by persistent key `'friday_kahf_completed'`.
-2. **Abundant Salawat Counter (`_buildSalawatCard`)**:
+1. **Surah Al-Kahf (`_buildKahfCard` & `SurahKahfReaderPopup`)**:
+   - **Card Surface & Metrics**: Features `110 Ayat` chapter badge, localized `surahKahfBadge` ("Light Between Two Fridays"), authentic Al-Bayhaqi citation, and dynamic theme color branding (`colors.primary`: Warm Gold `#D4A574` dark / Deep Teal `#0F766E` light).
+   - **Expanding Card Animation (`CardExpandRoute`)**: Tapping the action button captures the physical screen coordinates of the card (`originRect`) and initiates an origin-aware container transform. The card expands and pops up out via a 320ms container transform with dynamic z-axis pop scaling (`popScale = 1.0 + 0.015 * sin(t * pi)`) and elevation lift (`2.0 -> 24.0`). The card preview is anchored at `originRect` and smoothly dissolves over t: 0.0 -> 0.22, while reader content emerges fast and reaches full opacity over t: 0.08 -> 0.28 (~80ms). On closing, it rapidly and smoothly shrinks back over 250ms into the screen and the exact card size (`originRect`), landing seamlessly on the home screen card.
+   - **Full Surah Al-Kahf Reader Pop-Up (`SurahKahfReaderPopup`)**:
+     - Integrates complete 110 verses in authentic Uthmani Arabic script and English translation (`SurahKahfData`).
+     - Dual-view toggle: Continuous **Mushaf View** with ornamental ayah symbols (`۝`) for traditional Friday recitation, and **Verse-by-Verse View** with translation cards.
+     - Toolbar: Segmented mode selector, tactile font size stepper (two elevated physical squircle buttons flanking a recessed luminous teal point-size badge 24 pt, with 18pt–36pt bounds and haptic feedback), scroll-linked reading progress indicator, and sacred Bismillah calligraphy header.
+     - Bottom sticky action bar with two dedicated controls:
+       - **"Close"**: Shrinks back to the screen; leaves the item unread if not marked.
+       - **"Mark as Read"**: Elevated theme-colored pill button with checkmark icon (`colors.primary`); records completion state to `SharedPreferences` (`'friday_kahf_completed'`) with haptic feedback and smoothly closes the reader.
+   - **Post-Read Home Screen Feedback**:
+     - When marked as read, the card renders a refined **success-green done tick badge** (Done with Icons.check_circle_rounded in colors.successText, bordered in colors.success.withValues(alpha: isDark ? 0.40 : 0.28) with colors.successSoft background, interactive for direct toggle).
+     - The action button transforms into **"Read Again"** in luminous teal styling, preserving full re-entry capability to recite anytime.
+     - When uncompleted or dismissed without marking, the button displays **"Read"** with no done badge.
+2. **Abundant Salawat Action Card (`_buildSalawatCard`)**:
    - Badged with `salawatBadge` ("Presented Directly") and Abu Dawud Hadith citation.
-   - Large tactile recitation display with responsive tap button (`l10n.salawatTapBtn`, "Send Salawat (+1)").
-   - Fires `AppHaptics.light()` on every tap, persisting real-time counts to `'friday_salawat_count'`.
-   - Subtle contextual reset button (`Icons.refresh_rounded`) enabled when count > 0.
+   - High-contrast action button labeled "Do Salawat" (`l10n.doSalawat`) with custom vector `TasbihIcon`, tactile haptic feedback (`AppHaptics.light()`), and forward navigation chevron.
+   - Direct tab transition: Invokes `onOpenSalawatTasbih` callback, seamlessly switching to the Digital Tasbih tab (`_selectedNavIndex = 2`) and auto-selecting the Friday-exclusive Salawat item.
 3. **Friday Purification & Etiquettes Checklist (`_buildEtiquettesCard`)**:
    - 4 Sunnah practices from authentic traditions:
      - **Ghusl**: `Icons.water_drop_rounded`, key `'friday_etiquette_ghusl'`.
@@ -371,7 +362,8 @@ Located inside the home dashboard Today's Prayers list (`lib/features/home/prese
      - Within window (between Asr and Maghrib): elevates card with primary glowing border and pulsating `ACTIVE` indicator.
 
 ### C. Design Invariants & Ergonomic Hardening
-- **Clean Suite Section Header**: Rendered as a clean, single-row typographic header matching standard app category headers (`Icons.auto_awesome_rounded` + `labelSmall` with `1.2` letterSpacing), completely omitting redundant pill badges to provide full horizontal span and eliminate awkward multi-line word breaks.
+- **Clean Suite Section Header**: Rendered as a clean, single-row typographic header matching standard app category headers (`Icons.mosque_rounded` + `labelSmall` with `1.2` letterSpacing), completely omitting redundant pill badges to provide full horizontal span and eliminate awkward multi-line word breaks.
+- **Strict Ban on AI Sparkles & Generative Icons (`Icons.auto_awesome*`)**: Generative AI sparkles, magic wands, and 4-pointed sparkle stars are strictly prohibited anywhere in the application. All icons must be authentic, purposeful Islamic or system domain icons (`Icons.mosque_rounded`, `Icons.menu_book_rounded`, `Icons.verified_rounded`, etc.).
 - **Zero Hardcoded Strings**: 100% of titles, badges, hadith citations, and button labels consume `AppLocalizations.of(context)` across all 19 supported locales.
 - **Zero Emojis**: Pure typographic and vector icon styling across all cards.
 - **Zero-Truncation Invariant (`softWrap: true` & Zero Ellipsis Dots)**:
@@ -381,4 +373,174 @@ Located inside the home dashboard Today's Prayers list (`lib/features/home/prese
   - Location selectors utilize responsive `Wrap` (`WrapAlignment.spaceBetween`, `runSpacing: 4-5`) to guarantee 0px RenderFlex overflow across narrow viewports and expansive locales (e.g. German, Russian, French).
   - All card badges utilize `Wrap` with `runSpacing: 4`, and action controls employ `Flexible` with `FittedBox(fit: BoxFit.scaleDown)` to guarantee pristine layout integrity across all form factors.
 - **Zero Core Drift**: Core astronomical calculation algorithms, timing windows, and Saturday–Thursday execution pathways remain strictly untouched.
+
+---
+
+## 16. Friday-Exclusive Salawat & Durood Ibrahim Tasbih Integration
+
+### A. Architectural Overview & Conditional Dynamic Rotation
+- **Target File**: `lib/features/tasbih/presentation/screens/tasbih_screen.dart`
+- **Dynamic Rotation Engine (`_effectiveDhikrs`)**:
+  - Evaluates `isFriday` (via `widget.overrideIsFriday ?? ((widget.nowOverride ?? DateTime.now()).weekday == DateTime.friday)`).
+  - **Friday Mode (`isFriday == true`)**: Yields 7 items in the dhikr selector rotation, seamlessly incorporating both compact Salawat upon the Prophet (ﷺ) and full Durood Ibrahim.
+  - **Standard Mode (Saturday–Thursday)**: Yields strictly the standard 5 dhikrs (`subhanallah`, `alhamdulillah`, `allahu_akbar`, `astaghfirullah`, `la_ilaha_illallah`), completely excluding Friday items from the list.
+
+### B. Salawat & Durood Ibrahim Dhikr Specification Contracts
+1. **Compact Salawat**:
+   - **Identifier**: `'salawat'`
+   - **Target Recitation Count**: `100` beads (standard Islamic Sunnah milestone for Friday devotion).
+   - **Arabic Text**: `اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ` (Allāhumma ṣalli 'alā Muḥammad)
+   - **Typographic Treatment**: Rendered with standard 28pt Quranic typography.
+   - **Localization**: Localized title (`l10n.dhikrSalawat`) and translation (`l10n.dhikrSalawatTranslation`) across all 19 supported locales.
+2. **Full Durood Ibrahim (Durud)**:
+   - **Identifier**: `'durood_ibrahim'`
+   - **Target Recitation Count**: `33` beads (balanced devotional cycle for complete recitation).
+   - **Arabic Text**: `اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ، اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ`
+   - **Fully Visible Workspace Typography (Zero Sub-Scrolling)**: Long dhikrs (`arabic.length > 50`) render directly in a non-scrollable column with 100% full visibility. Arabic font size is calibrated to `15.5` (line height `1.65`, semi-bold `FontWeight.w600` for crisp Tashkeel diacritic clearance without ink smearing or density) in `AppTypography.quranicStyle`, paired with pronunciation font size `11.0` (height `1.35`) in `AppTypography.quoteTranslationStyle`. All lines of both Salawat and Barakah clauses remain completely visible simultaneously on screen with zero internal scroll fields. Viewport adaptation occurs at the page level on compact screens (`< 760px`).
+   - **Dhikr Selector Chip Protection**: In `_DhikrSelectorCard`, Arabic text normalizes whitespace (`arabic.replaceAll('\n', ' ')`) and is locked with `maxLines: 1` and `TextOverflow.ellipsis` to preserve the 52px fixed chip height and avoid horizontal carousel distortion.
+   - **Localization & Pronunciation Matrix**: Localized title (`l10n.dhikrDuroodIbrahim`) and authentic phonetic pronunciation transliteration (`l10n.dhikrDuroodIbrahimTranslation`) in native alphabets/scripts across all 19 supported locales.
+
+### C. Deep Navigation & Persistent Day-of-Week Safety
+- **Direct Navigation Targeting**:
+  - `TasbihScreen` accepts `targetDhikrId` property and exposes `selectDhikrById(String id)` on its public state `TasbihScreenState`.
+  - When the user taps "Do Salawat" from the Friday Companion Suite, `HomeScreen` navigates to index `2` and synchronously selects the `'salawat'` item.
+- **Day-of-Week Boundary Resilience**:
+  - Active selection is saved in `SharedPreferences` by dhikr ID (`'tasbih_dhikr_id'`).
+  - If a user completes their Friday recitations with Salawat or Durood Ibrahim selected and launches the app on Saturday, `_loadPreferences()` verifies the saved ID against the active list. Since Friday items are excluded on Saturday, it safely falls back to SubhanAllah (`index = 0`), preventing index out-of-bounds errors or stale state crashes.
+
+### D. Tactile Interaction & Feedback Parity
+- Full participation in the Digital Tasbih physics engine:
+  - Interactive tactile bead wheel with haptic feedback on every recitation.
+  - Milestone sound and vibration triggers upon reaching target recitations (100 for Salawat, 33 for Durood Ibrahim).
+  - Apple-inspired smooth progress ring and reset confirmations.
+
+---
+
+## 14. Friday Companion Suite & Surah Al-Kahf Manuscript Reader
+
+### A. Architectural Overview & Context
+- **Card Placement**: Located directly below `PrayerListCard` on the Home screen exclusively on Fridays (`overrideIsFriday || DateTime.now().weekday == DateTime.friday`).
+- **Core Cards**:
+  1. *Surah Al-Kahf Card*: Displays recitation status, hadith context, and expands smoothly into the manuscript reader popup via `CardExpandRoute`.
+  2. *Salawat & Durood Ibrahim Card*: Quick direct action route jumping straight to the Digital Tasbih Friday rotation.
+  3. *Friday Sunnah Etiquettes Card*: Checkable physical Sunnah habits (Ghusl, Siwak, Fragrance, Early to Mosque) with instant local persistence.
+  4. *Sa'at al-Istijabah Card*: Real-time countdown tracking the sacred hour of supplication between Asr and Maghrib with live pulse animation.
+
+### B. Surah Al-Kahf Expanding Manuscript Reader (`SurahKahfReaderPopup`)
+- **Visual Aesthetic & Paper Continuum**:
+  - **Shared Canvas Color**: Utilizes the identical authentic manuscript paper background token (`colors.paperBackground`, `#EFE4D6` in Light mode and `#26231F` in Dark mode) as `DailyReflectionCard` and `CardExpandRoute`.
+  - **Expansion Transition (`CardExpandRoute`)**: Smooth continuous physical scale and morph transition from the resting card rect directly into the immersive reader surface, eliminating jarring page flashes or harsh color disconnections.
+- **Header & Typographic Sacred Dignity**:
+  - **Unboxed Sacred Bismillah Calligraphy**: Replaces boxed outlines with an unboxed, majestic Amiri Arabic calligraphy header and Lora italic translation, unified by a delicate center-fading hairline gold/theme divider.
+  - **Zero Duplicate Hadith Clutter**: Excludes the resting card's hadith quote from inside the reader popup to maximize vertical reading focus.
+- **Dual Reading Modes**:
+  1. *Continuous Mushaf Mode*: Flowing Madinah Mushaf layout (`GoogleFonts.amiri`, default `22 pt`, `height: 2.8`, natural word kerning, optical page padding 22px) with authentic circular ayah medallions containing Arabic numerals (`_toArabicIndic(verse.number)`) in `colors.primary`.
+  2. *Verse-by-Verse Mode*: Individual verse cards on tonal paper with clear Arabic recitation (`height: 2.4`, natural word kerning), hairline divider, and authentic Lora italic English translation.
+- **Ergonomic Toolbar**:
+  - Segmented capsule mode switch (`Mushaf` vs `Verse by Verse`) styled in subtle paper-harmonized tones.
+  - Tactile physical font size stepper (`A-`, `22 pt` default, `A+`) without unnecessary horizontal slider bars.
+  - Delicate hairline reading progress bar at the bottom edge of the toolbar showing real-time scroll completion percentage.
+- **Sticky Footer Action Bar**:
+  - Fixed at the bottom over paper background with subtle upper blur border.
+  - "Close" outlined capsule button that dismisses the reader and preserves existing state.
+  - "Mark as Read" elevated theme button that toggles completion state with tactile haptic feedback and updates the home card status badge immediately.
+
+---
+
+## 15. Origin-Aware Expanding Container Transform & Persistent Shared Header Motion Architecture
+
+### A. Architectural Intent & Motion Philosophy
+Eliminates jarring modal cutaways, full-screen pops, and bottom-sheet sliding disconnects. When an interactive card triggers a detailed reading or hadith guide window, the popup window physically **emerges directly out of the clickable card section** via a fluid, GPU-accelerated container transform.
+
+### B. Standard Animation Vocabulary & Taxonomy
+- **Origin-Aware Animation**: The popup dialog geometry grows outward from the exact physical screen coordinates and dimensions (`originRect`) of the tapped card.
+- **Container Transform / Morph**: The rectangular card surface continuously interpolates into the centered popup dialog, morphing border radius (10.0/18.0dp to 24.0dp), elevation (1.5dp to 24.0dp), and dimensions simultaneously.
+- **Spatial Permanence & The Non-Disappearing Header Law**:
+  - In conventional crossfades, the origin card dissolves away, causing the title to momentarily vanish before the destination title fades in. This breaks visual tracking.
+  - Under the Non-Disappearing Header Law, the shared title text (e.g., `"Surah Al-Kahf"`) and squircle icon badge **maintain 100% opacity throughout the entire forward and reverse transition**.
+  - As the container expands, the title and icon smoothly glide, scale, and shift from their resting card offsets into the top header of the popup window.
+  - For components where the title expands (e.g., `"Jumu'ah Sunnah Rulings"` to `"Sunnah Prayers of Jumu'ah: Hadith Guide"`), the text smoothly crossfades inline while continuously translating into position.
+- **Staged 3-Layer Orchestration**:
+  1. *Layer 1 (Card Body)*: Resting card body elements (badges, quotes, read buttons, before/after rows) dissolve early ($t \in [0.0, 0.18]$) within the expanding container.
+  2. *Layer 2 (Popup Body)*: Destination popup contents (scrollable Quran verses, reading toolbar, or hadith reference cards) emerge smoothly ($t \in [0.14, 0.60]$) with a subtle 16px upward translation settle.
+  3. *Layer 3 (Persistent Shared Header)*: Rendered on top of all content at 100% opacity throughout $t \in [0.0, 0.999)$. Glides continuously between card header and dialog header coordinates.
+- **Zero-Ghosting Handoff Protocol**:
+  - During flight ($t < 0.999$), the popup child's native header is rendered with `opacity: 0.0`. This prevents double-rendering or ghosted outlines beneath the moving shared header.
+  - At $t \ge 0.999$, handoff to the child's interactive header is instantaneous and visually indistinguishable because coordinates, typography, and icon metrics are identical.
+  - Upon closing (`Navigator.pop()`), the shared header immediately re-engages and smoothly glides back down into the resting card.
+
+### C. Motion Dynamics & Calibrated Easing Tokens
+- **Forward Opening Duration**: `300ms` (fast, instantaneous tactile response without sluggishness).
+- **Reverse Closing Duration**: `240ms` (snappy acceleration back into origin bounds).
+- **Forward Easing Curve**: `Cubic(0.08, 0.85, 0.15, 1.0)` — Asymmetric fluid deceleration curve. High initial velocity guarantees the card reacts immediately upon finger lift, followed by exponential, silky deceleration into the resting dialog coordinates.
+- **Reverse Easing Curve**: `Cubic(0.35, 0.0, 0.20, 1.0)` — Snappy exit curve accelerating cleanly into the resting card.
+- **Micro-Physics Pop**: A subtle z-plane scale factor (`1.0 + 0.012 * sin(t * pi)`) projects the card forward toward the user before settling into resting elevation.
+
+### D. Frosted Backdrop Scrim
+- **Atmospheric Blur**: Smoothly ramps `ImageFilter.blur(sigmaX: 7.0 * t, sigmaY: 7.0 * t)`.
+- **Theme-Calibrated Scrim**: `Colors.black` with `alpha: (isDark ? 0.60 : 0.38) * t`.
+- **Outside Tap Dismissal**: Tapping the backdrop barrier triggers `Navigator.of(context).maybePop()`, smoothly reversing the container transform back into the card.
+
+### E. Component Matrix
+| Trigger Component | Destination Popup | Shared Icon | Start Title | End Title | Start Radius | Target Height |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Surah Al-Kahf Card** (`friday_companion_suite.dart`) | `SurahKahfReaderPopup` (`surah_kahf_reader_popup.dart`) | `Icons.auto_stories_rounded` | `"Surah Al-Kahf"` | `"Surah Al-Kahf"` (Arabic + Makki subtitle fade-in) | `18.0` | Full height (`maxHeight`) |
+| **Jumu'ah Sunnah Rulings Card** (`prayer_list_card.dart`) | `FridayHadithGuidePopup` (`friday_hadith_guide_popup.dart`) | `Icons.menu_book_rounded` | `"Jumu'ah Sunnah Rulings"` | `"Sunnah Prayers of Jumu'ah: Hadith Guide"` | `10.0` | Centered dialog (`560.0`) |
+
+### F. Popup Action Bar Ergonomics & Symmetrical Spacing Invariants
+1. **Pinned Bottom Action Bar Pattern**:
+   - The primary dismissal control (`"Close Guide"` button) in `FridayHadithGuidePopup` is pinned outside the scrollable viewport as a persistent bottom action bar.
+   - Prevents action controls from being buried off-screen under long hadith card content, ensuring immediate single-tap reachability without requiring user scroll gestures.
+2. **Symmetrical Vertical Spacing Invariant**:
+   - The action button is wrapped in uniform `14dp` vertical padding: exactly `14dp` between the bottom edge of the scroll content and the button, and exactly `14dp` between the bottom edge of the button and the rounded bottom border of the popup dialog window.
+   - Symmetrical horizontal margins of `18dp` align the button edges with the hadith cards and header squircle icon.
+3. **Adaptive Bounded Height Engine**:
+   - Employs `LayoutBuilder` to detect finite vs unbounded container constraints, dynamically engaging `Expanded` inside bounded dialog routes while gracefully falling back to `Flexible` in unconstrained contexts.
+
+---
+
+## 16. Ergonomic Digital Tasbih Workspace & Conveyor Beads Architecture
+Located inside the Tasbih screen (`lib/features/tasbih/presentation/screens/tasbih_screen.dart`).
+
+### A. Architectural Intent & Problem Remediation
+Remediates visual cramping, coordinate clipping escapes, and ergonomic button imbalances in the interactive Tasbih counter workspace:
+- **Zero Coordinate Escapes**: Eliminated the negative coordinate badge positioning (`Positioned(bottom: -16)`) and unconstrained `clipBehavior: Clip.none` inside `_Illustrated2DTasbihBeads`. The Sunnah tip badge is extracted into an independent, flexible layout widget cleanly positioned beneath the beads with an `8dp` buffer.
+- **Categorical & Spatial Balance**: Replaced the cramped combined row (which crowded targets against long Bengali/English toggles) with a dedicated, symmetrical `_TargetSegmentedControl` (`33`, `100`, `Custom`) and an independent `_AutoNextChip` toggle below it.
+- **Red Round Reset Action Ergonomics**: The reset action is designed as an autonomous, high-visibility **38dp circular icon button** (`BoxShape.circle`) with rich crimson red surface, white refresh icon (`size: 18`), tactile scale (`0.92`), and zero text. Eliminates accidental taps while offering instant visual recognition without bloating the workspace.
+- **Proportionate Compact Next Dhikr Action (`INV-UI-042`)**: Completely eliminated involuntary `Expanded` full-width stretching. Sized intrinsically with comfortable padding to fit content (`height: 38dp`, `14dp` corner radius, max width `200dp`). Uses bold primary surface styling, high-contrast typography, and a compact circular forward arrow pill badge (`18x18dp`). Centered alongside the Reset button to create an unbloated, balanced action cluster.
+
+### B. 4-Group Visual Hierarchy Matrix
+1. **Dhikr Display Group**: Displays the selected Dhikr in authentic Quranic Arabic font and localized meaning translation.
+2. **Counter Group (`138dp`)**:
+   - 7-slot continuous horizontal bead conveyor with smooth interpolation and zero pop.
+   - Sized to calibrated `138dp` height with self-contained boundaries, completely preventing edge overflow across compact phones and tablet viewports.
+   - Positioned above the `_SunnahTipBadge` featuring an emerald accent background, hand icon, and responsive text wrapping.
+3. **Preferences Group**:
+   - `_TargetSegmentedControl`: Apple-inspired segmented control (`33` | `100` | `Custom`) with `colors.surfaceHover` background, hairline border (`0.8`), and active segment filled with `colors.primary` and white text. Responsive `FittedBox` scaling prevents overflow on narrow screens.
+   - `_AutoNextChip`: Dedicated pill toggle below targets featuring an active status dot indicator and subtle tactile depress.
+4. **Action Group (Calibrated Compact 38dp Row - Anti-Bloat)**:
+   - **Reset Button**: 38x38dp circular red button (`#DC2626` / `#E11D48`), pure white refresh icon (`18dp`), zero text label, 6dp red glow shadow, and tactile `0.92x` depress.
+   - **Next Dhikr Button**: 38dp height, intrinsic compact pill button (`maxWidth: 200dp`) with solid `colors.primary` surface, 14dp corner radius, bold high-contrast text, 18x18dp circular arrow pill badge, and luminous theme shadow. Centered in a snug cluster alongside the Reset button without consuming horizontal card voids.
+
+### C. Multi-Viewport Responsive Layout Hardening Engine
+- **Short Viewports (<680dp or <760dp for extended texts)**: Wraps content in `SingleChildScrollView` with `BouncingScrollPhysics` to guarantee effortless thumb scrolling and zero coordinate clipping on compact devices (e.g. 360x520dp).
+- **Standard & Tablet Viewports (>=680dp)**: Employs `Expanded(child: cardContainer)` governed by a defensive `LayoutBuilder` & `FittedBox(fit: BoxFit.scaleDown)` calibrated to a `330.0dp` natural minimum height. Adapts gracefully under system status bars and `AppBar` headers across all tablet and foldable viewport orientations (e.g., 1024x768 landscape) with 0px RenderFlex overflow.
+
+---
+
+## 17. Qibla Finder Calibration & Zero Emojis Policy
+Located inside the Qibla screen (`lib/features/qibla/presentation/screens/qibla_screen.dart`).
+
+### A. Strict Zero Emojis Policy (`INV-UI-030`)
+- Strictly eliminated Unicode emojis (such as `♾️`) from all UI elements, labels, buttons, and bottom sheet dialogs.
+- Spiritual and technical dignity is maintained using pure Material vector icons and crisp typographic hierarchy.
+
+### B. Compass Calibration Guide Button & Sheet
+- **Action Control**: `TextButton.icon` featuring `Icons.vibration_rounded` (`16dp`) and clean localized text label `"How to Calibrate Compass"`.
+- **Figure-8 Gesture Card**: Prominently displays the authentic Material vector icon `Icons.all_inclusive_rounded` (`52dp`) in `colors.primary` alongside plain-English guidance `"Wave your phone in a Figure-8 motion in the air 3 times"` without informal emojis.
+
+
+
+
+
 

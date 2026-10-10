@@ -208,7 +208,7 @@ class _TrustManifestoStepState extends State<TrustManifestoStep>
               decoration: BoxDecoration(
                 color: colors.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colors.divider, width: 1.0),
+                border: Border.all(color: colors.cardBorder, width: 0.8),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

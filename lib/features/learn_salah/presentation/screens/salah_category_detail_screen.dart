@@ -97,13 +97,13 @@ class _CategoryItemTileState extends State<_CategoryItemTile> {
 
     return Material(
       color: colors.surface,
-      shape: ContinuousRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
         side: BorderSide(
           color: _isExpanded
               ? badgeColor.withValues(alpha: 0.5)
-              : colors.divider,
-          width: _isExpanded ? 1.5 : 1.0,
+              : colors.cardBorder,
+          width: _isExpanded ? 1.5 : 0.8,
         ),
       ),
       clipBehavior: Clip.antiAlias,
@@ -190,13 +190,13 @@ class _CategoryItemTileState extends State<_CategoryItemTile> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Divider(height: 1, color: colors.divider),
+                      Divider(height: 1, color: colors.cardBorder),
                       const SizedBox(height: 12),
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: ShapeDecoration(
                           color: badgeColor.withValues(alpha: 0.1),
-                          shape: ContinuousRectangleBorder(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
@@ -240,11 +240,11 @@ class _CategoryItemTileState extends State<_CategoryItemTile> {
                             padding: const EdgeInsets.all(10.0),
                             decoration: ShapeDecoration(
                               color: colors.elevatedBackground,
-                              shape: ContinuousRectangleBorder(
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 side: BorderSide(
-                                  color: colors.divider,
-                                  width: 1.0,
+                                  color: colors.cardBorder,
+                                  width: 0.8,
                                 ),
                               ),
                             ),

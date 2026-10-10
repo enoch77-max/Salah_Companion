@@ -967,6 +967,13 @@ class AppLocalizationsUr extends AppLocalizations {
   String get dhikrSalawatTranslation => 'اے اللہ، محمد پر رحمت نازل فرما';
 
   @override
+  String get dhikrDuroodIbrahim => 'درودِ ابراہیمی';
+
+  @override
+  String get dhikrDuroodIbrahimTranslation =>
+      'اَللّٰهُمَّ صَلِّ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا صَلَّیْتَ عَلٰی اِبْرَاهِیْمَ وَعَلٰی اٰلِ اِبْرَاهِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ، اَللّٰهُمَّ بَارِکْ عَلٰی مُحَمَّدٍ وَّعَلٰی اٰلِ مُحَمَّدٍ کَمَا بَارَکْتَ عَلٰی اِبْرَاهِیْمَ وَعَلٰی اٰلِ اِبْرَاهِیْمَ اِنَّکَ حَمِیْدٌ مَّجِیْدٌ';
+
+  @override
   String get doSalawat => 'درود شریف پڑھیں';
 
   @override

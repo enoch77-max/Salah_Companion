@@ -1878,6 +1878,18 @@ abstract class AppLocalizations {
   /// **'O Allah, send blessings upon Muhammad'**
   String get dhikrSalawatTranslation;
 
+  /// Title for Durood Ibrahim in Tasbih screen
+  ///
+  /// In en, this message translates to:
+  /// **'Durood Ibrahim'**
+  String get dhikrDuroodIbrahim;
+
+  /// Translation of Durood Ibrahim in Tasbih screen
+  ///
+  /// In en, this message translates to:
+  /// **'Allahumma salli \'ala Muhammadin wa \'ala ali Muhammad, kama sallayta \'ala Ibrahima wa \'ala ali Ibrahim, innaka Hamidun Majid. Allahumma barik \'ala Muhammadin wa \'ala ali Muhammad, kama barakta \'ala Ibrahima wa \'ala ali Ibrahim, innaka Hamidun Majid.'**
+  String get dhikrDuroodIbrahimTranslation;
+
   /// No description provided for @doSalawat.
   ///
   /// In en, this message translates to:
@@ -2052,7 +2064,7 @@ abstract class AppLocalizations {
   /// **'Tomorrow at {time}'**
   String tomorrowAt(String time);
 
-  /// Title for Friday Jumu'ah prayer
+  /// Title for Jumu'ah prayer
   ///
   /// In en, this message translates to:
   /// **'Jumu\'ah'**
@@ -2070,16 +2082,16 @@ abstract class AppLocalizations {
   /// **'At Mosque'**
   String get fridayAtMosque;
 
-  /// Option for praying Dhuhr at home on Friday
+  /// Option for praying Dhuhr at home on Jumu'ah
   ///
   /// In en, this message translates to:
   /// **'At Home'**
   String get fridayAtHome;
 
-  /// Title for the Friday Sunnah prayer rulings card
+  /// Title for the Jumu'ah Sunnah prayer rulings card
   ///
   /// In en, this message translates to:
-  /// **'Friday Sunnah Rulings'**
+  /// **'Jumu\'ah Sunnah Rulings'**
   String get fridaySunnahRulingsTitle;
 
   /// Label indicating sunnah prayers before the main prayer
@@ -2124,16 +2136,16 @@ abstract class AppLocalizations {
   /// **'Tap to view authentic rulings and hadith references'**
   String get fridayClickToReadFull;
 
-  /// Header for Friday companion suite actions
+  /// Header for Jumu'ah companion suite actions
   ///
   /// In en, this message translates to:
-  /// **'FRIDAY SUNNAH & SPECIAL DEEDS'**
+  /// **'JUMU\'AH SUNNAH & SPECIAL DEEDS'**
   String get fridaySuiteHeader;
 
-  /// Badge indicating feature is active on Friday
+  /// Badge indicating feature is active on Jumu'ah
   ///
   /// In en, this message translates to:
-  /// **'Available on Friday'**
+  /// **'Available on Jumu\'ah'**
   String get fridayTodayOnly;
 
   /// Title for Surah Al-Kahf card
@@ -2145,13 +2157,13 @@ abstract class AppLocalizations {
   /// Badge highlight for Surah Al-Kahf
   ///
   /// In en, this message translates to:
-  /// **'Light Between Two Fridays'**
+  /// **'Light Between Two Jumu\'ahs'**
   String get surahKahfBadge;
 
-  /// Hadith text about reciting Surah Al-Kahf on Friday
+  /// Hadith text about reciting Surah Al-Kahf on Jumu'ah
   ///
   /// In en, this message translates to:
-  /// **'Whoever recites Surah Al-Kahf on Friday will have a light shining for him between the two Fridays. (Al-Bayhaqi)'**
+  /// **'Whoever recites Surah Al-Kahf on Jumu\'ah will have a light shining for him between the two Jumu\'ahs. (Al-Bayhaqi)'**
   String get surahKahfHadith;
 
   /// Button to mark recitation as completed
@@ -2178,10 +2190,10 @@ abstract class AppLocalizations {
   /// **'Presented Directly'**
   String get salawatBadge;
 
-  /// Hadith text encouraging Salawat on Friday
+  /// Hadith text encouraging Salawat on Jumu'ah
   ///
   /// In en, this message translates to:
-  /// **'Increase your supplications for blessings upon me on Friday, for your supplications are presented to me. (Abu Dawud)'**
+  /// **'Increase your supplications for blessings upon me on Jumu\'ah, for your supplications are presented to me. (Abu Dawud)'**
   String get salawatHadith;
 
   /// Label for daily salawat count
@@ -2196,37 +2208,37 @@ abstract class AppLocalizations {
   /// **'Send Salawat (+1)'**
   String get salawatTapBtn;
 
-  /// Title for Friday etiquettes checklist card
+  /// Title for Jumu'ah etiquettes checklist card
   ///
   /// In en, this message translates to:
-  /// **'Sunnahs & Etiquettes of Friday'**
+  /// **'Sunnahs & Etiquettes of Jumu\'ah'**
   String get fridayEtiquettesTitle;
 
-  /// Subtitle / reference for Friday etiquettes
+  /// Subtitle / reference for Jumu'ah etiquettes
   ///
   /// In en, this message translates to:
-  /// **'Authentic Traditions of Friday'**
+  /// **'Authentic Traditions of Jumu\'ah'**
   String get fridayEtiquettesRef;
 
-  /// Friday etiquette: Ghusl before prayer
+  /// Jumu'ah etiquette: Ghusl before prayer
   ///
   /// In en, this message translates to:
   /// **'Ghusl (Ritual Bath) before prayer'**
   String get fridayGhusl;
 
-  /// Friday etiquette: Siwak and perfume
+  /// Jumu'ah etiquette: Siwak and perfume
   ///
   /// In en, this message translates to:
   /// **'Using the Siwak (Tooth-stick) & perfume'**
   String get fridaySiwak;
 
-  /// Friday etiquette: Clean garments
+  /// Jumu'ah etiquette: Clean garments
   ///
   /// In en, this message translates to:
   /// **'Wearing one\'s best and cleanest garments'**
   String get fridayCleanClothes;
 
-  /// Friday etiquette: Arriving early to mosque
+  /// Jumu'ah etiquette: Arriving early to mosque
   ///
   /// In en, this message translates to:
   /// **'Arriving early to the mosque for Khutbah'**
@@ -2244,16 +2256,16 @@ abstract class AppLocalizations {
   /// **'Supplication Accepted'**
   String get istijabahBadge;
 
-  /// Hadith text about the hour of response on Friday
+  /// Hadith text about the hour of response on Jumu'ah
   ///
   /// In en, this message translates to:
-  /// **'On Friday there is an hour when no Muslim servant asks Allah for something good but He grants it to him — seek it in the last hour after Asr. (Abu Dawud, An-Nasa\'i)'**
+  /// **'On Jumu\'ah there is an hour when no Muslim servant asks Allah for something good but He grants it to him — seek it in the last hour after Asr. (Abu Dawud, An-Nasa\'i)'**
   String get istijabahHadith;
 
-  /// Title of the bottom sheet modal for Friday hadith guide
+  /// Title of the bottom sheet modal for Jumu'ah hadith guide
   ///
   /// In en, this message translates to:
-  /// **'Sunnah Prayers of Friday: Hadith Guide'**
+  /// **'Sunnah Prayers of Jumu\'ah: Hadith Guide'**
   String get fridayHadithGuideSheetTitle;
 
   /// Header for prayers before Jumu'ah/Dhuhr in the guide
