@@ -887,6 +887,64 @@ class AppLocalizationsAr extends AppLocalizations {
       'حرك هاتفك بسلاسة في الهواء على شكل الرقم 8 لمعايرة البوصلة.';
 
   @override
+  String get qiblaCalibGuideTitle => 'دليل معايرة البوصلة';
+
+  @override
+  String get qiblaCalibFigure8Instruction =>
+      'حرك هاتفك في الهواء على شكل الرقم 8 ثلاث مرات';
+
+  @override
+  String get qiblaCalibGotIt => 'تمت المعايرة بنجاح';
+
+  @override
+  String get qiblaAccuracyUncalibrated => 'غير معاير / غير معروف';
+
+  @override
+  String get qiblaAccuracyHigh => 'دقة عالية (جاهز)';
+
+  @override
+  String get qiblaAccuracyMedium => 'دقة متوسطة';
+
+  @override
+  String get qiblaSensorUnavailable => 'حساس البوصلة غير متوفر';
+
+  @override
+  String get qiblaAccuracyLowWarning =>
+      'دقة البوصلة منخفضة — حرك الهاتف على شكل 8';
+
+  @override
+  String get qiblaHowToCalibrate => 'كيفية معايرة البوصلة';
+
+  @override
+  String get qiblaAligned => 'متجه تماماً نحو القبلة';
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return 'استدر $degrees° يساراً';
+  }
+
+  @override
+  String qiblaTurnRight(String degrees) {
+    return 'استدر $degrees° يميناً';
+  }
+
+  @override
+  String qiblaDistanceMakkah(String distance) {
+    return '$distance كم إلى مكة المكرمة';
+  }
+
+  @override
+  String get qiblaLocationAccessFailed => 'فشل الوصول إلى الموقع';
+
+  @override
+  String get qiblaCurrentLocation => 'الموقع الحالي';
+
+  @override
+  String qiblaTrueNorth(String declination) {
+    return 'الشمال الحقيقي ($declination°)';
+  }
+
+  @override
   String get stepPrevious => 'السابق';
 
   @override

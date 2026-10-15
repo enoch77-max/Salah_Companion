@@ -894,6 +894,64 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sweep your phone smoothly along an 8-shaped loop in the air.';
 
   @override
+  String get qiblaCalibGuideTitle => 'Compass Calibration Guide';
+
+  @override
+  String get qiblaCalibFigure8Instruction =>
+      'Wave your phone in a Figure-8 motion in the air 3 times';
+
+  @override
+  String get qiblaCalibGotIt => 'Got It & Calibrated';
+
+  @override
+  String get qiblaAccuracyUncalibrated => 'Uncalibrated / Unknown';
+
+  @override
+  String get qiblaAccuracyHigh => 'High Accuracy (Ready)';
+
+  @override
+  String get qiblaAccuracyMedium => 'Medium Accuracy';
+
+  @override
+  String get qiblaSensorUnavailable => 'Compass sensor unavailable';
+
+  @override
+  String get qiblaAccuracyLowWarning =>
+      'Compass accuracy low — wave phone in figure-8';
+
+  @override
+  String get qiblaHowToCalibrate => 'How to Calibrate Compass';
+
+  @override
+  String get qiblaAligned => 'ALIGNED WITH QIBLA';
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return 'TURN $degrees° LEFT';
+  }
+
+  @override
+  String qiblaTurnRight(String degrees) {
+    return 'TURN $degrees° RIGHT';
+  }
+
+  @override
+  String qiblaDistanceMakkah(String distance) {
+    return '$distance km to Makkah Al-Mukarramah';
+  }
+
+  @override
+  String get qiblaLocationAccessFailed => 'Location Access Failed';
+
+  @override
+  String get qiblaCurrentLocation => 'Current Location';
+
+  @override
+  String qiblaTrueNorth(String declination) {
+    return 'TRUE NORTH ($declination°)';
+  }
+
+  @override
   String get stepPrevious => 'Previous';
 
   @override

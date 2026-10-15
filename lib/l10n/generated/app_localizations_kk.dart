@@ -899,6 +899,64 @@ class AppLocalizationsKk extends AppLocalizations {
       'Компас баптау үшін телефонды ауада 8 саны бейнесінде қозғаңыз.';
 
   @override
+  String get qiblaCalibGuideTitle => 'Компас калибрлеу нұсқаулығы';
+
+  @override
+  String get qiblaCalibFigure8Instruction =>
+      'Телефоныңызды ауада 8 пішінінде 3 рет қозғалтыңыз';
+
+  @override
+  String get qiblaCalibGotIt => 'Түсіндім және калибрленді';
+
+  @override
+  String get qiblaAccuracyUncalibrated => 'Калибрленбеген / Белгісіз';
+
+  @override
+  String get qiblaAccuracyHigh => 'Жоғары дәлдік (Дайын)';
+
+  @override
+  String get qiblaAccuracyMedium => 'Орташа дәлдік';
+
+  @override
+  String get qiblaSensorUnavailable => 'Компас сенсоры қолжетімсіз';
+
+  @override
+  String get qiblaAccuracyLowWarning =>
+      'Компас дәлдігі төмен — телефонды 8 пішінінде шайқаңыз';
+
+  @override
+  String get qiblaHowToCalibrate => 'Компасты қалай калибрлеу керек';
+
+  @override
+  String get qiblaAligned => 'ҚҰБЫЛАҒА ТУРА БАҒЫТТАЛҒАН';
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return '$degrees° СОЛҒА БҰРЫЛЫҢЫЗ';
+  }
+
+  @override
+  String qiblaTurnRight(String degrees) {
+    return '$degrees° ОҢҒА БҰРЫЛЫҢЫЗ';
+  }
+
+  @override
+  String qiblaDistanceMakkah(String distance) {
+    return 'Мекке әл-Мүкәррамаға дейін $distance км';
+  }
+
+  @override
+  String get qiblaLocationAccessFailed => 'Орынды анықтау сәтсіз аяқталды';
+
+  @override
+  String get qiblaCurrentLocation => 'Ағымдағы орын';
+
+  @override
+  String qiblaTrueNorth(String declination) {
+    return 'НАҒЫЗ СОЛТҮСТІК ($declination°)';
+  }
+
+  @override
   String get stepPrevious => 'Артқа';
 
   @override

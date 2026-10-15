@@ -903,6 +903,64 @@ class AppLocalizationsDe extends AppLocalizations {
       'Bewegen Sie Ihr Telefon gleichmäßig in einer 8er-Schleife in der Luft.';
 
   @override
+  String get qiblaCalibGuideTitle => 'Kompass-Kalibrierungsanleitung';
+
+  @override
+  String get qiblaCalibFigure8Instruction =>
+      'Schwenken Sie Ihr Smartphone 3-mal in Form einer Acht durch die Luft';
+
+  @override
+  String get qiblaCalibGotIt => 'Verstanden & kalibriert';
+
+  @override
+  String get qiblaAccuracyUncalibrated => 'Nicht kalibriert / Unbekannt';
+
+  @override
+  String get qiblaAccuracyHigh => 'Hohe Genauigkeit (Bereit)';
+
+  @override
+  String get qiblaAccuracyMedium => 'Mittlere Genauigkeit';
+
+  @override
+  String get qiblaSensorUnavailable => 'Kompass-Sensor nicht verfügbar';
+
+  @override
+  String get qiblaAccuracyLowWarning =>
+      'Geringe Genauigkeit — Smartphone in Form einer 8 bewegen';
+
+  @override
+  String get qiblaHowToCalibrate => 'So kalibrieren Sie den Kompass';
+
+  @override
+  String get qiblaAligned => 'ZUR QIBLA AUSGERICHTET';
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return '$degrees° NACH LINKS DREHEN';
+  }
+
+  @override
+  String qiblaTurnRight(String degrees) {
+    return '$degrees° NACH RECHTS DREHEN';
+  }
+
+  @override
+  String qiblaDistanceMakkah(String distance) {
+    return '$distance km nach Mekka Al-Mukarramah';
+  }
+
+  @override
+  String get qiblaLocationAccessFailed => 'Standortzugriff fehlgeschlagen';
+
+  @override
+  String get qiblaCurrentLocation => 'Aktueller Standort';
+
+  @override
+  String qiblaTrueNorth(String declination) {
+    return 'GEOGRAFISCH NORD ($declination°)';
+  }
+
+  @override
   String get stepPrevious => 'Zurück';
 
   @override

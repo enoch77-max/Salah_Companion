@@ -900,6 +900,65 @@ class AppLocalizationsKy extends AppLocalizations {
       'Компасты тууралоо үчүн телефонду абада 8 саны сыяктуу жылдырыңыз.';
 
   @override
+  String get qiblaCalibGuideTitle => 'Компас калибрлөө боюнча колдонмо';
+
+  @override
+  String get qiblaCalibFigure8Instruction =>
+      'Телефонуңузду абада 8 түрүндө 3 жолу айлантыңыз';
+
+  @override
+  String get qiblaCalibGotIt => 'Түшүндүм жана калибрленди';
+
+  @override
+  String get qiblaAccuracyUncalibrated => 'Калибрленген эмес / Белгисиз';
+
+  @override
+  String get qiblaAccuracyHigh => 'Жогорку тактык (Даяр)';
+
+  @override
+  String get qiblaAccuracyMedium => 'Орточо тактык';
+
+  @override
+  String get qiblaSensorUnavailable => 'Компас сенсору иштебейт';
+
+  @override
+  String get qiblaAccuracyLowWarning =>
+      'Компас тактыгы төмөн — телефонду 8 түрүндө кыймылдатыңыз';
+
+  @override
+  String get qiblaHowToCalibrate => 'Компасты кантип калибрлөө керек';
+
+  @override
+  String get qiblaAligned => 'КЫБЫЛА БАГЫТЫНА ТАК БАГЫТТАЛГАН';
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return '$degrees° СОЛГО БУРУЛУҢУЗ';
+  }
+
+  @override
+  String qiblaTurnRight(String degrees) {
+    return '$degrees° ОҢГО БУРУЛУҢУЗ';
+  }
+
+  @override
+  String qiblaDistanceMakkah(String distance) {
+    return 'Ыйык Меккеге чейин $distance км';
+  }
+
+  @override
+  String get qiblaLocationAccessFailed =>
+      'Жайгашкан жерди аныктоо оңунан чыккан жок';
+
+  @override
+  String get qiblaCurrentLocation => 'Учурдагы жайгашкан жер';
+
+  @override
+  String qiblaTrueNorth(String declination) {
+    return 'ЧЫНДЫК ТҮНДҮК ($declination°)';
+  }
+
+  @override
   String get stepPrevious => 'Артка';
 
   @override

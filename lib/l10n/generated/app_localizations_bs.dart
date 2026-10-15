@@ -893,6 +893,64 @@ class AppLocalizationsBs extends AppLocalizations {
       'Lagano pomičite telefon u zraku u obliku osmice radi kalibracije kompasa.';
 
   @override
+  String get qiblaCalibGuideTitle => 'Vodič za kalibraciju kompasa';
+
+  @override
+  String get qiblaCalibFigure8Instruction =>
+      'Mahite telefonom u zraku u obliku osmice 3 puta';
+
+  @override
+  String get qiblaCalibGotIt => 'Razumijem i kalibrirano';
+
+  @override
+  String get qiblaAccuracyUncalibrated => 'Nekalibrirano / Nepoznato';
+
+  @override
+  String get qiblaAccuracyHigh => 'Visoka tačnost (Spremno)';
+
+  @override
+  String get qiblaAccuracyMedium => 'Srednja tačnost';
+
+  @override
+  String get qiblaSensorUnavailable => 'Senzor kompasa nedostupan';
+
+  @override
+  String get qiblaAccuracyLowWarning =>
+      'Slaba tačnost kompasa — pomjerajte telefon u obliku osmice';
+
+  @override
+  String get qiblaHowToCalibrate => 'Kako kalibrirati kompas';
+
+  @override
+  String get qiblaAligned => 'USMJERENO PREMA KIBLI';
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return 'OKRENI SE $degrees° LIJEVO';
+  }
+
+  @override
+  String qiblaTurnRight(String degrees) {
+    return 'OKRENI SE $degrees° DESNO';
+  }
+
+  @override
+  String qiblaDistanceMakkah(String distance) {
+    return '$distance km do Meke el-Mukerreme';
+  }
+
+  @override
+  String get qiblaLocationAccessFailed => 'Pristup lokaciji nije uspio';
+
+  @override
+  String get qiblaCurrentLocation => 'Trenutna lokacija';
+
+  @override
+  String qiblaTrueNorth(String declination) {
+    return 'PRAVI SJEVER ($declination°)';
+  }
+
+  @override
   String get stepPrevious => 'Prethodno';
 
   @override

@@ -394,6 +394,50 @@
   "qiblaCalibHoldFlatDesc": "Keep your phone flat horizontal parallel to the ground for peak precision.",
   "qiblaCalibFigure8": "Perform Figure-8 Sweep",
   "qiblaCalibFigure8Desc": "Sweep your phone smoothly along an 8-shaped loop in the air.",
+  "qiblaCalibGuideTitle": "Compass Calibration Guide",
+  "qiblaCalibFigure8Instruction": "Wave your phone in a Figure-8 motion in the air 3 times",
+  "qiblaCalibGotIt": "Got It & Calibrated",
+  "qiblaAccuracyUncalibrated": "Uncalibrated / Unknown",
+  "qiblaAccuracyHigh": "High Accuracy (Ready)",
+  "qiblaAccuracyMedium": "Medium Accuracy",
+  "qiblaSensorUnavailable": "Compass sensor unavailable",
+  "qiblaAccuracyLowWarning": "Compass accuracy low — wave phone in figure-8",
+  "qiblaHowToCalibrate": "How to Calibrate Compass",
+  "qiblaAligned": "ALIGNED WITH QIBLA",
+  "qiblaTurnLeft": "TURN {degrees}° LEFT",
+  "@qiblaTurnLeft": {
+    "placeholders": {
+      "degrees": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaTurnRight": "TURN {degrees}° RIGHT",
+  "@qiblaTurnRight": {
+    "placeholders": {
+      "degrees": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaDistanceMakkah": "{distance} km to Makkah Al-Mukarramah",
+  "@qiblaDistanceMakkah": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaLocationAccessFailed": "Location Access Failed",
+  "qiblaCurrentLocation": "Current Location",
+  "qiblaTrueNorth": "TRUE NORTH ({declination}°)",
+  "@qiblaTrueNorth": {
+    "placeholders": {
+      "declination": {
+        "type": "String"
+      }
+    }
+  },
   "stepPrevious": "Previous",
   "stepNext": "Next Step",
   "stepFinishGuide": "Finish Guide",

@@ -891,6 +891,64 @@ class AppLocalizationsHi extends AppLocalizations {
       'कम्पास को कैलिब्रेट करने के लिए हवा में फ़ोन से ८ बनाएं।';
 
   @override
+  String get qiblaCalibGuideTitle => 'कम्पास कैलिब्रेशन गाइड';
+
+  @override
+  String get qiblaCalibFigure8Instruction =>
+      'अपने फ़ोन को हवा में 3 बार 8 के आकार में घुमाएँ';
+
+  @override
+  String get qiblaCalibGotIt => 'समझ आ गया और कैलिब्रेट हो गया';
+
+  @override
+  String get qiblaAccuracyUncalibrated => 'अनकैलिब्रेटेड / अज्ञात';
+
+  @override
+  String get qiblaAccuracyHigh => 'उच्च सटीकता (तैयार)';
+
+  @override
+  String get qiblaAccuracyMedium => 'मध्यम सटीकता';
+
+  @override
+  String get qiblaSensorUnavailable => 'कम्पास सेंसर अनुपलब्ध';
+
+  @override
+  String get qiblaAccuracyLowWarning =>
+      'कम्पास सटीकता कम है — फ़ोन को 8 के आकार में घुमाएँ';
+
+  @override
+  String get qiblaHowToCalibrate => 'कम्पास को कैसे कैलिब्रेट करें';
+
+  @override
+  String get qiblaAligned => 'क़िबला की सही दिशा में';
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return '$degrees° बाएँ मुड़ें';
+  }
+
+  @override
+  String qiblaTurnRight(String degrees) {
+    return '$degrees° दाएँ मुड़ें';
+  }
+
+  @override
+  String qiblaDistanceMakkah(String distance) {
+    return 'मक्का अल-मुकर्रमा से $distance किमी';
+  }
+
+  @override
+  String get qiblaLocationAccessFailed => 'स्थान प्राप्त करने में विफल';
+
+  @override
+  String get qiblaCurrentLocation => 'वर्तमान स्थान';
+
+  @override
+  String qiblaTrueNorth(String declination) {
+    return 'वास्तविक उत्तर ($declination°)';
+  }
+
+  @override
   String get stepPrevious => 'पिछला';
 
   @override

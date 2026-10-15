@@ -894,6 +894,64 @@ class AppLocalizationsAz extends AppLocalizations {
       'Kompasın tənzimlənməsi üçün telefonu havada 8 rəqəmi şəklində hərəkət etdirin.';
 
   @override
+  String get qiblaCalibGuideTitle => 'Kompas Kalibrləmə Bələdçisi';
+
+  @override
+  String get qiblaCalibFigure8Instruction =>
+      'Telefonunuzu havada 3 dəfə 8 rəqəmi şəklində hərəkət etdirin';
+
+  @override
+  String get qiblaCalibGotIt => 'Anladım və Kalibrləndi';
+
+  @override
+  String get qiblaAccuracyUncalibrated => 'Kalibrlənməyib / Naməlum';
+
+  @override
+  String get qiblaAccuracyHigh => 'Yüksək Dəqiqlik (Hazır)';
+
+  @override
+  String get qiblaAccuracyMedium => 'Orta Dəqiqlik';
+
+  @override
+  String get qiblaSensorUnavailable => 'Kompas sensoru əlçatan deyil';
+
+  @override
+  String get qiblaAccuracyLowWarning =>
+      'Kompas dəqiqliyi zəifdir — telefonu 8 şəklində yelləyin';
+
+  @override
+  String get qiblaHowToCalibrate => 'Kompası necə kalibrləməli';
+
+  @override
+  String get qiblaAligned => 'QİBLƏYƏ DOĞRU İSTİQAMƏTLƏNDİ';
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return '$degrees° SOLA DÖNÜN';
+  }
+
+  @override
+  String qiblaTurnRight(String degrees) {
+    return '$degrees° SAĞA DÖNÜN';
+  }
+
+  @override
+  String qiblaDistanceMakkah(String distance) {
+    return 'Məkkəyi-Mükərrəməyə $distance km';
+  }
+
+  @override
+  String get qiblaLocationAccessFailed => 'Məkana Giriş Uğursuz Oldu';
+
+  @override
+  String get qiblaCurrentLocation => 'Cari Məkan';
+
+  @override
+  String qiblaTrueNorth(String declination) {
+    return 'HƏQİQİ ŞİMAL ($declination°)';
+  }
+
+  @override
   String get stepPrevious => 'Əvvəlki';
 
   @override

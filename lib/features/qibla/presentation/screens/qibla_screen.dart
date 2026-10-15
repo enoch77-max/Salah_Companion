@@ -14,6 +14,7 @@ import '../../../../core/utils/compass_filter.dart';
 import '../../../../core/utils/geomagnetic_calculator.dart';
 import '../../../home/domain/prayer_times_calculator.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../widgets/compass_calibration_sheet.dart';
 
 /// Qibla Compass Screen providing real-time high-precision compass direction
 /// towards the Kaaba in Makkah with automatic True North declination correction,
@@ -320,257 +321,9 @@ class _QiblaScreenState extends State<QiblaScreen>
   }
 
   void _showCalibrationSheet(BuildContext context) {
-    final colors = context.appColors;
-    final accuracy = _lastCompassEvent?.accuracy;
-
-    String accuracyLabel;
-    Color accuracyColor;
-    if (accuracy == null || accuracy < 0) {
-      accuracyLabel = 'Uncalibrated / Unknown';
-      accuracyColor = colors.missed;
-    } else if (accuracy <= 15.0) {
-      accuracyLabel = 'High Accuracy (Ready)';
-      accuracyColor = colors.success;
-    } else {
-      accuracyLabel = 'Medium Accuracy';
-      accuracyColor = const Color(0xFFF59E0B);
-    }
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colors.surface,
-      isScrollControlled: true,
-      useSafeArea: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        final l10n = AppLocalizations.of(context);
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 16,
-            bottom: MediaQuery.of(context).padding.bottom + 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Drag handle
-              Container(
-                width: 38,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: colors.dividerStrong,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.vibration_rounded,
-                    color: colors.primary,
-                    size: 22,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Compass Calibration Guide',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-
-              // Sensor Accuracy Status Chip
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: accuracyColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: accuracyColor.withValues(alpha: 0.4),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        color: accuracyColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      accuracyLabel,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: accuracyColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              // Figure 8 Illustration Card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 18,
-                  horizontal: 16,
-                ),
-                decoration: ShapeDecoration(
-                  color: colors.surface,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: colors.cardBorder, width: 0.8),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.all_inclusive_rounded,
-                      size: 52,
-                      color: colors.primary,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Wave your phone in a Figure-8 motion in the air 3 times',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              // Step-by-Step Instructions
-              _buildCalibrationStepRow(
-                context,
-                stepNumber: '1',
-                title:
-                    l10n?.qiblaCalibClearInterference ??
-                    'Clear Magnetic Interference',
-                subtitle:
-                    l10n?.qiblaCalibClearInterferenceDesc ??
-                    'Step away from metal desks, computers, or magnetic phone covers.',
-              ),
-              const SizedBox(height: 10),
-              _buildCalibrationStepRow(
-                context,
-                stepNumber: '2',
-                title:
-                    l10n?.qiblaCalibHoldFlat ?? 'Hold Device Flat Horizontal',
-                subtitle:
-                    l10n?.qiblaCalibHoldFlatDesc ??
-                    'Keep your phone flat horizontal parallel to the ground for peak precision.',
-              ),
-              const SizedBox(height: 10),
-              _buildCalibrationStepRow(
-                context,
-                stepNumber: '3',
-                title: l10n?.qiblaCalibFigure8 ?? 'Perform Figure-8 Sweep',
-                subtitle:
-                    l10n?.qiblaCalibFigure8Desc ??
-                    'Sweep your phone smoothly along an 8-shaped loop in the air.',
-              ),
-              const SizedBox(height: 22),
-
-              // Dismiss Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                  ),
-                  child: const Text(
-                    'Got It & Calibrated',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildCalibrationStepRow(
-    BuildContext context, {
-    required String stepNumber,
-    required String title,
-    required String subtitle,
-  }) {
-    final colors = context.appColors;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            color: colors.primarySoft,
-            shape: BoxShape.circle,
-            border: Border.all(color: colors.primary.withValues(alpha: 0.3)),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            stepNumber,
-            style: TextStyle(
-              color: colors.primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colors.textSecondary,
-                  fontSize: 11.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+    CompassCalibrationSheet.show(
+      context,
+      accuracy: _lastCompassEvent?.accuracy,
     );
   }
 
@@ -591,6 +344,7 @@ class _QiblaScreenState extends State<QiblaScreen>
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
 
     final currentHeading = _currentHeading;
     final accuracy = _lastCompassEvent?.accuracy;
@@ -634,7 +388,7 @@ class _QiblaScreenState extends State<QiblaScreen>
                       children: [
                         Expanded(
                           child: Text(
-                            'Qibla Compass',
+                            l10n?.qiblaCompassTitle ?? 'Qibla Compass',
                             style: Theme.of(context).textTheme.displayMedium
                                 ?.copyWith(
                                   color: colors.textPrimary,
@@ -672,7 +426,7 @@ class _QiblaScreenState extends State<QiblaScreen>
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'Calibrate',
+                                  l10n?.qiblaCalibrate ?? 'Calibrate',
                                   style: Theme.of(context).textTheme.labelMedium
                                       ?.copyWith(
                                         color: colors.primary,
@@ -713,11 +467,14 @@ class _QiblaScreenState extends State<QiblaScreen>
                     Center(
                       child: Semantics(
                         liveRegion: true,
-                        label: 'Qibla compass dial',
+                        label: l10n != null
+                            ? '${l10n.qiblaCompassTitle} dial'
+                            : 'Qibla compass dial',
                         value:
-                            '${_currentHeading?.round() ?? 0} degrees heading, Qibla at ${_qiblaBearing?.round() ?? 0} degrees${isAligned ? ", Perfectly facing Kaaba" : ""}',
+                            '${_currentHeading?.round() ?? 0}° ${l10n?.navQibla ?? "Qibla"} ${_qiblaBearing?.round() ?? 0}°${isAligned ? ", ${l10n?.qiblaFacingKaaba ?? 'Perfect alignment with Kaaba'}" : ""}',
                         hint: isAligned
-                            ? 'Device is aligned with Kaaba in Makkah'
+                            ? (l10n?.qiblaFacingKaaba ??
+                                'Device is aligned with Kaaba in Makkah')
                             : 'Turn device to align with Qibla needle',
                         excludeSemantics: true,
                         child: LayoutBuilder(
@@ -823,7 +580,8 @@ class _QiblaScreenState extends State<QiblaScreen>
                           color: colors.textSecondary,
                         ),
                         label: Text(
-                          'How to Calibrate Compass',
+                          l10n?.qiblaHowToCalibrate ??
+                              'How to Calibrate Compass',
                           style: Theme.of(context).textTheme.labelLarge
                               ?.copyWith(
                                 color: colors.textSecondary,
@@ -842,11 +600,14 @@ class _QiblaScreenState extends State<QiblaScreen>
 
   Widget _buildLocationHeaderCard(BuildContext context) {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
     final city = _locationData?.city;
     final country = _locationData?.countryName;
     final locationText = (city != null && country != null)
         ? '$city, $country'
-        : (city ?? country ?? 'Current Location');
+        : (city ??
+            country ??
+            (l10n?.qiblaCurrentLocation ?? 'Current Location'));
 
     final distanceKm = _distanceToMakkahKm;
     final declination = _magneticDeclination;
@@ -908,7 +669,10 @@ class _QiblaScreenState extends State<QiblaScreen>
                           ),
                         ),
                         child: Text(
-                          'TRUE NORTH (${declination >= 0 ? '+' : ''}${declination.toStringAsFixed(1)}°)',
+                          l10n?.qiblaTrueNorth(
+                            '${declination >= 0 ? '+' : ''}${declination.toStringAsFixed(1)}',
+                          ) ??
+                              'TRUE NORTH (${declination >= 0 ? '+' : ''}${declination.toStringAsFixed(1)}°)',
                           style: Theme.of(context).textTheme.labelSmall
                               ?.copyWith(
                                 color: colors.successText,
@@ -921,7 +685,8 @@ class _QiblaScreenState extends State<QiblaScreen>
                 ),
                 if (distanceKm != null)
                   Text(
-                    '${distanceKm.round()} km to Makkah Al-Mukarramah',
+                    l10n?.qiblaDistanceMakkah(distanceKm.round().toString()) ??
+                        '${distanceKm.round()} km to Makkah Al-Mukarramah',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: colors.textSecondary,
                     ),
@@ -939,6 +704,7 @@ class _QiblaScreenState extends State<QiblaScreen>
     required bool isUnavailable,
   }) {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
 
     return Container(
       key: const ValueKey('sensor_warning_pill'),
@@ -957,8 +723,10 @@ class _QiblaScreenState extends State<QiblaScreen>
           Flexible(
             child: Text(
               isUnavailable
-                  ? 'Compass sensor unavailable'
-                  : 'Compass accuracy low — wave phone in figure-8',
+                  ? (l10n?.qiblaSensorUnavailable ??
+                      'Compass sensor unavailable')
+                  : (l10n?.qiblaAccuracyLowWarning ??
+                      'Compass accuracy low — wave phone in figure-8'),
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 color: colors.missedText,
                 fontWeight: FontWeight.w600,
@@ -1024,7 +792,20 @@ class _QiblaScreenState extends State<QiblaScreen>
     double diffAngle,
   ) {
     final colors = context.appColors;
+    final l10n = AppLocalizations.of(context);
     final color = isAligned ? colors.success : colors.primary;
+
+    final String alignmentText;
+    if (isAligned) {
+      alignmentText = l10n?.qiblaAligned ?? 'ALIGNED WITH QIBLA';
+    } else {
+      final deg = diffAngle.abs().round().toString();
+      if (diffAngle > 0) {
+        alignmentText = l10n?.qiblaTurnLeft(deg) ?? 'TURN $deg° LEFT';
+      } else {
+        alignmentText = l10n?.qiblaTurnRight(deg) ?? 'TURN $deg° RIGHT';
+      }
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -1052,9 +833,7 @@ class _QiblaScreenState extends State<QiblaScreen>
           ),
           const SizedBox(width: 10),
           Text(
-            isAligned
-                ? 'ALIGNED WITH QIBLA'
-                : 'TURN ${diffAngle.abs().round()}° ${diffAngle > 0 ? 'LEFT' : 'RIGHT'}',
+            alignmentText,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: isAligned ? colors.successText : colors.primaryText,
               fontWeight: FontWeight.bold,
@@ -1079,7 +858,7 @@ class _QiblaScreenState extends State<QiblaScreen>
             Icon(Icons.location_off_rounded, size: 48, color: colors.missed),
             const SizedBox(height: 16),
             Text(
-              'Location Access Failed',
+              l10n?.qiblaLocationAccessFailed ?? 'Location Access Failed',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: colors.textPrimary,
                 fontWeight: FontWeight.bold,

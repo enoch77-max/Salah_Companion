@@ -909,6 +909,64 @@ class AppLocalizationsFr extends AppLocalizations {
       'Déplacez doucement votre téléphone en formant un 8 dans les airs pour calibrer.';
 
   @override
+  String get qiblaCalibGuideTitle => 'Guide d\'étalonnage de la boussole';
+
+  @override
+  String get qiblaCalibFigure8Instruction =>
+      'Effectuez un mouvement en forme de 8 dans les airs 3 fois avec votre téléphone';
+
+  @override
+  String get qiblaCalibGotIt => 'Compris et étalonné';
+
+  @override
+  String get qiblaAccuracyUncalibrated => 'Non étalonné / Inconnu';
+
+  @override
+  String get qiblaAccuracyHigh => 'Haute précision (Prêt)';
+
+  @override
+  String get qiblaAccuracyMedium => 'Précision moyenne';
+
+  @override
+  String get qiblaSensorUnavailable => 'Capteur de boussole indisponible';
+
+  @override
+  String get qiblaAccuracyLowWarning =>
+      'Précision faible — agitez le téléphone en forme de 8';
+
+  @override
+  String get qiblaHowToCalibrate => 'Comment étalonner la boussole';
+
+  @override
+  String get qiblaAligned => 'ALIGNÉ AVEC LA QIBLA';
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return 'TOURNER DE $degrees° À GAUCHE';
+  }
+
+  @override
+  String qiblaTurnRight(String degrees) {
+    return 'TOURNER DE $degrees° À DROITE';
+  }
+
+  @override
+  String qiblaDistanceMakkah(String distance) {
+    return '$distance km de La Mecque Al-Mukarramah';
+  }
+
+  @override
+  String get qiblaLocationAccessFailed => 'Échec de l\'accès à la localisation';
+
+  @override
+  String get qiblaCurrentLocation => 'Position actuelle';
+
+  @override
+  String qiblaTrueNorth(String declination) {
+    return 'NORD VRAI ($declination°)';
+  }
+
+  @override
   String get stepPrevious => 'Précédent';
 
   @override

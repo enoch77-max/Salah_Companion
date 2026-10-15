@@ -890,6 +890,64 @@ class AppLocalizationsFa extends AppLocalizations {
       'گوشی را به آرامی به صورت شکل عدد 8 در هوا حرکت دهید تا قطب‌نما تنظیم شود.';
 
   @override
+  String get qiblaCalibGuideTitle => 'راهنمای کالیبراسیون قطب‌نما';
+
+  @override
+  String get qiblaCalibFigure8Instruction =>
+      'گوشی خود را ۳ بار در هوا به شکل عدد ۸ انگلیسی حرکت دهید';
+
+  @override
+  String get qiblaCalibGotIt => 'متوجه شدم و کالیبره شد';
+
+  @override
+  String get qiblaAccuracyUncalibrated => 'کالیبره‌نشده / نامشخص';
+
+  @override
+  String get qiblaAccuracyHigh => 'دقت بالا (آماده)';
+
+  @override
+  String get qiblaAccuracyMedium => 'دقت متوسط';
+
+  @override
+  String get qiblaSensorUnavailable => 'سنسور قطب‌نما در دسترس نیست';
+
+  @override
+  String get qiblaAccuracyLowWarning =>
+      'دقت قطب‌نما پایین است — گوشی را به شکل ۸ حرکت دهید';
+
+  @override
+  String get qiblaHowToCalibrate => 'نحوه کالیبره کردن قطب‌نما';
+
+  @override
+  String get qiblaAligned => 'در جهت دقیق قبله';
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return '$degrees° به چپ بچرخید';
+  }
+
+  @override
+  String qiblaTurnRight(String degrees) {
+    return '$degrees° به راست بچرخید';
+  }
+
+  @override
+  String qiblaDistanceMakkah(String distance) {
+    return '$distance کیلومتر تا مکه مکرمه';
+  }
+
+  @override
+  String get qiblaLocationAccessFailed => 'دسترسی به موقعیت مکانی ناموفق بود';
+
+  @override
+  String get qiblaCurrentLocation => 'موقعیت فعلی';
+
+  @override
+  String qiblaTrueNorth(String declination) {
+    return 'شمال واقعی ($declination°)';
+  }
+
+  @override
   String get stepPrevious => 'قبلی';
 
   @override

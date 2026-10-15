@@ -898,6 +898,64 @@ class AppLocalizationsMs extends AppLocalizations {
       'Gerakkan telefon membentuk angka 8 di udara untuk menentukur kompas.';
 
   @override
+  String get qiblaCalibGuideTitle => 'Panduan Kalibrasi Kompas';
+
+  @override
+  String get qiblaCalibFigure8Instruction =>
+      'Gerakkan telefon anda dalam bentuk angka 8 di udara sebanyak 3 kali';
+
+  @override
+  String get qiblaCalibGotIt => 'Faham & Dikalibrasi';
+
+  @override
+  String get qiblaAccuracyUncalibrated => 'Belum Dikalibrasi / Tidak Diketahui';
+
+  @override
+  String get qiblaAccuracyHigh => 'Ketepatan Tinggi (Sedia)';
+
+  @override
+  String get qiblaAccuracyMedium => 'Ketepatan Sederhana';
+
+  @override
+  String get qiblaSensorUnavailable => 'Sensor kompas tidak tersedia';
+
+  @override
+  String get qiblaAccuracyLowWarning =>
+      'Ketepatan kompas rendah — ayun telefon dalam bentuk 8';
+
+  @override
+  String get qiblaHowToCalibrate => 'Cara Mengkalibrasi Kompas';
+
+  @override
+  String get qiblaAligned => 'SEJAJAR DENGAN KIBLAT';
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return 'PUSING $degrees° KE KIRI';
+  }
+
+  @override
+  String qiblaTurnRight(String degrees) {
+    return 'PUSING $degrees° KE KANAN';
+  }
+
+  @override
+  String qiblaDistanceMakkah(String distance) {
+    return '$distance km ke Makkah Al-Mukarramah';
+  }
+
+  @override
+  String get qiblaLocationAccessFailed => 'Gagal Mengakses Lokasi';
+
+  @override
+  String get qiblaCurrentLocation => 'Lokasi Semasa';
+
+  @override
+  String qiblaTrueNorth(String declination) {
+    return 'UTARA BENAR ($declination°)';
+  }
+
+  @override
   String get stepPrevious => 'Sebelum';
 
   @override

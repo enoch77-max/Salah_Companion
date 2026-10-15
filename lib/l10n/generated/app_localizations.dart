@@ -1734,6 +1734,102 @@ abstract class AppLocalizations {
   /// **'Sweep your phone smoothly along an 8-shaped loop in the air.'**
   String get qiblaCalibFigure8Desc;
 
+  /// No description provided for @qiblaCalibGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compass Calibration Guide'**
+  String get qiblaCalibGuideTitle;
+
+  /// No description provided for @qiblaCalibFigure8Instruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Wave your phone in a Figure-8 motion in the air 3 times'**
+  String get qiblaCalibFigure8Instruction;
+
+  /// No description provided for @qiblaCalibGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got It & Calibrated'**
+  String get qiblaCalibGotIt;
+
+  /// No description provided for @qiblaAccuracyUncalibrated.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncalibrated / Unknown'**
+  String get qiblaAccuracyUncalibrated;
+
+  /// No description provided for @qiblaAccuracyHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High Accuracy (Ready)'**
+  String get qiblaAccuracyHigh;
+
+  /// No description provided for @qiblaAccuracyMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium Accuracy'**
+  String get qiblaAccuracyMedium;
+
+  /// No description provided for @qiblaSensorUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Compass sensor unavailable'**
+  String get qiblaSensorUnavailable;
+
+  /// No description provided for @qiblaAccuracyLowWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Compass accuracy low — wave phone in figure-8'**
+  String get qiblaAccuracyLowWarning;
+
+  /// No description provided for @qiblaHowToCalibrate.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Calibrate Compass'**
+  String get qiblaHowToCalibrate;
+
+  /// No description provided for @qiblaAligned.
+  ///
+  /// In en, this message translates to:
+  /// **'ALIGNED WITH QIBLA'**
+  String get qiblaAligned;
+
+  /// No description provided for @qiblaTurnLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'TURN {degrees}° LEFT'**
+  String qiblaTurnLeft(String degrees);
+
+  /// No description provided for @qiblaTurnRight.
+  ///
+  /// In en, this message translates to:
+  /// **'TURN {degrees}° RIGHT'**
+  String qiblaTurnRight(String degrees);
+
+  /// No description provided for @qiblaDistanceMakkah.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} km to Makkah Al-Mukarramah'**
+  String qiblaDistanceMakkah(String distance);
+
+  /// No description provided for @qiblaLocationAccessFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Access Failed'**
+  String get qiblaLocationAccessFailed;
+
+  /// No description provided for @qiblaCurrentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Location'**
+  String get qiblaCurrentLocation;
+
+  /// No description provided for @qiblaTrueNorth.
+  ///
+  /// In en, this message translates to:
+  /// **'TRUE NORTH ({declination}°)'**
+  String qiblaTrueNorth(String declination);
+
   /// No description provided for @stepPrevious.
   ///
   /// In en, this message translates to:

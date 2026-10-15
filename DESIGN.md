@@ -397,6 +397,7 @@ Located inside the home dashboard Today's Prayers list (`lib/features/home/prese
    - **Target Recitation Count**: `33` beads (balanced devotional cycle for complete recitation).
    - **Arabic Text**: `اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ، اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ`
    - **Fully Visible Workspace Typography (Zero Sub-Scrolling)**: Long dhikrs (`arabic.length > 50`) render directly in a non-scrollable column with 100% full visibility. Arabic font size is calibrated to `15.5` (line height `1.65`, semi-bold `FontWeight.w600` for crisp Tashkeel diacritic clearance without ink smearing or density) in `AppTypography.quranicStyle`, paired with pronunciation font size `11.0` (height `1.35`) in `AppTypography.quoteTranslationStyle`. All lines of both Salawat and Barakah clauses remain completely visible simultaneously on screen with zero internal scroll fields. Viewport adaptation occurs at the page level on compact screens (`< 760px`).
+   - **Side-by-Side Target & Auto-Next Capsule Strip**: Target presets (`33`, `100`, `Custom`) and the `Auto Next` toggle chip are unified horizontally side-by-side in a responsive `FittedBox` strip. This reclaims ~40dp of vertical height inside the card, naturally shifting the upper reading content downward and giving both the Arabic calligraphy and bead counter generous breathing space.
    - **Dhikr Selector Chip Protection**: In `_DhikrSelectorCard`, Arabic text normalizes whitespace (`arabic.replaceAll('\n', ' ')`) and is locked with `maxLines: 1` and `TextOverflow.ellipsis` to preserve the 52px fixed chip height and avoid horizontal carousel distortion.
    - **Localization & Pronunciation Matrix**: Localized title (`l10n.dhikrDuroodIbrahim`) and authentic phonetic pronunciation transliteration (`l10n.dhikrDuroodIbrahimTranslation`) in native alphabets/scripts across all 19 supported locales.
 
@@ -538,6 +539,19 @@ Located inside the Qibla screen (`lib/features/qibla/presentation/screens/qibla_
 ### B. Compass Calibration Guide Button & Sheet
 - **Action Control**: `TextButton.icon` featuring `Icons.vibration_rounded` (`16dp`) and clean localized text label `"How to Calibrate Compass"`.
 - **Figure-8 Gesture Card**: Prominently displays the authentic Material vector icon `Icons.all_inclusive_rounded` (`52dp`) in `colors.primary` alongside plain-English guidance `"Wave your phone in a Figure-8 motion in the air 3 times"` without informal emojis.
+
+### C. Modular Widget Extraction & Two-Tier Sensor Accuracy Diagnosis (`CompassCalibrationSheet`)
+- **Extracted Component**: Encapsulated cleanly in `lib/features/qibla/presentation/widgets/compass_calibration_sheet.dart`.
+- **Modal Invocation**: `CompassCalibrationSheet.show(context, accuracy: _lastCompassEvent?.accuracy)` presents a styled modal bottom sheet with rounded top corners (`24dp`), persistent drag handle, and automated safe area padding.
+- **Sensor Accuracy Status Chip**: Real-time status indicator dynamically categorizing magnetometer accuracy into 3 distinct visual states:
+  - **Uncalibrated / Unknown**: `colors.missed` with red dot indicator (`qiblaAccuracyUncalibrated`).
+  - **Medium Accuracy**: Amber alert (`#F59E0B`) with guidance to sweep device (`qiblaAccuracyMedium`).
+  - **High Accuracy (Ready)**: `colors.success` with green readiness dot indicator (`qiblaAccuracyHigh`).
+- **Sequential Calibration Guidance**: 3 numbered step items with rounded primary soft pill badges (`colors.primarySoft`), bold headers, and high-legibility secondary descriptions:
+  1. *Clear Magnetic Interference*: Step away from metal desks and electronics (`qiblaCalibClearInterference`).
+  2. *Hold Device Flat Horizontal*: Keep phone parallel to the ground for peak precision (`qiblaCalibHoldFlat`).
+  3. *Perform Figure-8 Sweep*: Smooth 8-shaped loop sweep in the air (`qiblaCalibFigure8`).
+- **Full Localization Synchronization**: Complete decoupling of hardcoded strings across Qibla compass screen and calibration sheet, backed by AppLocalizations getters (`qiblaCompassTitle`, `qiblaCalibrate`, `qiblaHeadingTrue`, `qiblaBearingLabel`, `qiblaHowToCalibrate`, `qiblaAligned`, `qiblaTurnLeft`, `qiblaTurnRight`, `qiblaDistanceMakkah`, `qiblaLocationAccessFailed`, `qiblaCurrentLocation`, `qiblaTrueNorth`, `qiblaSensorUnavailable`, `qiblaAccuracyLowWarning`, and all calibration guide keys).
 
 
 
